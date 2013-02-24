@@ -4,9 +4,17 @@
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_main">Mainmenu</string>
-    <string name="button_add_repo">Create new Repository</string>
+    <string name="button_init_repo">Create new Repository</string>
     <string name="button_browser">Open browser</string>
      <string name="button_select_directory">Select current dic</string>
      <string name="button_new_directory">new dir</string>
-    
+     <string name="button_clone">Clone remote Repo</string>
+     <string name="button_genKeys">Generate some keys</string>
+     <string name="button_add_files">Add some files</string>
+     <string name="button_commit">Commit changes</string>
+     <string name="button_push">Push changes</string>
+     <string name="button_add_remote">Add remote repository</string>
+     <string name="button_list_repos">List repositories</string>
+     <string name="repository_textview">Select a repo:</string>
+     <string name="button_log">Show log</string>
 </resources>

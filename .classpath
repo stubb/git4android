@@ -9,5 +9,6 @@
 			<attribute name="javadoc_location" value="jar:file:/home/kili/org.eclipse.jgit-2.2.0.201212191850-r-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="libs/jsch-0.1.49.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

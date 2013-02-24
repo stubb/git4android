@@ -4,30 +4,19 @@
     android:layout_height="fill_parent" 
     android:layout_width="fill_parent" >
     
-   <Button
-        android:id="@+id/button_select_directory"
+    <TextView 
+        android:id="@+id/textview"
         android:layout_width="fill_parent"
         android:layout_height="60sp"
         android:layout_marginRight="4sp"
         android:layout_marginLeft="4sp"
         android:layout_marginTop="8sp"
-        android:text="@string/button_select_directory" />
-        
-  <Button
-        android:id="@+id/button_new_directory"
+        android:text="@string/repository_textview" />
+    
+    <ListView
+        android:id="@+id/repo_list_view"
         android:layout_gravity="bottom"
-        android:layout_below="@+id/button_select_directory"
-        android:layout_width="fill_parent"
-        android:layout_height="60sp"
-        android:layout_marginRight="4sp"
-        android:layout_marginLeft="4sp"
-        android:layout_marginTop="8sp"
-        android:text="@string/button_new_directory" />
-  
-   <ListView
-        android:id="@+id/file_list_view"
-        android:layout_gravity="bottom"
-        android:layout_below="@+id/button_new_directory"
+        android:layout_below="@+id/textview"
         android:layout_width="fill_parent" 
         android:layout_height="wrap_content"
         android:fillViewport="true" >
@@ -36,5 +25,7 @@
    <TextView
         android:id="@+id/simple_list_item_1"
          android:layout_height="wrap_content"
-         android:layout_width="wrap_content" />
+         android:layout_width="wrap_content" 
+ />
+   
 </RelativeLayout>

@@ -18,6 +18,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Environment;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -25,6 +26,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.example.git.GitRepository;
 
 public class BrowserActivity extends Activity {
 	
@@ -59,6 +62,11 @@ public class BrowserActivity extends Activity {
 			setContentView(R.layout.activity_browser);
 			Log.d(LOG_TAG, "Browser Activity onCreate");
 			
+			 Bundle extras = getIntent().getExtras();
+       if (extras != null) {
+     			Toaster.makeToast( extras.getString("Message"), Toast.LENGTH_LONG, BrowserActivity.this);
+       }
+       
 			String state = Environment.getExternalStorageState();
 
 			if (Environment.MEDIA_MOUNTED.equals(state)) {
@@ -73,6 +81,8 @@ public class BrowserActivity extends Activity {
 			    //  to know is we can neither read nor write
 			    mExternalStorageAvailable = mExternalStorageWriteable = false;
 			}
+			
+
 			
 			if (mExternalStorageWriteable) {
 				loadFileList(Environment.getExternalStorageDirectory());
@@ -98,7 +108,7 @@ public class BrowserActivity extends Activity {
 						builder.setTitle("New Dir");
 						builder.setMessage("Name");               
 
-						final EditText input = new EditText(BrowserActivity.this); 
+						final EditText input = new EditText(BrowserActivity.this);
 						builder.setView(input);
 
 						builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
@@ -114,6 +124,8 @@ public class BrowserActivity extends Activity {
 								}
 								else {
 									Toaster.makeToast("Directory created", Toast.LENGTH_LONG, BrowserActivity.this);
+									Intent intent = new Intent(BrowserActivity.this, BrowserActivity.class);
+									startActivity(intent);
 								}
 							}  
 						});  
@@ -133,7 +145,7 @@ public class BrowserActivity extends Activity {
 			
 			  fileListView = (ListView)findViewById(R.id.file_list_view);
 	      // By using setAdpater method in listview we an add string array in list.
-			  wurst = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1 , fileList);
+			  wurst = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, fileList);
 			  fileListView.setAdapter(wurst);
 			  fileListView.setOnItemClickListener( new OnItemClickListener() {
 						@Override
@@ -145,7 +157,7 @@ public class BrowserActivity extends Activity {
 							if (chosenFile.isDirectory()) {
 								Log.e(TAG, "is dir");
 								loadFileList(chosenFile);
-							  wurst = new ArrayAdapter<String>(BrowserActivity.this, android.R.layout.simple_list_item_1 , fileList);
+							  wurst = new ArrayAdapter<String>(BrowserActivity.this, android.R.layout.simple_list_item_1, fileList);
 							  fileListView.setAdapter(wurst);
 								wurst.notifyDataSetChanged();
 							} else fireFileSelectedEvent(chosenFile);

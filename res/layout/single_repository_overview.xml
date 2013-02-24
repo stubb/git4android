@@ -4,7 +4,7 @@
     android:layout_height="match_parent" >
     
     <Button
-        android:id="@+id/button_list_repos"
+        android:id="@+id/button_add_files"
         android:layout_width="fill_parent"
         android:layout_height="60sp"
         android:layout_alignParentRight="TRUE"
@@ -13,51 +13,50 @@
         android:layout_marginRight="4sp"
         android:layout_marginLeft="4sp"
         android:layout_marginTop="8sp"
-        android:text="@string/button_list_repos" />
-    
-       <Button
-        android:id="@+id/button_init_repo"
-        android:layout_gravity="bottom"
-        android:layout_below="@+id/button_list_repos"
-        android:layout_width="fill_parent"
-        android:layout_height="60sp"
-        android:layout_marginRight="4sp"
-        android:layout_marginLeft="4sp"
-        android:layout_marginTop="8sp"
-        android:text="@string/button_init_repo" />
-        
-    <Button
-        android:id="@+id/button_browser"
-        android:layout_gravity="bottom"
-        android:layout_below="@+id/button_init_repo"
-        android:layout_width="fill_parent"
-        android:layout_height="60sp"
-        android:layout_marginRight="4sp"
-        android:layout_marginLeft="4sp"
-        android:layout_marginTop="8sp"
-        android:text="@string/button_browser" />
+        android:text="@string/button_add_files" />
     
     <Button
-        android:id="@+id/button_clone"
+        android:id="@+id/button_commit"
         android:layout_gravity="bottom"
-        android:layout_below="@+id/button_browser"
+        android:layout_below="@+id/button_add_files"
         android:layout_width="fill_parent"
         android:layout_height="60sp"
         android:layout_marginRight="4sp"
         android:layout_marginLeft="4sp"
         android:layout_marginTop="8sp"
-        android:text="@string/button_clone" />
+        android:text="@string/button_commit" />
+    
+    <Button
+        android:id="@+id/button_push"
+        android:layout_gravity="bottom"
+        android:layout_below="@+id/button_commit"
+        android:layout_width="fill_parent"
+        android:layout_height="60sp"
+        android:layout_marginRight="4sp"
+        android:layout_marginLeft="4sp"
+        android:layout_marginTop="8sp"
+        android:text="@string/button_push" />
         
         
     <Button
-        android:id="@+id/button_genKeys"
+        android:id="@+id/button_add_remote"
         android:layout_gravity="bottom"
-        android:layout_below="@+id/button_clone"
+        android:layout_below="@+id/button_push"
         android:layout_width="fill_parent"
         android:layout_height="60sp"
         android:layout_marginRight="4sp"
         android:layout_marginLeft="4sp"
         android:layout_marginTop="8sp"
-        android:text="@string/button_genKeys" />
+        android:text="@string/button_add_remote" />
 
+    <Button
+        android:id="@+id/button_log"
+        android:layout_gravity="bottom"
+        android:layout_below="@+id/button_add_remote"
+        android:layout_width="fill_parent"
+        android:layout_height="60sp"
+        android:layout_marginRight="4sp"
+        android:layout_marginLeft="4sp"
+        android:layout_marginTop="8sp"
+        android:text="@string/button_log" />    
 </RelativeLayout>
