@@ -142,6 +142,7 @@ public class MainActivity extends Activity {
   							SqlLiteDatabaseHelper dbHelper = SqlLiteDatabaseHelper.getInstance(MainActivity.this);
   							SQLiteDatabase db = dbHelper.getWritableDatabase();
   							db.execSQL("INSERT INTO " + "woop" + " ('repoPath') VALUES ('" +  selectedPath + "');");
+  							selectedPath = "";
   						}
   					});
   						

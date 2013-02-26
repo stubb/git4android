@@ -27,11 +27,12 @@ public final class R {
         public static final int button_new_directory=0x7f070001;
         public static final int button_push=0x7f070010;
         public static final int button_select_directory=0x7f070000;
+        public static final int button_status=0x7f070013;
         public static final int edittext_password=0x7f07000b;
         public static final int edittext_url=0x7f070009;
         public static final int edittext_username=0x7f07000a;
         public static final int file_list_view=0x7f070002;
-        public static final int menu_settings=0x7f070013;
+        public static final int menu_settings=0x7f070014;
         public static final int repo_list_view=0x7f07000d;
         public static final int simple_list_item_1=0x7f070003;
         public static final int textview=0x7f07000c;
@@ -61,6 +62,7 @@ public final class R {
         public static final int button_new_directory=0x7f040007;
         public static final int button_push=0x7f04000c;
         public static final int button_select_directory=0x7f040006;
+        public static final int button_status=0x7f040011;
         public static final int hello_world=0x7f040001;
         public static final int menu_settings=0x7f040002;
         public static final int repository_textview=0x7f04000f;

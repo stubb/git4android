@@ -9,6 +9,8 @@ import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.Status;
+import org.eclipse.jgit.api.StatusCommand;
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
@@ -18,6 +20,7 @@ import org.eclipse.jgit.api.errors.NoMessageException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.api.errors.UnmergedPathsException;
 import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
+import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.errors.UnsupportedCredentialItem;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
@@ -60,6 +63,26 @@ public class GitRepository {
 	 clone(targetDirectory, uri, username, password);
  }
  
+ public String status(){
+	 String actualStatus = new String("");;
+	 StatusCommand status = git.status();
+	 try {
+	  Status statusObject = status.call();
+	  actualStatus += "Added: ";
+	  actualStatus += statusObject.getAdded();
+	  actualStatus += "Changed: ";
+	  actualStatus += statusObject.getChanged();
+  } catch (NoWorkTreeException e) {
+	  // TODO Auto-generated catch block
+	  e.printStackTrace();
+  } catch (GitAPIException e) {
+	  // TODO Auto-generated catch block
+	  e.printStackTrace();
+  }
+	 
+	 return actualStatus;
+ }
+ 
  /**
   * Inits a new GIT repo within a given folder.
   * A .git folder is created where all the stuff is inside
@@ -84,6 +107,29 @@ public class GitRepository {
      return buildRepoSuccessfully;
   }
 
+ /**
+  * Inits a new GIT repo within a given folder.
+  * A .git folder is created where all the stuff is inside
+  * @param String targetDirectory 
+  */
+ public boolean hookIn(String targetDirectory){
+   boolean buildRepoSuccessfully = false;
+     File path = new File(targetDirectory + ".git/");
+     FileRepositoryBuilder builder = new FileRepositoryBuilder();
+     try {
+         repository = builder.setGitDir(path)
+                 .readEnvironment()
+                 .findGitDir()
+                 .build();
+         git = new Git(repository);
+         buildRepoSuccessfully = true;
+     } catch (IOException e1) {
+         Log.e(TAG, "Wasn't able to init Repo : /");
+         e1.printStackTrace();
+     } 
+     return buildRepoSuccessfully;
+  }
+ 
  /**
   * 
   * @return

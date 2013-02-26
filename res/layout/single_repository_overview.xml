@@ -58,5 +58,15 @@
         android:layout_marginRight="4sp"
         android:layout_marginLeft="4sp"
         android:layout_marginTop="8sp"
-        android:text="@string/button_log" />    
+        android:text="@string/button_log" />
+    <Button
+        android:id="@+id/button_status"
+        android:layout_gravity="bottom"
+        android:layout_below="@+id/button_log"
+        android:layout_width="fill_parent"
+        android:layout_height="60sp"
+        android:layout_marginRight="4sp"
+        android:layout_marginLeft="4sp"
+        android:layout_marginTop="8sp"
+        android:text="@string/button_status" />   
 </RelativeLayout>

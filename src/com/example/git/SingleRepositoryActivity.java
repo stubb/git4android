@@ -18,7 +18,8 @@ import android.widget.Toast;
 public class SingleRepositoryActivity extends Activity{
 
 				private final String TAG = getClass().getName();
-				private String repo = "";
+				private String repoPath = "";
+				GitRepository repository;
 				
 				@Override
 				public void onCreate(Bundle savedInstanceState) {
@@ -27,18 +28,25 @@ public class SingleRepositoryActivity extends Activity{
 	        
 	        Bundle extras = getIntent().getExtras();
 	        if (extras != null) {
-	            repo = extras.getString("repo");
-	      			Log.d(TAG, repo.toString());
+	            repoPath = extras.getString("repo");
+	      			Log.d(TAG, repoPath.toString());
 	        }
+	        
+	        //init repo
+	        if (repoPath != "") {
+	        	repository = new GitRepository();
+	        	repository.hookIn(repoPath);
 	        
 	        Button buttonAddFiles = (Button) findViewById(R.id.button_add_files);
 	        Button buttonCommit = (Button) findViewById(R.id.button_commit);
 	        Button buttonPush = (Button) findViewById(R.id.button_push);
 	        Button buttonAddRemote = (Button) findViewById(R.id.button_add_remote);
 	        Button buttonLog = (Button) findViewById(R.id.button_log);
+	        Button buttonStatus = (Button) findViewById(R.id.button_status);
 					
 	        buttonAddFiles.setOnClickListener(new View.OnClickListener() {
 	      		public void onClick(View v) {
+	      		//	repository.add();
 	  				}
 	        });
 	        
@@ -61,6 +69,16 @@ public class SingleRepositoryActivity extends Activity{
 	      		public void onClick(View v) {
 	  				}
 	        });
+	        
+	        buttonStatus.setOnClickListener(new View.OnClickListener() {
+	      		public void onClick(View v) {
+	      			String status = repository.status();
+	      			Toaster.makeToast(status, Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+	  				}
+	        });
+	        } else {
+	        	Toaster.makeToast("Wasn't able to find this repo : (", Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+	        }
 				}
 					
 }

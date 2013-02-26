@@ -17,4 +17,5 @@
      <string name="button_list_repos">List repositories</string>
      <string name="repository_textview">Select a repo:</string>
      <string name="button_log">Show log</string>
+     <string name="button_status">Show status</string>
 </resources>
