@@ -40,6 +40,7 @@ public class BrowserActivity extends Activity {
 		private String fileEndsWith;    
 		private ListView fileListView;
 		private ArrayAdapter<String> wurst;
+		private String fromActivity = "";
 		
 		public interface FileSelectedListener {
 			void fileSelected(File file);
@@ -65,6 +66,7 @@ public class BrowserActivity extends Activity {
 			 Bundle extras = getIntent().getExtras();
        if (extras != null) {
      			Toaster.makeToast( extras.getString("Message"), Toast.LENGTH_LONG, BrowserActivity.this);
+     			fromActivity = extras.getString("fromActivity");
        }
        
 			String state = Environment.getExternalStorageState();
@@ -96,7 +98,16 @@ public class BrowserActivity extends Activity {
 					public void onClick(View v) {
 						Log.d(TAG, currentPath.getPath());
 						fireDirectorySelectedEvent(currentPath);
-						startMainActivity("currentPath", currentPath.getAbsolutePath());
+			/*			Intent intent = new Intent(BrowserActivity.this, (Class<>) fromActivity);
+						intent.putExtra(name, value);
+						intent.putExtra();
+						startActivity(intent);
+						startMainActivity(); */
+						
+						Intent returnIntent = new Intent();
+						returnIntent.putExtra("currentPath", currentPath.getAbsolutePath());
+						setResult(RESULT_OK, returnIntent);     
+						finish();
 					}
 				});
 		//	}

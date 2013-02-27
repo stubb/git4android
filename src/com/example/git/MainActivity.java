@@ -113,46 +113,54 @@ public class MainActivity extends Activity {
         
         button_clone.setOnClickListener(new View.OnClickListener(){
       		public void onClick(View v) {
-      			AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+      			if (selectedPath != "") {
+      				AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
       			
       			//.setContentView(R.layout.clone_alert);;    
       			
-  					alert.setTitle("Enter URL of remote");  
-  					alert.setMessage("URL");                
+      				alert.setTitle("Enter URL of remote");  
+      				alert.setMessage("URL");                
 
 
   	/*		    RelativeLayout lila1= new RelativeLayout(MainActivity.this); */
-  			    final EditText input = new EditText(MainActivity.this); 
+      				final EditText input = new EditText(MainActivity.this); 
   /*					final EditText userInput = new EditText(MainActivity.this); 
   					final EditText passwordInput = new EditText(MainActivity.this);
   			    lila1.addView(input);
   			    lila1.addView(userInput);
   			    lila1.addView(passwordInput);
   			    alert.setView(lila1); */
-  			    alert.setView(input);
+      				alert.setView(input);
   			    
   			    
   			    
-  			    alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
-  						public void onClick(DialogInterface dialog, int whichButton) {  
-  							String url = input.getText().toString();
-  				//			String user = userInput.getText().toString();
+      				alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
+      					public void onClick(DialogInterface dialog, int whichButton) {  
+      						String url = input.getText().toString();
+  				//				String user = userInput.getText().toString();
   				//			String password = passwordInput.getText().toString();
-  							git = new GitRepository(selectedPath, url, "stubb", "Astriatum4".toCharArray());
-  							SqlLiteDatabaseHelper dbHelper = SqlLiteDatabaseHelper.getInstance(MainActivity.this);
-  							SQLiteDatabase db = dbHelper.getWritableDatabase();
-  							db.execSQL("INSERT INTO " + "woop" + " ('repoPath') VALUES ('" +  selectedPath + "');");
-  							selectedPath = "";
-  						}
-  					});
+      						git = new GitRepository(selectedPath, url, "stubb", "Astriatum4".toCharArray());
+      						SqlLiteDatabaseHelper dbHelper = SqlLiteDatabaseHelper.getInstance(MainActivity.this);
+      						SQLiteDatabase db = dbHelper.getWritableDatabase();
+      						db.execSQL("INSERT INTO " + "woop" + " ('repoPath') VALUES ('" +  selectedPath + "');");
+      						selectedPath = "";
+      					}
+      				});
   						
-  					alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-  						public void onClick(DialogInterface dialog, int which) {
-  							// TODO Auto-generated method stub
-  							return;   
-  						}
-  					});
-  					alert.show();
+      				alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+      					public void onClick(DialogInterface dialog, int which) {
+      						// TODO Auto-generated method stub
+      						return;   
+      					}
+      				});
+      				alert.show();
+      			}
+    				else {
+    					Log.d(TAG, selectedPath.toString() + " else");
+      				Intent intent = new Intent(MainActivity.this, BrowserActivity.class);
+      				intent.putExtra("Message", "Select a folder for the new Repository");
+      				startActivityForResult(intent, 1);
+						}
   				}
         });
         
@@ -160,22 +168,24 @@ public class MainActivity extends Activity {
         		public void onClick(View v) {
         				if (selectedPath != "") {
         					Log.d(TAG, selectedPath.toString() +  "if");
-        					Toaster.makeToast("build repo!", Toast.LENGTH_LONG, MainActivity.this);
         						if (init(selectedPath)) {
+        							//put into db
         							Toaster.makeToast("Was able to init Repo : )", Toast.LENGTH_LONG, MainActivity.this);
         							SqlLiteDatabaseHelper dbHelper = SqlLiteDatabaseHelper.getInstance(MainActivity.this);
         							SQLiteDatabase db = dbHelper.getWritableDatabase();
         							db.execSQL("INSERT INTO " + "woop" + " ('repoPath') VALUES ('" +  selectedPath + "');");
+        							// clean path
+        							selectedPath = "";
         						} else {
         							Toaster.makeToast("Wasn't able to init Repo : /", Toast.LENGTH_LONG, MainActivity.this);
         						}
         				}
         				else {
         					Log.d(TAG, selectedPath.toString() + " else");
-        					Intent intent = new Intent(MainActivity.this, BrowserActivity.class);
-        					intent.putExtra("Message", "Select a folder for the new Repository");
-        					startActivity(intent);
-        				}
+  	      				Intent intent = new Intent(MainActivity.this, BrowserActivity.class);
+  	      				intent.putExtra("Message", "Select a folder for the new Repository");
+  	      				startActivityForResult(intent, 1);
+    						}
         			}
         });
         
@@ -185,14 +195,36 @@ public class MainActivity extends Activity {
   				}
   			});
         
-        Bundle extras = getIntent().getExtras();
+ /*       Bundle extras = getIntent().getExtras();
         if (extras != null) {
             selectedPath = extras.getString("currentPath");
       			Log.d(TAG, selectedPath.toString());
       			Toaster.makeToast("Directory " + selectedPath.toString() + " selected!", Toast.LENGTH_LONG, MainActivity.this);
-        }
+        } */
     }   
     
+		/**
+		 * 
+		 */
+		protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+			if (requestCode == 1) {
+
+			     if(resultCode == RESULT_OK){
+
+			    	 selectedPath = data.getStringExtra("currentPath");
+			    	 Toaster.makeToast("Directory " + selectedPath.toString() + " selected!", Toast.LENGTH_LONG, MainActivity.this);
+			     					      
+			     }
+
+			     if (resultCode == RESULT_CANCELED) {
+
+			     //Write your code on no result return 
+
+			     }
+			}
+		}
+		
     /**
      * 
      * @param path
@@ -245,7 +277,7 @@ public class MainActivity extends Activity {
    private boolean init(String targetDirectory){
   	 boolean buildRepoSuccessfully = false;
 	   Repository repository;
-	   File path = new File(targetDirectory + ".git/");
+	   File path = new File(targetDirectory + "/.git/");
 	   FileRepositoryBuilder builder = new FileRepositoryBuilder();
 	   try {
 		   repository = builder.setGitDir(path)
@@ -267,6 +299,7 @@ public class MainActivity extends Activity {
 		Intent intent = new Intent(this, BrowserActivity.class);
 		startActivity(intent);
 	}
+ 	
  	
  	/**
  	 * 

@@ -1,26 +1,28 @@
 package com.example.git;
 
-import java.io.File;
-
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
-import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
+/**
+ * 
+ * @author kili
+ *
+ */
 public class SingleRepositoryActivity extends Activity{
 
 				private final String TAG = getClass().getName();
 				private String repoPath = "";
+				private String filePathToAdd = "";
 				GitRepository repository;
 				
+				/**
+				 * 
+				 */
 				@Override
 				public void onCreate(Bundle savedInstanceState) {
 					super.onCreate(savedInstanceState);
@@ -46,7 +48,13 @@ public class SingleRepositoryActivity extends Activity{
 					
 	        buttonAddFiles.setOnClickListener(new View.OnClickListener() {
 	      		public void onClick(View v) {
-	      		//	repository.add();
+	      			if (filePathToAdd == "") {
+	      				Intent intent = new Intent(SingleRepositoryActivity.this, BrowserActivity.class);
+	      				startActivityForResult(intent, 1);
+	      			}
+	      			else {
+	      				repository.add(filePathToAdd);
+	      			}
 	  				}
 	        });
 	        
@@ -76,9 +84,32 @@ public class SingleRepositoryActivity extends Activity{
 	      			Toaster.makeToast(status, Toast.LENGTH_LONG, SingleRepositoryActivity.this);
 	  				}
 	        });
-	        } else {
+	        }
+	        else {
 	        	Toaster.makeToast("Wasn't able to find this repo : (", Toast.LENGTH_LONG, SingleRepositoryActivity.this);
 	        }
+				}
+			
+				/**
+				 * 
+				 */
+				protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+					if (requestCode == 1) {
+
+					     if(resultCode == RESULT_OK){
+
+					    	filePathToAdd = data.getStringExtra("currentPath");
+					      Toaster.makeToast(filePathToAdd, Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+					     					      
+					     }
+
+					     if (resultCode == RESULT_CANCELED) {
+
+					     //Write your code on no result return 
+
+					     }
+					}
 				}
 					
 }
