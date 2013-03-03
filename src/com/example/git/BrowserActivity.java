@@ -6,19 +6,15 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 
-import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import com.example.git.BrowserListenerList.FireHandler;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Environment;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -27,7 +23,6 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.example.git.GitRepository;
 
 public class BrowserActivity extends Activity {
 	
@@ -35,24 +30,12 @@ public class BrowserActivity extends Activity {
 		private static final String PARENT_DIR = "..";
 		private final String TAG = getClass().getName();
 		private List<String> fileList = new ArrayList<String>();
-		private File currentPath;
-		private boolean selectDirectoryOption = false;
-		private String fileEndsWith;    
+		private File currentPath; 
 		private ListView fileListView;
 		private ArrayAdapter<String> wurst;
-		private String fromActivity = "";
+		private String startPath = "";
+		List<File> selectedFiles = new ArrayList<File>();
 		
-		public interface FileSelectedListener {
-			void fileSelected(File file);
-		}
-		
-		public interface DirectorySelectedListener {
-			void directorySelected(File directory);
-		}
-		
-		private BrowserListenerList<FileSelectedListener> fileListenerList = new BrowserListenerList<BrowserActivity.FileSelectedListener>();
-		private BrowserListenerList<DirectorySelectedListener> dirListenerList = new BrowserListenerList<BrowserActivity.DirectorySelectedListener>();
-
 		boolean mExternalStorageAvailable = false;
 		boolean mExternalStorageWriteable = false;
 
@@ -65,8 +48,10 @@ public class BrowserActivity extends Activity {
 			
 			 Bundle extras = getIntent().getExtras();
        if (extras != null) {
-     			Toaster.makeToast( extras.getString("Message"), Toast.LENGTH_LONG, BrowserActivity.this);
-     			fromActivity = extras.getString("fromActivity");
+      	 String tempExtras = extras.getString("startPath");
+      	 if (tempExtras != null) {
+     			startPath = tempExtras;
+      	 }
        }
        
 			String state = Environment.getExternalStorageState();
@@ -84,26 +69,25 @@ public class BrowserActivity extends Activity {
 			    mExternalStorageAvailable = mExternalStorageWriteable = false;
 			}
 			
-
-			
-			if (mExternalStorageWriteable) {
-				loadFileList(Environment.getExternalStorageDirectory());
-			} else {
-				loadFileList(Environment.getRootDirectory());
+			// select startPath
+			Log.e(TAG, startPath);
+			if (startPath != "") {
+				//TODO test if exists already or not
+				loadFileList(new File(startPath));
+			}
+			else {		
+				if (mExternalStorageWriteable) {
+					loadFileList(Environment.getExternalStorageDirectory());
+				} else {
+					loadFileList(Environment.getRootDirectory());
+				}
 			}
 			
 		//	if (selectDirectoryOption) {
 				Button button_select_directory = (Button) findViewById(R.id.button_select_directory);
 				button_select_directory.setOnClickListener(new View.OnClickListener() {
 					public void onClick(View v) {
-						Log.d(TAG, currentPath.getPath());
-						fireDirectorySelectedEvent(currentPath);
-			/*			Intent intent = new Intent(BrowserActivity.this, (Class<>) fromActivity);
-						intent.putExtra(name, value);
-						intent.putExtra();
-						startActivity(intent);
-						startMainActivity(); */
-						
+						Log.d(TAG, currentPath.getPath());			
 						Intent returnIntent = new Intent();
 						returnIntent.putExtra("currentPath", currentPath.getAbsolutePath());
 						setResult(RESULT_OK, returnIntent);     
@@ -135,8 +119,8 @@ public class BrowserActivity extends Activity {
 								}
 								else {
 									Toaster.makeToast("Directory created", Toast.LENGTH_LONG, BrowserActivity.this);
-									Intent intent = new Intent(BrowserActivity.this, BrowserActivity.class);
-									startActivity(intent);
+									// TODO reload
+									wurst.notifyDataSetChanged();
 								}
 							}  
 						});  
@@ -165,75 +149,35 @@ public class BrowserActivity extends Activity {
 							Log.e(TAG, Integer.toString(arg2));
 							String fileChosen = fileList.get(arg2);
 							File chosenFile = getChosenFile(fileChosen);
+							// if file is dir
 							if (chosenFile.isDirectory()) {
 								Log.e(TAG, "is dir");
 								loadFileList(chosenFile);
 							  wurst = new ArrayAdapter<String>(BrowserActivity.this, android.R.layout.simple_list_item_1, fileList);
 							  fileListView.setAdapter(wurst);
 								wurst.notifyDataSetChanged();
-							} else fireFileSelectedEvent(chosenFile);
-		          
-	          }
+								// else file is a file
+							} else {
+							//	fireFileSelectedEvent(chosenFile);
+								//TODO handle multiple files
+								selectedFiles.add(chosenFile);
+  							Toaster.makeToast("Selected File", Toast.LENGTH_LONG, BrowserActivity.this);
+  							Intent returnIntent = new Intent();
+  							returnIntent.putExtra("currentPath", chosenFile.getAbsolutePath());
+  							setResult(RESULT_OK, returnIntent);     
+  							finish();
+							}
+		        }
 				});
 			   
 		}
 		
-		public void addFileListener(FileSelectedListener listener) {
-			fileListenerList.add(listener);
-		}
-
-		public void removeFileListener(FileSelectedListener listener) {
-			fileListenerList.remove(listener);
-		}
-
-		public void setSelectDirectoryOption(boolean selectDirectoryOption) {
-			this.selectDirectoryOption = selectDirectoryOption;
-		}
-
-		public void addDirectoryListener(DirectorySelectedListener listener) {
-			dirListenerList.add(listener);
-		}
-
-		public void removeDirectoryListener(DirectorySelectedListener listener) {
-			dirListenerList.remove(listener);
-		}
-
-		/**
-		 * Show file dialog
-		 */
-		private void fireFileSelectedEvent(final File file) {
-			fileListenerList.fireEvent(new FireHandler<BrowserActivity.FileSelectedListener>() {
-				public void fireEvent(FileSelectedListener listener) {
-					listener.fileSelected(file);
-				}
-			});
-		}
-
-		private void fireDirectorySelectedEvent(final File directory) {
-			dirListenerList.fireEvent(new FireHandler<BrowserActivity.DirectorySelectedListener>() {
-				public void fireEvent(DirectorySelectedListener listener) {
-					listener.directorySelected(directory);
-				}
-			});
-		}
-
-		private void loadFileList(File path) {
+	private void loadFileList(File path) {
 			this.currentPath = path;
 			List<String> r = new ArrayList<String>();
 			if (path.exists()) {
 				Log.e(TAG, "Here be dragons");
 				if (path.getParentFile() != null) r.add(PARENT_DIR);
-				FilenameFilter filter = new FilenameFilter() {
-					public boolean accept(File dir, String filename) {
-						File sel = new File(dir, filename);
-						if (!sel.canRead()) return false;
-						if (selectDirectoryOption) return sel.isDirectory();
-						else {
-							boolean endsWith = fileEndsWith != null ? filename.toLowerCase().endsWith(fileEndsWith) : true;
-							return endsWith || sel.isDirectory();
-						}
-					}
-				};
 				//TODO check if folder is empty and avoid Nullpointeexception
 				String[] fileList1 = path.list(null);
 				//   Log.v(TAG, Integer.toString(fileList1.length));
@@ -254,45 +198,8 @@ public class BrowserActivity extends Activity {
 
 		}
 
-	 	private void startMainActivity(String name, String value) {
-			Intent intent = new Intent(this, MainActivity.class);
-			intent.putExtra(name, value);
-			startActivity(intent);
-		}
-		
 		public File getChosenFile(String fileChosen) {
 			if (fileChosen.equals(PARENT_DIR)) return currentPath.getParentFile();
 			else return new File(currentPath, fileChosen);
 		}
-
-		public void setFileEndsWith(String fileEndsWith) {
-			this.fileEndsWith = fileEndsWith != null ? fileEndsWith.toLowerCase() : fileEndsWith;
-		}
-}
-
-class BrowserListenerList<L> {
-	private List<L> listenerList = new ArrayList<L>();
-
-	public interface FireHandler<L> {
-		void fireEvent(L listener);
-	}
-
-	public void add(L listener) {
-		listenerList.add(listener);
-	}
-
-	public void fireEvent(FireHandler<L> fireHandler) {
-		List<L> copy = new ArrayList<L>(listenerList);
-		for (L l : copy) {
-			fireHandler.fireEvent(l);
-		}
-	}
-
-	public void remove(L listener) {
-		listenerList.remove(listener);
-	}
-
-	public List<L> getListenerList() {
-		return listenerList;
-	}
 }

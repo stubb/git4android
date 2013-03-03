@@ -1,9 +1,8 @@
 <resources>
 
-    <string name="app_name">GIT</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="app_name">Git4Android</string>
     <string name="menu_settings">Settings</string>
-    <string name="title_activity_main">Mainmenu</string>
+    <string name="title_activity_main">Git4Android</string>
     <string name="button_init_repo">Create new Repository</string>
     <string name="button_browser">Open browser</string>
      <string name="button_select_directory">Select current dic</string>

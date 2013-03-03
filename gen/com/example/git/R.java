@@ -49,7 +49,7 @@ public final class R {
         public static final int activity_main=0x7f060000;
     }
     public static final class string {
-        public static final int app_name=0x7f040000;
+        public static final int app_name=0x7f040001;
         public static final int button_add_files=0x7f04000a;
         public static final int button_add_remote=0x7f04000d;
         public static final int button_browser=0x7f040005;
@@ -63,9 +63,9 @@ public final class R {
         public static final int button_push=0x7f04000c;
         public static final int button_select_directory=0x7f040006;
         public static final int button_status=0x7f040011;
-        public static final int hello_world=0x7f040001;
         public static final int menu_settings=0x7f040002;
         public static final int repository_textview=0x7f04000f;
+        public static final int sshkey_dir=0x7f040000;
         public static final int title_activity_main=0x7f040003;
     }
     public static final class style {

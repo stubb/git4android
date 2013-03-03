@@ -3,6 +3,7 @@ package com.example.git;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.security.Security;
 
 import android.os.Bundle;
 import android.os.Environment;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.spongycastle.jce.provider.BouncyCastleProvider;
 
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
@@ -30,7 +32,12 @@ import com.jcraft.jsch.KeyPair;
 import com.example.git.SqlLiteDatabaseHelper;
 
 public class MainActivity extends Activity {
-
+  
+  static {
+  	Security.insertProviderAt(new BouncyCastleProvider(), 1);
+    //Security.addProvider(new BouncyCastleProvider());
+  }
+  
 	String selectedPath = "";
 	String TAG = getClass().getName();
 	/** TODO sinnvoll initalisieren */
@@ -38,7 +45,7 @@ public class MainActivity extends Activity {
 	GitRepository git = null;
 	SqlLiteDatabaseHelper dbHelper = null;
 	
-	
+	//TODO select via intent if only files, dirs or both are allowed to select
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -137,9 +144,11 @@ public class MainActivity extends Activity {
       				alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
       					public void onClick(DialogInterface dialog, int whichButton) {  
       						String url = input.getText().toString();
-  				//				String user = userInput.getText().toString();
-  				//			String password = passwordInput.getText().toString();
-      						git = new GitRepository(selectedPath, url, "stubb", "Astriatum4".toCharArray());
+      						//String password, final String privateKeyPath, final String publicKeyPath
+      						git = new GitRepository(selectedPath, url, "git", "BKJubiP!", Environment.getExternalStorageDirectory().getAbsolutePath() + "/.ssh/id_rsa",
+      								Environment.getExternalStorageDirectory().getAbsolutePath() + "/.ssh/id_rsa.pub");
+      						Toaster.makeToast(Environment.getExternalStorageDirectory().getAbsolutePath() + "/.ssh/id_rsa.pub", Toast.LENGTH_LONG, MainActivity.this);
+      						//TODO only if the above doesnt fail
       						SqlLiteDatabaseHelper dbHelper = SqlLiteDatabaseHelper.getInstance(MainActivity.this);
       						SQLiteDatabase db = dbHelper.getWritableDatabase();
       						db.execSQL("INSERT INTO " + "woop" + " ('repoPath') VALUES ('" +  selectedPath + "');");
@@ -320,9 +329,12 @@ public class MainActivity extends Activity {
  		}
  	  JSch jsch = new JSch();
  		KeyPair kpair;
+ 		
+ 		
+ 		
  		try {
  			kpair = KeyPair.genKeyPair(jsch, type);
- 			kpair.setPassphrase(password);
+ 	//		kpair.setPassphrase(password);
 	    kpair.writePrivateKey(absolutePath + filename);
 	    kpair.writePublicKey(absolutePath + filename + ".pub", comment);
 	 		Log.d(TAG,"Finger print: " + kpair.getFingerPrint());

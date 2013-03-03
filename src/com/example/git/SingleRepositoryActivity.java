@@ -1,5 +1,7 @@
 package com.example.git;
 
+import java.io.File;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -37,7 +39,7 @@ public class SingleRepositoryActivity extends Activity{
 	        //init repo
 	        if (repoPath != "") {
 	        	repository = new GitRepository();
-	        	repository.hookIn(repoPath);
+	        	repository.open(repoPath);
 	        
 	        Button buttonAddFiles = (Button) findViewById(R.id.button_add_files);
 	        Button buttonCommit = (Button) findViewById(R.id.button_commit);
@@ -50,16 +52,20 @@ public class SingleRepositoryActivity extends Activity{
 	      		public void onClick(View v) {
 	      			if (filePathToAdd == "") {
 	      				Intent intent = new Intent(SingleRepositoryActivity.this, BrowserActivity.class);
+	      				intent.putExtra("startPath", repoPath);
 	      				startActivityForResult(intent, 1);
 	      			}
 	      			else {
-	      				repository.add(filePathToAdd);
+	      				Log.d(TAG, filePathToAdd);
+	      				String filename = new File(filePathToAdd).getName();
+	      				repository.add(filename);
 	      			}
 	  				}
 	        });
 	        
 	        buttonCommit.setOnClickListener(new View.OnClickListener() {
 	      		public void onClick(View v) {
+	      			repository.commit("ABC");
 	  				}
 	        });
 	        
@@ -70,11 +76,17 @@ public class SingleRepositoryActivity extends Activity{
 	        
 	        buttonAddRemote.setOnClickListener(new View.OnClickListener() {
 	      		public void onClick(View v) {
+	      			Toaster.makeToast(repository.getRemote(), Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+	      			repository.setRemote("");
+	      			Toaster.makeToast(repository.getRemote(), Toast.LENGTH_LONG, SingleRepositoryActivity.this);
 	  				}
 	        });
 	        
 	        buttonLog.setOnClickListener(new View.OnClickListener() {
 	      		public void onClick(View v) {
+	      			String log = repository.log();
+	      			Toaster.makeToast(log, Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+	      			
 	  				}
 	        });
 	        
