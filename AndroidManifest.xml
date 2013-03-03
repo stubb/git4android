@@ -29,6 +29,8 @@
         </activity>
           <activity android:name=".SingleRepositoryActivity">
         </activity>
+        <activity android:name=".CloneRepositoryActivity">
+        </activity>
                
 
     </application>

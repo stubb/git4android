@@ -34,7 +34,9 @@ import com.example.git.SqlLiteDatabaseHelper;
 public class MainActivity extends Activity {
   
   static {
-  	Security.insertProviderAt(new BouncyCastleProvider(), 1);
+  	//
+  	BouncyCastleProvider provider = new BouncyCastleProvider();
+  	Security.insertProviderAt(provider, 1);
     //Security.addProvider(new BouncyCastleProvider());
   }
   
@@ -43,7 +45,6 @@ public class MainActivity extends Activity {
 	/** TODO sinnvoll initalisieren */
 	Git currentRepo;
 	GitRepository git = null;
-	SqlLiteDatabaseHelper dbHelper = null;
 	
 	//TODO select via intent if only files, dirs or both are allowed to select
     @Override
@@ -52,7 +53,6 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         
         //context of App is set within onCreate()
-        dbHelper = SqlLiteDatabaseHelper.getInstance(MainActivity.this);
         
         Button button_list_repos = (Button) findViewById(R.id.button_list_repos);
         Button button_init_repo = (Button) findViewById(R.id.button_init_repo);
@@ -120,56 +120,8 @@ public class MainActivity extends Activity {
         
         button_clone.setOnClickListener(new View.OnClickListener(){
       		public void onClick(View v) {
-      			if (selectedPath != "") {
-      				AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
-      			
-      			//.setContentView(R.layout.clone_alert);;    
-      			
-      				alert.setTitle("Enter URL of remote");  
-      				alert.setMessage("URL");                
-
-
-  	/*		    RelativeLayout lila1= new RelativeLayout(MainActivity.this); */
-      				final EditText input = new EditText(MainActivity.this); 
-  /*					final EditText userInput = new EditText(MainActivity.this); 
-  					final EditText passwordInput = new EditText(MainActivity.this);
-  			    lila1.addView(input);
-  			    lila1.addView(userInput);
-  			    lila1.addView(passwordInput);
-  			    alert.setView(lila1); */
-      				alert.setView(input);
-  			    
-  			    
-  			    
-      				alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
-      					public void onClick(DialogInterface dialog, int whichButton) {  
-      						String url = input.getText().toString();
-      						//String password, final String privateKeyPath, final String publicKeyPath
-      						git = new GitRepository(selectedPath, url, "git", "BKJubiP!", Environment.getExternalStorageDirectory().getAbsolutePath() + "/.ssh/id_rsa",
-      								Environment.getExternalStorageDirectory().getAbsolutePath() + "/.ssh/id_rsa.pub");
-      						Toaster.makeToast(Environment.getExternalStorageDirectory().getAbsolutePath() + "/.ssh/id_rsa.pub", Toast.LENGTH_LONG, MainActivity.this);
-      						//TODO only if the above doesnt fail
-      						SqlLiteDatabaseHelper dbHelper = SqlLiteDatabaseHelper.getInstance(MainActivity.this);
-      						SQLiteDatabase db = dbHelper.getWritableDatabase();
-      						db.execSQL("INSERT INTO " + "woop" + " ('repoPath') VALUES ('" +  selectedPath + "');");
-      						selectedPath = "";
-      					}
-      				});
-  						
-      				alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-      					public void onClick(DialogInterface dialog, int which) {
-      						// TODO Auto-generated method stub
-      						return;   
-      					}
-      				});
-      				alert.show();
-      			}
-    				else {
-    					Log.d(TAG, selectedPath.toString() + " else");
-      				Intent intent = new Intent(MainActivity.this, BrowserActivity.class);
-      				intent.putExtra("Message", "Select a folder for the new Repository");
-      				startActivityForResult(intent, 1);
-						}
+      			Intent intent = new Intent(MainActivity.this, CloneRepositoryActivity.class);
+    				startActivity(intent);
   				}
         });
         
@@ -203,13 +155,6 @@ public class MainActivity extends Activity {
   					startBrowserActivity();
   				}
   			});
-        
- /*       Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            selectedPath = extras.getString("currentPath");
-      			Log.d(TAG, selectedPath.toString());
-      			Toaster.makeToast("Directory " + selectedPath.toString() + " selected!", Toast.LENGTH_LONG, MainActivity.this);
-        } */
     }   
     
 		/**
@@ -334,7 +279,7 @@ public class MainActivity extends Activity {
  		
  		try {
  			kpair = KeyPair.genKeyPair(jsch, type);
- 	//		kpair.setPassphrase(password);
+ 			kpair.setPassphrase(password);
 	    kpair.writePrivateKey(absolutePath + filename);
 	    kpair.writePublicKey(absolutePath + filename + ".pub", comment);
 	 		Log.d(TAG,"Finger print: " + kpair.getFingerPrint());
