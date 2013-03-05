@@ -1,13 +1,19 @@
 package com.example.git;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 /**
@@ -40,7 +46,7 @@ public class SingleRepositoryActivity extends Activity{
 	        if (repoPath != "") {
 	        	repository = new GitRepository();
 	        	repository.open(repoPath);
-	        
+	        Button buttonPull = (Button) findViewById(R.id.button_pull);
 	        Button buttonAddFiles = (Button) findViewById(R.id.button_add_files);
 	        Button buttonCommit = (Button) findViewById(R.id.button_commit);
 	        Button buttonPush = (Button) findViewById(R.id.button_push);
@@ -48,6 +54,39 @@ public class SingleRepositoryActivity extends Activity{
 	        Button buttonLog = (Button) findViewById(R.id.button_log);
 	        Button buttonStatus = (Button) findViewById(R.id.button_status);
 					
+	        buttonPull.setOnClickListener(new View.OnClickListener() {
+	      		public void onClick(View v) {
+	      			AlertDialog.Builder alert = new AlertDialog.Builder(SingleRepositoryActivity.this);                 
+							alert.setTitle("Enter pw");  
+							alert.setMessage("pw");                
+
+							final EditText input = new EditText(SingleRepositoryActivity.this); 
+							input.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+							alert.setView(input);
+
+							alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
+								public void onClick(DialogInterface dialog, int whichButton) {
+			      			try {
+	                  repository.pull(input.getText().toString().getBytes("UTF-8"), Environment.getExternalStorageDirectory().getAbsolutePath() + "/.ssh/id_rsa",
+	                  		Environment.getExternalStorageDirectory().getAbsolutePath() + "/.ssh/id_rsa.pub");
+                  } catch (UnsupportedEncodingException e) {
+	                  Log.e(TAG, "Encoding UTF-8 not supported");
+	                  e.printStackTrace();
+                  }
+								}
+							});
+      			
+							alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int which) {
+									// TODO Auto-generated method stub
+									return;   
+								}
+							});
+							alert.show();
+
+	      		}
+	      	});
+	        
 	        buttonAddFiles.setOnClickListener(new View.OnClickListener() {
 	      		public void onClick(View v) {
 	      			if (filePathToAdd == "") {
@@ -71,6 +110,7 @@ public class SingleRepositoryActivity extends Activity{
 	        
 	        buttonPush.setOnClickListener(new View.OnClickListener() {
 	      		public void onClick(View v) {
+	      			repository.push();
 	  				}
 	        });
 	        

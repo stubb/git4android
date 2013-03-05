@@ -5,14 +5,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class SqlLiteDatabaseHelper  extends SQLiteOpenHelper {
+public class SqlLiteDatabaseHelper extends SQLiteOpenHelper {
 	
 		private static SqlLiteDatabaseHelper mInstance;
 		private final Context myContext;
 		private static final String DATABASE_NAME = "woopwoop";
 		private static final int DATABASE_VERSION = 2;
 		private static final String TABLE_NAME = "woop";
-		private static final String TABLE_CREATE = "CREATE TABLE " + TABLE_NAME + " (repoPath VARCHAR PRIMARY KEY, name TEXT);";
+		private static final String TABLE_CREATE = "CREATE TABLE " + TABLE_NAME + " (repoPath VARCHAR UNIQUE NOT NULL);";
 		
 		private SqlLiteDatabaseHelper(Context context) {
 			 super(context, DATABASE_NAME, null, DATABASE_VERSION);

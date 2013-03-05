@@ -1,6 +1,5 @@
 package com.example.git;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,61 +10,97 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class RepositoryListActivity extends Activity{
+/**
+ * 
+ * @author kili
+ *
+ */
+public class RepositoryListActivity extends Activity {
 
 			private final String TAG = getClass().getName();
-			private ListView fileListView;
-			private ArrayAdapter<String> wurst;
-			
-			private List<String> repoList = new ArrayList<String>();
-			
-			SqlLiteDatabaseHelper dbHelper = SqlLiteDatabaseHelper.getInstance(this);
-			SQLiteDatabase db = dbHelper.getWritableDatabase();
-			
-			public void insertNewRepo(String path) {
-				db.execSQL("INSERT INTO " + "woop" + " (repoPath) VALUES (" +  path + ");");
-			}
-			
-			public void removeRepo(String path) {
-				db.execSQL("DELETE FROM " + "woop" + " WHERE repoPath=" + path + ";");
-			}
-			
+			private ListView repositoryPathsListView;
+			private ArrayAdapter<String> tableRowAdapter;			
+			private List<String> repositoryPathList = new ArrayList<String>();
+		
 			@Override
 			public void onCreate(Bundle savedInstanceState) {
 				super.onCreate(savedInstanceState);
 				setContentView(R.layout.repository_list);
-
-			  fileListView = (ListView)findViewById(R.id.repo_list_view);
+				
+				SqlLiteDatabaseHelper dbHelper = SqlLiteDatabaseHelper.getInstance(RepositoryListActivity.this);
+				final SQLiteDatabase db = dbHelper.getWritableDatabase();
+				
+				repositoryPathsListView = (ListView)findViewById(R.id.repo_list_view);
 	      // By using setAdpater method in listview we an add string array in list.
-			  String[] columns = new String[]{"repoPath"};
-			  Cursor c = db.query("woop", columns, null, null, null, null, null);
-			  if (c != null) {
-			      while(c.moveToNext()) {
-			      	repoList.add(new String(c.getString(0)));
-			      }
-			      c.close();
-			  }
+			  
+			  final String[] columns = new String[]{"repoPath"};
+			  loadStringsFromDataBaseTable(db, "woop", repositoryPathList, columns, " ");
 				  
-			  wurst = new ArrayAdapter<String>(RepositoryListActivity.this, android.R.layout.simple_list_item_1 , repoList);
-			  fileListView.setAdapter(wurst);
-			  fileListView.setOnItemClickListener( new OnItemClickListener() {
+			  tableRowAdapter = new ArrayAdapter<String>(RepositoryListActivity.this, android.R.layout.simple_list_item_1 , repositoryPathList);
+			  repositoryPathsListView.setAdapter(tableRowAdapter);
+			  repositoryPathsListView.setOnItemClickListener( new OnItemClickListener() {
 						@Override
-	          public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-    					Intent intent = new Intent(RepositoryListActivity.this, SingleRepositoryActivity.class);
-    					intent.putExtra("repo", repoList.get(arg2));
-    					startActivity(intent);
+	          public void onItemClick(AdapterView<?> arg0, View arg1, final int arg2, long arg3) {
+							
+							AlertDialog.Builder builder = new AlertDialog.Builder(RepositoryListActivity.this);                 
+							builder.setTitle("Repository");
+							builder.setMessage(repositoryPathList.get(arg2));               
+
+							builder.setPositiveButton("OPEN", new DialogInterface.OnClickListener() {  
+								public void onClick(DialogInterface dialog, int whichButton) {  
+		    					Intent intent = new Intent(RepositoryListActivity.this, SingleRepositoryActivity.class);
+		    					intent.putExtra("repo", repositoryPathList.get(arg2));
+		    					startActivity(intent);									
+									}
+							});  
+
+							builder.setNegativeButton("DELETE", new DialogInterface.OnClickListener() {
+
+								public void onClick(DialogInterface dialog, int which) {
+									Log.d(TAG, repositoryPathList.get(arg2));
+									db.execSQL("DELETE FROM " + "woop" + " WHERE repoPath = '" + repositoryPathList.get(arg2) + "';");
+									repositoryPathList = new ArrayList<String>();
+							  	loadStringsFromDataBaseTable(db, "woop", repositoryPathList, columns, " ");
+							  	tableRowAdapter = new ArrayAdapter<String>(RepositoryListActivity.this, android.R.layout.simple_list_item_1 , repositoryPathList);
+							  	repositoryPathsListView.setAdapter(tableRowAdapter);
+							  	tableRowAdapter.notifyDataSetChanged();
+								}
+							});
+							AlertDialog dialog = builder.create();
+							dialog.show(); 			
 	          }
-				});	   
+				});
+		}
+		
+			/**
+			 * Queries the data from specific columns of an sqlite database table and
+			 * writes them as string in the resultList.
+			 * @param database The database where the data be queried
+			 * @param table The table where the data will be queried
+			 * @param resultList The List where the queried data will be applied
+			 * @param columns The columns of the table where the data will be queried
+			 */
+		private void loadStringsFromDataBaseTable(SQLiteDatabase database, String table, List<String> resultList, String[] columns, String spacer) {
+		  Cursor cursor = database.query(table, columns, null, null, null, null, null);
+		  if (cursor != null) {
+		      while(cursor.moveToNext()) {
+		      	String rowResult = "";
+		      	for (int i = 0; i < columns.length; i++) {
+		      		rowResult += new String(cursor.getString(0));
+		      		if(i != (columns.length - 1)) {
+		      			rowResult += spacer;
+		      		}
+		      	}
+		      	resultList.add(rowResult);
+		      }
+		      cursor.close();
+		  }
 		}
 }

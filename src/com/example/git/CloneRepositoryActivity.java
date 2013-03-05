@@ -75,17 +75,14 @@ public class CloneRepositoryActivity extends Activity {
 			 			 button_submit_clone_repository.setOnClickListener(new View.OnClickListener(){
 			      		public void onClick(View v) {     			
 			      				if (repositoryUrl != "" && selectedPath != "") {	//password can be empty
-			      					try {
-			      						git = new GitRepository(selectedPath, repositoryUrl, "git", password.getBytes("UTF-8"), Environment.getExternalStorageDirectory().getAbsolutePath() + "/.ssh/id_rsa",
-	                  			Environment.getExternalStorageDirectory().getAbsolutePath() + "/.ssh/id_rsa.pub");
-			      					} catch (UnsupportedEncodingException e) {
-			      						// TODO Auto-generated catch block
-			      						e.printStackTrace();
-			      					}
+			      					git = new GitRepository(selectedPath, repositoryUrl, password.getBytes(), Environment.getExternalStorageDirectory().getAbsolutePath() + "/.ssh/id_rsa",
+												Environment.getExternalStorageDirectory().getAbsolutePath() + "/.ssh/id_rsa.pub");
 			      					SqlLiteDatabaseHelper dbHelper = SqlLiteDatabaseHelper.getInstance(CloneRepositoryActivity.this);
 			      					SQLiteDatabase db = dbHelper.getWritableDatabase();
 			      					db.execSQL("INSERT INTO " + "woop" + " ('repoPath') VALUES ('" +  selectedPath + "');");
 			      					selectedPath = "";
+			      					Toaster.makeToast("Repo cloned!", Toast.LENGTH_LONG, CloneRepositoryActivity.this);
+			    						finish();
 			      			} else {
 										Toaster.makeToast("Cant clone", Toast.LENGTH_LONG, CloneRepositoryActivity.this);
 			      			}

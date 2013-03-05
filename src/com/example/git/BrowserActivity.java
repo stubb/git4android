@@ -24,17 +24,20 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 
+/**
+ * 
+ * @author kili
+ *
+ */
 public class BrowserActivity extends Activity {
 	
-		private static final String LOG_TAG = "Browser";
 		private static final String PARENT_DIR = "..";
 		private final String TAG = getClass().getName();
 		private List<String> fileList = new ArrayList<String>();
 		private File currentPath; 
-		private ListView fileListView;
+ 
 		private ArrayAdapter<String> wurst;
 		private String startPath = "";
-		List<File> selectedFiles = new ArrayList<File>();
 		
 		boolean mExternalStorageAvailable = false;
 		boolean mExternalStorageWriteable = false;
@@ -44,10 +47,12 @@ public class BrowserActivity extends Activity {
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 			setContentView(R.layout.activity_browser);
-			Log.d(LOG_TAG, "Browser Activity onCreate");
+			final ListView fileListView = (ListView)findViewById(R.id.file_list_view);
+			Log.d(TAG, "Browser Activity onCreate");
 			
 			 Bundle extras = getIntent().getExtras();
        if (extras != null) {
+      	 //TODO intentnamen global
       	 String tempExtras = extras.getString("startPath");
       	 if (tempExtras != null) {
      			startPath = tempExtras;
@@ -119,8 +124,12 @@ public class BrowserActivity extends Activity {
 								}
 								else {
 									Toaster.makeToast("Directory created", Toast.LENGTH_LONG, BrowserActivity.this);
-									// TODO reload
+									// update fileListView
+									loadFileList(currentPath);
+									wurst = new ArrayAdapter<String>(BrowserActivity.this, android.R.layout.simple_list_item_1, fileList);
+									fileListView.setAdapter(wurst);
 									wurst.notifyDataSetChanged();
+													
 								}
 							}  
 						});  
@@ -138,7 +147,7 @@ public class BrowserActivity extends Activity {
 					}
 				});
 			
-			  fileListView = (ListView)findViewById(R.id.file_list_view);
+				
 	      // By using setAdpater method in listview we an add string array in list.
 			  wurst = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, fileList);
 			  fileListView.setAdapter(wurst);
@@ -158,9 +167,6 @@ public class BrowserActivity extends Activity {
 								wurst.notifyDataSetChanged();
 								// else file is a file
 							} else {
-							//	fireFileSelectedEvent(chosenFile);
-								//TODO handle multiple files
-								selectedFiles.add(chosenFile);
   							Toaster.makeToast("Selected File", Toast.LENGTH_LONG, BrowserActivity.this);
   							Intent returnIntent = new Intent();
   							returnIntent.putExtra("currentPath", chosenFile.getAbsolutePath());

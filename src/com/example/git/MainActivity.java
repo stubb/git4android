@@ -51,12 +51,9 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
-        //context of App is set within onCreate()
-        
+              
         Button button_list_repos = (Button) findViewById(R.id.button_list_repos);
         Button button_init_repo = (Button) findViewById(R.id.button_init_repo);
-        Button button_browser = (Button) findViewById(R.id.button_browser);
         Button button_clone = (Button) findViewById(R.id.button_clone);
         Button button_genKeys = (Button) findViewById(R.id.button_genKeys);
         
@@ -106,17 +103,6 @@ public class MainActivity extends Activity {
       		}
       	});
         
-  /*      button_add_repo.setOnClickListener(new View.OnClickListener() {
-        		public void onClick(View v) {
-        			showDirectoryBrowser(Environment.getRootDirectory().getPath());
-        			Log.d(TAG, "selectedPath++ " + selectedPath);
-        			if (selectedPath != "") {
-        				Log.d(TAG, "selectedPath " + selectedPath);
-        				buildRepo(new File(selectedPath));
-					
-        			}
-        		}
-        }); */
         
         button_clone.setOnClickListener(new View.OnClickListener(){
       		public void onClick(View v) {
@@ -127,34 +113,10 @@ public class MainActivity extends Activity {
         
         button_init_repo.setOnClickListener(new View.OnClickListener(){
         		public void onClick(View v) {
-        				if (selectedPath != "") {
-        					Log.d(TAG, selectedPath.toString() +  "if");
-        						if (init(selectedPath)) {
-        							//put into db
-        							Toaster.makeToast("Was able to init Repo : )", Toast.LENGTH_LONG, MainActivity.this);
-        							SqlLiteDatabaseHelper dbHelper = SqlLiteDatabaseHelper.getInstance(MainActivity.this);
-        							SQLiteDatabase db = dbHelper.getWritableDatabase();
-        							db.execSQL("INSERT INTO " + "woop" + " ('repoPath') VALUES ('" +  selectedPath + "');");
-        							// clean path
-        							selectedPath = "";
-        						} else {
-        							Toaster.makeToast("Wasn't able to init Repo : /", Toast.LENGTH_LONG, MainActivity.this);
-        						}
-        				}
-        				else {
-        					Log.d(TAG, selectedPath.toString() + " else");
-  	      				Intent intent = new Intent(MainActivity.this, BrowserActivity.class);
-  	      				intent.putExtra("Message", "Select a folder for the new Repository");
-  	      				startActivityForResult(intent, 1);
-    						}
+        			Intent intent = new Intent(MainActivity.this, InitRepositoryActivity.class);
+      				startActivity(intent);
         			}
         });
-        
-        button_browser.setOnClickListener(new View.OnClickListener() {
-  				public void onClick(View v) {
-  					startBrowserActivity();
-  				}
-  			});
     }   
     
 		/**
@@ -163,55 +125,17 @@ public class MainActivity extends Activity {
 		protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
 			if (requestCode == 1) {
-
-			     if(resultCode == RESULT_OK){
-
+			     if(resultCode == RESULT_OK) {
 			    	 selectedPath = data.getStringExtra("currentPath");
-			    	 Toaster.makeToast("Directory " + selectedPath.toString() + " selected!", Toast.LENGTH_LONG, MainActivity.this);
-			     					      
+			    	 Toaster.makeToast("Directory " + selectedPath.toString() + " selected!", Toast.LENGTH_LONG, MainActivity.this);	     					      
 			     }
 
 			     if (resultCode == RESULT_CANCELED) {
-
-			     //Write your code on no result return 
-
+			    	 //Write your code on no result return 
 			     }
 			}
 		}
-		
-    /**
-     * 
-     * @param path
-     */
-    public void showFileBrowser(String path){
-    	File mPath = new File(path);
-    	FileDialog fileDialog = new FileDialog(this, mPath);
-    	fileDialog.addFileListener(new FileDialog.FileSelectedListener() {
-    		public void fileSelected(File file) {
-    			Log.d(getClass().getName(), "selected file " + file.toString());
-    		}
-    	});
-    	fileDialog.showDialog();
-    }
-    
-    /**
-     * 
-     * @param path
-     */
-    public void showDirectoryBrowser(String path){
-    	
-    	File mPath = new File(path);
-    	FileDialog fileDialog = new FileDialog(this, mPath);
-    	fileDialog.addDirectoryListener(new FileDialog.DirectorySelectedListener() {
-    		public void directorySelected(File directory) {
-    			Log.d(getClass().getName(), "selected dir " + directory.toString());
-    			selectedPath = directory.toString();
-    	  	}
-    	});
-    	fileDialog.setSelectDirectoryOption(true);
-    	fileDialog.showDialog();
-    }
-    
+		  
    @Override
    /**
     * 
@@ -220,40 +144,6 @@ public class MainActivity extends Activity {
         getMenuInflater().inflate(R.menu.activity_main, menu);
         return true;
     }  
-
-
-   
-   /**
-    * Inits a new GIT repo within a given folder.
-    * A .git folder is created where all the stuff is inside
-    * @param String targetDirectory 
-    */
-   private boolean init(String targetDirectory){
-  	 boolean buildRepoSuccessfully = false;
-	   Repository repository;
-	   File path = new File(targetDirectory + "/.git/");
-	   FileRepositoryBuilder builder = new FileRepositoryBuilder();
-	   try {
-		   repository = builder.setGitDir(path)
-				   .readEnvironment()
-				   .findGitDir()
-				   .build();
-		   repository.create();
-		   buildRepoSuccessfully = true;
-	   } catch (IOException e1) {
-		   Log.e(TAG, "Wasn't able to init Repo : /");
-		   e1.printStackTrace();
-	   } 
-	   return buildRepoSuccessfully;
-	}
-   /**
-    * Starts 
-    */
- 	private void startBrowserActivity() {
-		Intent intent = new Intent(this, BrowserActivity.class);
-		startActivity(intent);
-	}
- 	
  	
  	/**
  	 * 
@@ -273,10 +163,7 @@ public class MainActivity extends Activity {
  			type = KeyPair.RSA;
  		}
  	  JSch jsch = new JSch();
- 		KeyPair kpair;
- 		
- 		
- 		
+ 		KeyPair kpair; 		
  		try {
  			kpair = KeyPair.genKeyPair(jsch, type);
  			kpair.setPassphrase(password);

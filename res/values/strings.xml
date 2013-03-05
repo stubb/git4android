@@ -12,6 +12,7 @@
      <string name="button_add_files">Add some files</string>
      <string name="button_commit">Commit changes</string>
      <string name="button_push">Push changes</string>
+     <string name="button_pull">Pull changes</string>
      <string name="button_add_remote">Add remote repository</string>
      <string name="button_list_repos">List repositories</string>
      <string name="repository_textview">Select a repo:</string>
@@ -25,4 +26,6 @@
      <string name="path_to_save_repository_description">Path to store repo</string>
      <string name="password_description">Password of Private Key</string>
      <string name="password">Password</string>
+     <string name="button_submit_init_repository">Init repo</string>
+     <string name="path_to_init_repository_description">Path to init repo</string>
 </resources>

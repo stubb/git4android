@@ -2,14 +2,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-    
+
     <Button
-        android:id="@+id/button_add_files"
+        android:id="@+id/button_pull"
         android:layout_width="fill_parent"
         android:layout_height="60sp"
         android:layout_alignParentRight="TRUE"
         android:layout_alignParentLeft="TRUE"
         android:layout_alignParentTop="TRUE"
+        android:layout_marginRight="4sp"
+        android:layout_marginLeft="4sp"
+        android:layout_marginTop="8sp"
+        android:text="@string/button_pull" />
+    
+    <Button
+        android:id="@+id/button_add_files"
+        android:layout_gravity="bottom"
+        android:layout_below="@+id/button_pull"
+        android:layout_width="fill_parent"
+        android:layout_height="60sp"
         android:layout_marginRight="4sp"
         android:layout_marginLeft="4sp"
         android:layout_marginTop="8sp"

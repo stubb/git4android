@@ -1,30 +1,33 @@
 package com.example.git;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.MergeResult.MergeStatus;
+import org.eclipse.jgit.api.PullCommand;
+import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.StatusCommand;
-import org.eclipse.jgit.api.TransportConfigCallback;
+import org.eclipse.jgit.api.errors.CanceledException;
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
+import org.eclipse.jgit.api.errors.DetachedHeadException;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidConfigurationException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.api.errors.NoFilepatternException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.api.errors.NoMessageException;
+import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.api.errors.UnmergedPathsException;
 import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
@@ -32,31 +35,23 @@ import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.errors.UnsupportedCredentialItem;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
+import org.eclipse.jgit.merge.MergeResult;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
-import org.eclipse.jgit.transport.CredentialItem;
-import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.JschConfigSessionFactory;
 import org.eclipse.jgit.transport.OpenSshConfig.Host;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.SshSessionFactory;
-import org.eclipse.jgit.transport.SshTransport;
-import org.eclipse.jgit.transport.Transport;
 import org.eclipse.jgit.transport.URIish;
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.util.FS;
 
-import com.jcraft.jsch.Channel;
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.Identity;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
-import com.jcraft.jsch.UIKeyboardInteractive;
 import com.jcraft.jsch.UserInfo;
 
-import android.os.Environment;
+import android.net.Uri;
 import android.util.Log;
 
 import java.security.Security;
@@ -95,8 +90,8 @@ public class GitRepository {
   * @param targetDirectory
   * @param uri
   */
- GitRepository(String targetDirectory, String uri, String username, final String password, final String privateKeyPath, final String publicKeyPath) {
-	 clone(targetDirectory, uri, username, password, privateKeyPath, publicKeyPath);
+ GitRepository(String targetDirectory, String uri, final byte[] password, final String privateKeyPath, final String publicKeyPath) {
+	 cloneViaSSH(targetDirectory, uri, password, privateKeyPath, publicKeyPath);
  }
  
  public String status(){
@@ -338,59 +333,111 @@ public class GitRepository {
   * @param path
   * @return
   */
- private boolean clone(String path, String uri, String username, final String password, final String privateKeyPath, final String publicKeyPath) {
+ private boolean cloneViaSSH(String path, String uri, final byte[] password, final String privateKeyPath, final String publicKeyPath) {
 	 boolean cloneSuccesfull = false;
 	 CloneCommand clone = git.cloneRepository();
-/*	 String key = "";
-	
-	 //TODO outsource
-	 File file = new File(privateKeyPath);
-   if (file.exists()) {
-  	 if (file.isFile() && file.canRead()) {
-
-  	 try {
-  		 FileInputStream fis = new FileInputStream(file);
-  		 char current;
-  		 while (fis.available() > 0) {
-  			 
-  			 current = (char) fis.read();
-  			 key += current;
-  		 }
-  		 fis.close();
-  	 	} catch (IOException e) {
-  	 		e.printStackTrace();
-  	 	}
-   }
-   }
-   final String bla = key;
-   Log.e(TAG, bla);
-   Log.e(TAG, "After key"); */
 	 try {
-	/*	 CustomJschConfigSessionFactory jschConfigSessionFactory = new CustomJschConfigSessionFactory();
-		 JSch jsch = new JSch();
-	   jsch.addIdentity(pathToKey);
-	  // jschConfigSessionFactory.
-	   //, password.toString());
-	   //jsch.setKnownHosts(Environment.getExternalStorageDirectory().getAbsolutePath() + "/.ssh/known_hosts");
-	   // an instance is always available  http://download.eclipse.org/jgit/docs/jgit-2.0.0.201206130900-r/apidocs/org/eclipse/jgit/transport/SshSessionFactory.html
-	   SshSessionFactory.setInstance(jschConfigSessionFactory);
-	//   SshTransport sshTransport = (SshTransport) new Transport(repository, new URIish(uri)); */
-		 
-	  final Properties config = new Properties();
+		  final Properties config = new Properties();
 	    config.put("StrictHostKeyChecking", "no");
 	    JSch.setConfig(config);
 	    JSch.setLogger(new JschLogger());
-
-	    // register a JschConfigSessionFactory that adds the private key as identity
-	    // to the JSch instance of JGit so that SSH communication via JGit can
-	    // succeed
-
 	    
-	    
-	/*    byte [] privateKey = new FileInputStream(privateKeyPath).getBytes();
-	    byte [] publicKey = IOUtils.toByteArray(new FileInputStream(publicKeyPath));
-	    byte [] passphrase = privateKeyPassword.getBytes(); 
-	    jsch.addIdentity(sshLogin, privateKey, publicKey, passphrase);    */
+	    SshSessionFactory.setInstance(new JschConfigSessionFactory() {
+	      @Override
+	      protected void configure(Host hc, Session session) {
+	        try {
+	        	UserInfo userinfo = new MyUserInfo();
+	        	session.setUserInfo(userinfo);
+	        	
+	          final JSch jsch = getJSch(hc, FS.DETECTED);
+
+	    	    RandomAccessFile publicKeyFile = new RandomAccessFile(publicKeyPath, "rw");
+	    	    byte [] publicKey = new byte[(int)publicKeyFile.length()];
+	    	    publicKeyFile.read(publicKey);
+	    	    publicKeyFile.close();
+	    	    
+	    	    RandomAccessFile privateKeyFile = new RandomAccessFile(privateKeyPath, "rw");
+	    	    byte [] privateKey = new byte[(int)privateKeyFile.length()];
+	    	    privateKeyFile.read(privateKey);
+	    	    privateKeyFile.close();
+	    	       	    
+	          jsch.addIdentity("git", privateKey, publicKey, password);
+	        } catch (JSchException e) {
+	          throw new RuntimeException(e);
+	        } catch (FileNotFoundException e) {
+	          // TODO Auto-generated catch block
+	          e.printStackTrace();
+          } catch (IOException e) {
+	          // TODO Auto-generated catch block
+	          e.printStackTrace();
+          } catch (JGitInternalException e) {
+          	e.printStackTrace();
+          }
+	      }
+	    }); 	    
+		 clone.setCloneAllBranches(true);
+		 clone.setDirectory(new File(path + "/"));
+		 clone.setURI(uri);
+		 clone.call();
+		 cloneSuccesfull = true;
+  } catch (InvalidRemoteException e) {
+	  // TODO Auto-generated catch block
+	  e.printStackTrace();
+  } catch (TransportException e) {
+	  // TODO Auto-generated catch block
+	  e.printStackTrace();
+  } catch (GitAPIException e) {
+	  // TODO Auto-generated catch block
+	  e.printStackTrace();
+  } catch (UnsupportedCredentialItem e) {
+	  // TODO Auto-generated catch block
+	  e.printStackTrace();
+  }
+	 catch (JGitInternalException e) {
+   	e.printStackTrace();
+   }
+	 return cloneSuccesfull;
+ }
+ 
+ private boolean cloneViaGit(String path, String uri) {
+	 boolean cloneSuccesfull = false;
+	 CloneCommand clone = git.cloneRepository();
+	 try {	
+		 clone.setCloneAllBranches(true);
+		 clone.setDirectory(new File(path + "/"));
+		 clone.setURI(uri);
+		 clone.call();
+		 cloneSuccesfull = true;
+  } catch (InvalidRemoteException e) {
+	  // TODO Auto-generated catch block
+	  e.printStackTrace();
+  } catch (TransportException e) {
+	  // TODO Auto-generated catch block
+	  e.printStackTrace();
+  } catch (GitAPIException e) {
+	  // TODO Auto-generated catch block
+	  e.printStackTrace();
+  } catch (UnsupportedCredentialItem e) {
+	  // TODO Auto-generated catch block
+	  e.printStackTrace();
+  } catch (JGitInternalException e) {
+  	e.printStackTrace();
+  } 
+	 return cloneSuccesfull;
+ }
+ 
+ public boolean pull(final byte[] password, final String privateKeyPath, final String publicKeyPath) {
+	 boolean successful = false;
+	 try {
+		 StoredConfig config = git.getRepository().getConfig();
+		 config.setString("branch", "master", "remote", "origin");
+		 config.setString("branch", "master", "merge", "refs/heads/master");
+		 config.save();
+		 
+		 final Properties jschConfig = new Properties();
+		 jschConfig.put("StrictHostKeyChecking", "no");
+	    JSch.setConfig(jschConfig);
+	    JSch.setLogger(new JschLogger());
 	    
 	    SshSessionFactory.setInstance(new JschConfigSessionFactory() {
 	      @Override
@@ -414,38 +461,70 @@ public class GitRepository {
 	    	    privateKeyFile.read(privateKey);
 	    	    privateKeyFile.close();
 	    	    
-	    	    byte [] passphrase = password.getBytes();
-	          jsch.addIdentity("git", privateKey, publicKey, passphrase);
+	    	//    byte [] passphrase = password.getBytes();
+	    	    
+	          jsch.addIdentity("git", privateKey, publicKey, password);
 	        } catch (JSchException e) {
 	          throw new RuntimeException(e);
 	        } catch (FileNotFoundException e) {
 	          // TODO Auto-generated catch block
 	          e.printStackTrace();
-          } catch (IOException e) {
+         } catch (IOException e) {
 	          // TODO Auto-generated catch block
 	          e.printStackTrace();
-          }
+         } catch (JGitInternalException e) {
+         	e.printStackTrace();
+         }
 	      }
 	    }); 
-	    
-		 clone.setCloneAllBranches(true);
-//		 Log.e(TAG, path);
-		 clone.setDirectory(new File(path + "/"));
-/*		 Log.e(TAG, new File(path + "/").getPath());
-		 Log.e(TAG, new File(path).getPath());
-		 Log.e(TAG, new File(path + "/").toString()); */
-		 clone.setURI(uri);
-	//	 CredentialItem.YesNoType yesNo = new CredentialItem.YesNoType("myPromptText");
-	//	 yesNo.setValue(true);
-	//	 UsernamePasswordCredentialsProvider provider = new UsernamePasswordCredentialsProvider("kili", "");
-	//	 CredentialsProvider testProvider = new CredentialsProvider();
+		
+		PullCommand pullCommand = git.pull();
+		PullResult res = pullCommand.call();
+		org.eclipse.jgit.api.MergeResult mergeResult = res.getMergeResult();
+		Log.d(TAG, mergeResult.getMergeStatus().toString());
+		if (!res.getFetchResult().getTrackingRefUpdates().isEmpty() &&
+				!res.getMergeResult().getMergeStatus().equals(MergeStatus.ALREADY_UP_TO_DATE)) {
+			successful = true;
+		}
+  } catch (WrongRepositoryStateException e) {
+	  // TODO Auto-generated catch block
+	  e.printStackTrace();
+  } catch (InvalidConfigurationException e) {
+	  // TODO Auto-generated catch block
+	  e.printStackTrace();
+  } catch (DetachedHeadException e) {
+	  // TODO Auto-generated catch block
+	  e.printStackTrace();
+  } catch (InvalidRemoteException e) {
+	  // TODO Auto-generated catch block
+	  e.printStackTrace();
+  } catch (CanceledException e) {
+	  // TODO Auto-generated catch block
+	  e.printStackTrace();
+  } catch (RefNotFoundException e) {
+	  // TODO Auto-generated catch block
+	  e.printStackTrace();
+  } catch (NoHeadException e) {
+	  // TODO Auto-generated catch block
+	  e.printStackTrace();
+  } catch (TransportException e) {
+	  // TODO Auto-generated catch block
+	  e.printStackTrace();
+  } catch (GitAPIException e) {
+	  // TODO Auto-generated catch block
+	  e.printStackTrace();
+  } catch (IOException e) {
+	  // TODO Auto-generated catch block
+	  e.printStackTrace();
+  }
+	 return successful;
+ }
 
-//		 provider.get(new URIish(uri), yesNo);
-		// provider.
-	//	 clone.setCredentialsProvider(provider);
-	//	 clone.setTransportConfigCallback(new TransportConfigCallback().configure());
-		 clone.call();
-		 cloneSuccesfull = true;
+ public boolean push() {
+	 boolean successful = false;
+	 try {
+	  git.push().call();
+	  successful = true;
   } catch (InvalidRemoteException e) {
 	  // TODO Auto-generated catch block
 	  e.printStackTrace();
@@ -455,15 +534,8 @@ public class GitRepository {
   } catch (GitAPIException e) {
 	  // TODO Auto-generated catch block
 	  e.printStackTrace();
-  } catch (UnsupportedCredentialItem e) {
-	  // TODO Auto-generated catch block
-	  e.printStackTrace();
-   /* catch (URISyntaxException e) {
-	  // TODO Auto-generated catch block
-	  e.printStackTrace();
-  } */ 
   }
-	 return cloneSuccesfull;
+	 return successful;
  }
 }
 
