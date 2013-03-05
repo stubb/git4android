@@ -11,10 +11,12 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -34,17 +36,12 @@ import com.example.git.SqlLiteDatabaseHelper;
 public class MainActivity extends Activity {
   
   static {
-  	//
   	BouncyCastleProvider provider = new BouncyCastleProvider();
   	Security.insertProviderAt(provider, 1);
-    //Security.addProvider(new BouncyCastleProvider());
   }
   
 	String selectedPath = "";
 	String TAG = getClass().getName();
-	/** TODO sinnvoll initalisieren */
-	Git currentRepo;
-	GitRepository git = null;
 	
 	//TODO select via intent if only files, dirs or both are allowed to select
     @Override
@@ -66,10 +63,13 @@ public class MainActivity extends Activity {
         
         button_genKeys.setOnClickListener(new View.OnClickListener() {
       		public void onClick(View v) {
-						boolean initSshKeyDir = new File(Environment.getExternalStorageDirectory() + "/.ssh/").mkdir();
-						boolean privateKey = new File(Environment.getExternalStorageDirectory() + "/.ssh/" + "id_rsa").isFile();
-						boolean publicKey = new File(Environment.getExternalStorageDirectory() + "/.ssh/" + "id_rsa.pub").isFile();
-						if (!initSshKeyDir && !privateKey && !publicKey) {
+      			SharedPreferences settings = getSharedPreferences(MainActivity.this.getResources().getString(R.string.APPSETTINGS), 0);
+      			String privateKeyFilenameWithPath = settings.getString(MainActivity.this.getResources().getString(R.string.SSHPRIVATEKEYPATHSETTING), "");
+      			String publicKeyFilenameWithPath = settings.getString(MainActivity.this.getResources().getString(R.string.SSHPRIVATEKEYPATHSETTING), "");
+      			
+						boolean privateKey = new File(privateKeyFilenameWithPath).isFile();
+						boolean publicKey = new File(publicKeyFilenameWithPath).isFile();
+						if (!privateKey && !publicKey) {
 							AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);                 
 							alert.setTitle("Enter pw");  
 							alert.setMessage("pw");                
@@ -140,11 +140,21 @@ public class MainActivity extends Activity {
    /**
     * 
     */
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_main, menu);
-        return true;
-    }  
+   public boolean onCreateOptionsMenu(Menu menu) {
+  	 getMenuInflater().inflate(R.menu.activity_main, menu);
+  	 return true;
+   }  
  	
+   @Override
+   /**
+    * 
+    */
+   public boolean onOptionsItemSelected (MenuItem item) {
+  	 Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+  	 startActivity(intent);
+     return true;
+   }
+   
  	/**
  	 * 
  	 * @param keyType

@@ -38,6 +38,7 @@ public class BrowserActivity extends Activity {
  
 		private ArrayAdapter<String> wurst;
 		private String startPath = "";
+		private String origin = "";
 		
 		boolean mExternalStorageAvailable = false;
 		boolean mExternalStorageWriteable = false;
@@ -54,8 +55,12 @@ public class BrowserActivity extends Activity {
        if (extras != null) {
       	 //TODO intentnamen global
       	 String tempExtras = extras.getString("startPath");
+      	 String tempOrigin = extras.getString("originOfRequestforResult");
       	 if (tempExtras != null) {
      			startPath = tempExtras;
+      	 }
+      	 if(tempOrigin != null) {
+      		 origin = tempOrigin;
       	 }
        }
        
@@ -95,6 +100,7 @@ public class BrowserActivity extends Activity {
 						Log.d(TAG, currentPath.getPath());			
 						Intent returnIntent = new Intent();
 						returnIntent.putExtra("currentPath", currentPath.getAbsolutePath());
+						returnIntent.putExtra("originOfRequestforResult", origin);
 						setResult(RESULT_OK, returnIntent);     
 						finish();
 					}
@@ -170,6 +176,7 @@ public class BrowserActivity extends Activity {
   							Toaster.makeToast("Selected File", Toast.LENGTH_LONG, BrowserActivity.this);
   							Intent returnIntent = new Intent();
   							returnIntent.putExtra("currentPath", chosenFile.getAbsolutePath());
+  							returnIntent.putExtra("originOfRequestforResult", origin);
   							setResult(RESULT_OK, returnIntent);     
   							finish();
 							}

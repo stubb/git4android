@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item type="string" name="sshkey_dir" format="string">.ssh</item>
+    <item type="string" name="APPSETTINGS" format="string">sshkeysettings</item>
+    <item type="string" name="SSHPRIVATEKEYPATHSETTING" format="string">sshPrivateKeySetting</item>
+    <item type="string" name="SSHPUBLICKEYPATHSETTING" format="string">sshPublicKeySetting</item>
 </resources>

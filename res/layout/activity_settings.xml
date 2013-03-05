@@ -1,0 +1,85 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    
+   <TextView
+        android:id="@+id/ssh_private_key_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:text="@string/ssh_private_key_description"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <EditText
+        android:id="@+id/ssh_private_key_path"
+        android:inputType="textUri"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_below="@+id/ssh_private_key_description"
+        android:layout_alignParentLeft="true" >
+        <requestFocus />
+    </EditText>
+    
+        <Button
+        android:id="@+id/button_select_folder_ssh_private_key_path"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_below="@+id/ssh_private_key_path"
+        android:text="@string/button_select_folder" />
+
+    <TextView
+        android:id="@+id/ssh_public_key_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_below="@+id/button_select_folder_ssh_private_key_path"
+        android:layout_alignParentLeft="true"
+        android:text="@string/ssh_public_key_description"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <EditText
+        android:id="@+id/ssh_public_key_path"
+        android:inputType="text"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_below="@+id/ssh_public_key_description"
+        android:layout_alignParentLeft="true" />
+    
+     <Button
+        android:id="@+id/button_select_folder_ssh_public_key_path"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_below="@+id/ssh_public_key_path"
+        android:text="@string/button_select_folder" />
+    
+               
+        
+    <Button
+        android:id="@+id/button_genKeys"
+        android:layout_gravity="bottom"
+        android:layout_below="@+id/button_select_folder_ssh_public_key_path"
+        android:layout_width="fill_parent"
+        android:layout_height="60sp"
+        android:layout_marginRight="4sp"
+        android:layout_marginLeft="4sp"
+        android:layout_marginTop="8sp"
+        android:text="@string/button_genKeys" />
+    
+    
+        <Button
+        android:id="@+id/button_save"
+        android:layout_gravity="bottom"
+        android:layout_below="@+id/button_genKeys"
+        android:layout_width="fill_parent"
+        android:layout_height="60sp"
+        android:layout_marginRight="4sp"
+        android:layout_marginLeft="4sp"
+        android:layout_marginTop="8sp"
+        android:text="@string/button_save" />
+
+</RelativeLayout>

@@ -28,4 +28,7 @@
      <string name="password">Password</string>
      <string name="button_submit_init_repository">Init repo</string>
      <string name="path_to_init_repository_description">Path to init repo</string>
+     <string name="ssh_private_key_description">Public key:</string>
+     <string name="ssh_public_key_description">Private key:</string>
+     <string name="button_save">Save</string>
 </resources>
