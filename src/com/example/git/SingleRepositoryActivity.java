@@ -110,7 +110,7 @@ public class SingleRepositoryActivity extends Activity{
 	        
 	        buttonPush.setOnClickListener(new View.OnClickListener() {
 	      		public void onClick(View v) {
-	      			repository.push();
+	      			//repository.push();
 	  				}
 	        });
 	        

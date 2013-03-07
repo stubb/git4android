@@ -15,6 +15,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.MergeResult.MergeStatus;
 import org.eclipse.jgit.api.PullCommand;
 import org.eclipse.jgit.api.PullResult;
+import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.StatusCommand;
 import org.eclipse.jgit.api.errors.CanceledException;
@@ -426,14 +427,22 @@ public class GitRepository {
 	 return cloneSuccesfull;
  }
  
+ public void setDefaultConfig() {
+	 StoredConfig config = git.getRepository().getConfig();
+	 config.setString("branch", "master", "remote", "origin");
+	 config.setString("branch", "master", "merge", "refs/heads/master");
+	 try {
+	  config.save();
+  } catch (IOException e) {
+	  // TODO Auto-generated catch block
+	  e.printStackTrace();
+  }
+ }
+ 
  public boolean pull(final byte[] password, final String privateKeyPath, final String publicKeyPath) {
 	 boolean successful = false;
 	 try {
-		 StoredConfig config = git.getRepository().getConfig();
-		 config.setString("branch", "master", "remote", "origin");
-		 config.setString("branch", "master", "merge", "refs/heads/master");
-		 config.save();
-		 
+		 setDefaultConfig();
 		 final Properties jschConfig = new Properties();
 		 jschConfig.put("StrictHostKeyChecking", "no");
 	    JSch.setConfig(jschConfig);
@@ -513,17 +522,59 @@ public class GitRepository {
   } catch (GitAPIException e) {
 	  // TODO Auto-generated catch block
 	  e.printStackTrace();
-  } catch (IOException e) {
-	  // TODO Auto-generated catch block
-	  e.printStackTrace();
-  }
+  } 
 	 return successful;
  }
 
- public boolean push() {
+ public boolean push(final byte[] password, final String privateKeyPath, final String publicKeyPath) {
 	 boolean successful = false;
 	 try {
-	  git.push().call();
+		 setDefaultConfig();
+		 final Properties jschConfig = new Properties();
+		 jschConfig.put("StrictHostKeyChecking", "no");
+	    JSch.setConfig(jschConfig);
+	    JSch.setLogger(new JschLogger());
+	    
+	    SshSessionFactory.setInstance(new JschConfigSessionFactory() {
+	      @Override
+	      protected void configure(Host hc, Session session) {
+	        try {
+	        	Log.e(TAG, "IAM CALLED");
+	        	Log.e(TAG, "Host " + session.getHost());
+	        	Log.e(TAG, "User " + session.getUserName());
+	        	UserInfo userinfo = new MyUserInfo();
+	        	session.setUserInfo(userinfo);
+	        	Log.e(TAG, session.getHost());
+	          final JSch jsch = getJSch(hc, FS.DETECTED);
+
+	    	    RandomAccessFile publicKeyFile = new RandomAccessFile(publicKeyPath, "rw");
+	    	    byte [] publicKey = new byte[(int)publicKeyFile.length()];
+	    	    publicKeyFile.read(publicKey);
+	    	    publicKeyFile.close();
+	    	    
+	    	    RandomAccessFile privateKeyFile = new RandomAccessFile(privateKeyPath, "rw");
+	    	    byte [] privateKey = new byte[(int)privateKeyFile.length()];
+	    	    privateKeyFile.read(privateKey);
+	    	    privateKeyFile.close();
+	    	    
+	    	//    byte [] passphrase = password.getBytes();
+	    	    
+	          jsch.addIdentity("git", privateKey, publicKey, password);
+	        } catch (JSchException e) {
+	          throw new RuntimeException(e);
+	        } catch (FileNotFoundException e) {
+	          // TODO Auto-generated catch block
+	          e.printStackTrace();
+         } catch (IOException e) {
+	          // TODO Auto-generated catch block
+	          e.printStackTrace();
+         } catch (JGitInternalException e) {
+         	e.printStackTrace();
+         }
+	      }
+	    });
+	  PushCommand pushCommand = git.push();
+	  pushCommand.call();
 	  successful = true;
   } catch (InvalidRemoteException e) {
 	  // TODO Auto-generated catch block
@@ -538,19 +589,4 @@ public class GitRepository {
 	 return successful;
  }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
