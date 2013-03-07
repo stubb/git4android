@@ -4,13 +4,30 @@ import android.util.Log;
 
 import com.jcraft.jsch.Logger;
 
+/** This class provides a custom logger for the Jsch library.
+ * 	It forwards all messages to the Android API for sending log output. 
+ */
 public class JschLogger implements Logger {
+	
+	private final String loggerName = "JschLogger";
 
-	public boolean isEnabled(int arg0) {
+/**
+ * Checks if logging of some level is actually enabled.
+ * @level		The level that is checked.
+ * @return	Always true to enable logging for all levels.
+ */
+	public boolean isEnabled(int level) {
 		return true;
 	}
 
-	public void log(int arg0, String arg1) {
-		Log.d("JschLogger", arg1);
+	/**
+	 * Used to log the messages from Jsch to the Android API.
+	 * @param The level	of the message.
+	 * @param The message that will be logged.
+	 */
+	public void log(int level, String message) {
+		// There is no documentation about the range of the log level
+		// so there is always performed the same action for all log levels
+		Log.d(loggerName, message);
 	}
 }
