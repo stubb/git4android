@@ -116,16 +116,16 @@ public class SingleRepositoryActivity extends Activity{
 	        
 	        buttonAddRemote.setOnClickListener(new View.OnClickListener() {
 	      		public void onClick(View v) {
-	      			Toaster.makeToast(repository.getRemote(), Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+	      			ToastNotification.makeToast(repository.getRemote(), Toast.LENGTH_LONG, SingleRepositoryActivity.this);
 	      			repository.setRemote("");
-	      			Toaster.makeToast(repository.getRemote(), Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+	      			ToastNotification.makeToast(repository.getRemote(), Toast.LENGTH_LONG, SingleRepositoryActivity.this);
 	  				}
 	        });
 	        
 	        buttonLog.setOnClickListener(new View.OnClickListener() {
 	      		public void onClick(View v) {
 	      			String log = repository.log();
-	      			Toaster.makeToast(log, Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+	      			ToastNotification.makeToast(log, Toast.LENGTH_LONG, SingleRepositoryActivity.this);
 	      			
 	  				}
 	        });
@@ -133,12 +133,12 @@ public class SingleRepositoryActivity extends Activity{
 	        buttonStatus.setOnClickListener(new View.OnClickListener() {
 	      		public void onClick(View v) {
 	      			String status = repository.status();
-	      			Toaster.makeToast(status, Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+	      			ToastNotification.makeToast(status, Toast.LENGTH_LONG, SingleRepositoryActivity.this);
 	  				}
 	        });
 	        }
 	        else {
-	        	Toaster.makeToast("Wasn't able to find this repo : (", Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+	        	ToastNotification.makeToast("Wasn't able to find this repo : (", Toast.LENGTH_LONG, SingleRepositoryActivity.this);
 	        }
 				}
 			
@@ -152,7 +152,7 @@ public class SingleRepositoryActivity extends Activity{
 					     if(resultCode == RESULT_OK){
 
 					    	filePathToAdd = data.getStringExtra("currentPath");
-					      Toaster.makeToast(filePathToAdd, Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+					      ToastNotification.makeToast(filePathToAdd, Toast.LENGTH_LONG, SingleRepositoryActivity.this);
 					     					      
 					     }
 

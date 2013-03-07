@@ -86,7 +86,7 @@ public class SettingsActivity extends Activity {
 		    sshPublicKeyPathEditText.setEnabled(false);					      
 		  }
 		  if (resultCode == RESULT_CANCELED) {
-		  	Toaster.makeToast("No valid choice!", Toast.LENGTH_LONG, SettingsActivity.this);
+		  	ToastNotification.makeToast("No valid choice!", Toast.LENGTH_LONG, SettingsActivity.this);
 		  }
 		}
 	}

@@ -80,7 +80,7 @@ public class FileDialog {
 								Log.e(TAG, "Directory not created");
 							}
 							else {
-								Toaster.makeToast("Directory created", Toast.LENGTH_LONG, activity);
+								ToastNotification.makeToast("Directory created", Toast.LENGTH_LONG, activity);
 							}
 						}  
 					});  

@@ -82,9 +82,9 @@ public class MainActivity extends Activity {
 								public void onClick(DialogInterface dialog, int whichButton) {
 									Log.d(TAG,"generate Keys");				
   								if (generateKeyPair("RSA", Environment.getExternalStorageDirectory() + "/.ssh/", "id_rsa", "",input.getText().toString())) {
-  							 		Toaster.makeToast("Was able to gen keys : )", Toast.LENGTH_LONG, MainActivity.this);
+  									ToastNotification.makeToast("Was able to gen keys : )", Toast.LENGTH_LONG, MainActivity.this);
   								} else {
-  						    	Toaster.makeToast("Wasn't able to gen keys : (", Toast.LENGTH_LONG, MainActivity.this);
+  									ToastNotification.makeToast("Wasn't able to gen keys : (", Toast.LENGTH_LONG, MainActivity.this);
   								}									
 								}
 							});
@@ -98,7 +98,7 @@ public class MainActivity extends Activity {
 							alert.show();
 						}
 						else {
-							Toaster.makeToast("There are keys already. Nothing to do here.", Toast.LENGTH_LONG, MainActivity.this);
+							ToastNotification.makeToast("There are keys already. Nothing to do here.", Toast.LENGTH_LONG, MainActivity.this);
 						}
       		}
       	});
@@ -127,7 +127,7 @@ public class MainActivity extends Activity {
 			if (requestCode == 1) {
 			     if(resultCode == RESULT_OK) {
 			    	 selectedPath = data.getStringExtra("currentPath");
-			    	 Toaster.makeToast("Directory " + selectedPath.toString() + " selected!", Toast.LENGTH_LONG, MainActivity.this);	     					      
+			    	 ToastNotification.makeToast("Directory " + selectedPath.toString() + " selected!", Toast.LENGTH_LONG, MainActivity.this);	     					      
 			     }
 
 			     if (resultCode == RESULT_CANCELED) {

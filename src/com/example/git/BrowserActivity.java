@@ -126,10 +126,10 @@ public class BrowserActivity extends Activity {
 								File file = new File(currentPath, value);
 								
 								if (!file.mkdirs()) {
-									Toaster.makeToast("Directory NOT created", Toast.LENGTH_LONG, BrowserActivity.this);
+									ToastNotification.makeToast("Directory NOT created", Toast.LENGTH_LONG, BrowserActivity.this);
 								}
 								else {
-									Toaster.makeToast("Directory created", Toast.LENGTH_LONG, BrowserActivity.this);
+									ToastNotification.makeToast("Directory created", Toast.LENGTH_LONG, BrowserActivity.this);
 									// update fileListView
 									loadFileList(currentPath);
 									wurst = new ArrayAdapter<String>(BrowserActivity.this, android.R.layout.simple_list_item_1, fileList);
@@ -173,7 +173,7 @@ public class BrowserActivity extends Activity {
 								wurst.notifyDataSetChanged();
 								// else file is a file
 							} else {
-  							Toaster.makeToast("Selected File", Toast.LENGTH_LONG, BrowserActivity.this);
+								ToastNotification.makeToast("Selected File", Toast.LENGTH_LONG, BrowserActivity.this);
   							Intent returnIntent = new Intent();
   							returnIntent.putExtra("currentPath", chosenFile.getAbsolutePath());
   							returnIntent.putExtra("originOfRequestforResult", origin);

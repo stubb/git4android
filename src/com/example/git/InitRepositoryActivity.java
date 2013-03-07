@@ -49,7 +49,7 @@ public class InitRepositoryActivity extends Activity {
 			 Button button_submit_init_repository = (Button) findViewById(R.id.button_submit_init_repository);
  			 button_submit_init_repository.setOnClickListener(new View.OnClickListener(){
       		public void onClick(View v) {
-						Toaster.makeToast("Select a path", Toast.LENGTH_LONG, InitRepositoryActivity.this);
+      			ToastNotification.makeToast("Select a path", Toast.LENGTH_LONG, InitRepositoryActivity.this);
     			}
       });
 		}
@@ -79,10 +79,10 @@ public class InitRepositoryActivity extends Activity {
 			      					SQLiteDatabase db = dbHelper.getWritableDatabase();
 			      					db.execSQL("INSERT INTO " + "woop" + " ('repoPath') VALUES ('" +  selectedPath + "');");
 			      					selectedPath = "";
-			      					Toaster.makeToast("Repo created!", Toast.LENGTH_LONG, InitRepositoryActivity.this);
+			      					ToastNotification.makeToast("Repo created!", Toast.LENGTH_LONG, InitRepositoryActivity.this);
 			    						finish();
 			      			} else {
-										Toaster.makeToast("Cant init", Toast.LENGTH_LONG, InitRepositoryActivity.this);
+										ToastNotification.makeToast("Cant init", Toast.LENGTH_LONG, InitRepositoryActivity.this);
 			      			}
 
 			  				}

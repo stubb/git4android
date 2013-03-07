@@ -3,9 +3,9 @@ package com.example.git;
 import android.content.Context;
 import android.widget.Toast;
 
-public class Toaster {
+public class ToastNotification {
 
-	private Toaster() {
+	private ToastNotification() {
 	}
 	
 	/**
