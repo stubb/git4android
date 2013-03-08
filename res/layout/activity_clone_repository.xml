@@ -9,8 +9,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:text="@string/clone_repository_url_description"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:text="@string/clone_repository_url_description" />
 
     <EditText
         android:id="@+id/clone_repository_url"
@@ -30,8 +29,7 @@
         android:layout_gravity="bottom"
         android:layout_below="@+id/clone_repository_url"
         android:layout_alignParentLeft="true"
-        android:text="@string/path_to_save_repository_description"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:text="@string/path_to_save_repository_description" />
 
     <EditText
         android:id="@+id/path_to_save_repository"
@@ -59,8 +57,7 @@
         android:layout_gravity="bottom"
         android:layout_below="@+id/button_select_folder"
         android:layout_alignParentLeft="true"
-        android:text="@string/password_description"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:text="@string/password_description" />
 
     <EditText
         android:id="@+id/input_password"
@@ -71,13 +68,31 @@
         android:layout_below="@+id/password_description"
         android:layout_alignParentLeft="true" />
     
+    <TextView
+        android:id="@+id/username_description"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_below="@+id/input_password"
+        android:layout_alignParentLeft="true"
+        android:text="@string/username_description" />
+
+    <EditText
+        android:id="@+id/input_username"
+        android:inputType="text"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_below="@+id/username_description"
+        android:layout_alignParentLeft="true" />
+    
 
    <Button
         android:id="@+id/button_submit_clone_repository"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:layout_below="@+id/input_password"
+        android:layout_below="@+id/input_username"
         android:text="@string/button_submit_clone_repository" />
 
 </RelativeLayout>

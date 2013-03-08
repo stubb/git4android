@@ -24,11 +24,12 @@
      <string name="button_select_folder">Select Path</string>
      <string name="clone_repository_url_description">Remote Url source of repo</string>
      <string name="path_to_save_repository_description">Path to store repo</string>
-     <string name="password_description">Password of Private Key</string>
+     <string name="password_description">Password for http/https/ssh</string>
      <string name="password">Password</string>
      <string name="button_submit_init_repository">Init repo</string>
      <string name="path_to_init_repository_description">Path to init repo</string>
      <string name="ssh_private_key_description">Private key:</string>
      <string name="ssh_public_key_description">Public key:</string>
      <string name="button_save">Save</string>
+     <string name="username_description">Username for http/https</string>
 </resources>
