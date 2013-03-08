@@ -1,5 +1,12 @@
 package com.example.git;
 
+import android.util.Log;
+
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.UserInfo;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -12,6 +19,7 @@ import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.InitCommand;
 import org.eclipse.jgit.api.MergeResult.MergeStatus;
 import org.eclipse.jgit.api.PullCommand;
 import org.eclipse.jgit.api.PullResult;
@@ -36,7 +44,6 @@ import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.errors.UnsupportedCredentialItem;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
-import org.eclipse.jgit.merge.MergeResult;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.JschConfigSessionFactory;
@@ -47,56 +54,47 @@ import org.eclipse.jgit.transport.SshSessionFactory;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.util.FS;
 
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
-import com.jcraft.jsch.UserInfo;
-
-import android.net.Uri;
-import android.util.Log;
-
-import java.security.Security;
-import org.spongycastle.jce.provider.BouncyCastleProvider;
-
-
-
-/** This is a wrapper class for the JGIT library */
+/**
+ *  This is a wrapper class for the JGIT library
+ */  
 public class GitRepository {
  
-  private static final String TAG = "GitRepositoryClass";
-  private Repository repository = null;
+	/**
+	 * The tag thats used for the logging system.
+	 */
+  private final String TAG = getClass().getName();
+
+  /**
+   * The Git object that includes the repository.
+   */
   private Git git = null;
  
-  static {
-  	Security.insertProviderAt(new BouncyCastleProvider(), 1);
+ // static {
+  //	Security.insertProviderAt(new BouncyCastleProvider(), 1);
     //Security.addProvider(new BouncyCastleProvider());
-  }
+ // }
   
   /**
    * 
    */
-  GitRepository() {  	
+  GitRepository() {	
   }
- 
-  /**
-   * 
-   * @param targetDirectory
-   */
- GitRepository(String targetDirectory) {
-	 init(targetDirectory);
- }
- 
+  
  /**
   * 
   * @param targetDirectory
   * @param uri
   */
- GitRepository(String targetDirectory, String uri, final byte[] password, final String privateKeyPath, final String publicKeyPath) {
-	 cloneViaSSH(targetDirectory, uri, password, privateKeyPath, publicKeyPath);
- }
+/* GitRepository(String targetDirectory, String uri, final String password, final String privateKeyPath, final String publicKeyPath) {
+	 clone(targetDirectory, uri, password, privateKeyPath, publicKeyPath);
+ } */
  
+ /**
+  * 
+  * @return
+  */
  public String status(){
-	 String actualStatus = new String("");;
+	 String actualStatus = new String("");
 	 StatusCommand status = git.status();
 	 try {
 	  Status statusObject = status.call();
@@ -116,6 +114,10 @@ public class GitRepository {
 	 return actualStatus;
  }
  
+ /**
+  * 
+  * @return
+  */
  public String log(){
 	 String log = "";
 	 Iterable<RevCommit> loggedCommits;
@@ -140,15 +142,31 @@ public class GitRepository {
  /**
   * Inits a new GIT repo within a given folder.
   * A .git folder is created where all the stuff is inside
-  * @param String targetDirectory 
+  * @param	String targetDirectory
+  * @return	
   */
  public boolean init(String targetDirectory){
-   boolean buildRepoSuccessfully = false;
+	 boolean buildRepoSuccessfully = false;
+	 InitCommand init = Git.init();
+	 File directory = new File (targetDirectory);
+	 init.setDirectory(directory);
+	 try {
+	  init.call();
+	  buildRepoSuccessfully = true;
+  } catch (GitAPIException e) {
+  	Log.e(TAG, "Wasn't able to init Repo : /");
+	  e.printStackTrace();
+  } catch (JGitInternalException e) {
+  	Log.e(TAG, "Wasn't able to init Repo : /");
+	  e.printStackTrace();
+  }
+	return buildRepoSuccessfully;
+   
    //TODO use dotgit constant
-     File path = new File(targetDirectory + "/.git/");
+  /*   File path = new File(targetDirectory + "/.git/");
      FileRepositoryBuilder builder = new FileRepositoryBuilder();
      try {
-         repository = builder.setGitDir(path).readEnvironment().findGitDir().build();
+         Repository repository = builder.setGitDir(path).readEnvironment().findGitDir().build();
          repository.create();
          git = new Git(repository);
          buildRepoSuccessfully = true;
@@ -156,7 +174,7 @@ public class GitRepository {
          Log.e(TAG, "Wasn't able to init Repo : /");
          e1.printStackTrace();
      } 
-     return buildRepoSuccessfully;
+     return buildRepoSuccessfully; */
   }
 
  /**
@@ -169,7 +187,7 @@ public class GitRepository {
    File path = new File(targetDirectory + "/.git/");
    FileRepositoryBuilder builder = new FileRepositoryBuilder();
      try {
-         repository = builder.setGitDir(path)
+    	 	Repository repository = builder.setGitDir(path)
                  .readEnvironment()
                  .findGitDir()
                  .build();
@@ -288,9 +306,9 @@ public class GitRepository {
 	 boolean pushSuccesfully = false;
 	 CommitCommand commit = git.commit();
 	 try {
-			final StoredConfig config = repository.getConfig();
+			final StoredConfig config = git.getRepository().getConfig();
 			RemoteConfig remoteConfig = new RemoteConfig(config, "test");
-			URIish uri = new URIish(repository.getDirectory().toURI().toURL());
+			URIish uri = new URIish(git.getRepository().getDirectory().toURI().toURL());
 			remoteConfig.addURI(uri);
 			remoteConfig.update(config);
 			config.save();			
@@ -334,48 +352,17 @@ public class GitRepository {
   * @param path
   * @return
   */
- private boolean cloneViaSSH(String path, String uri, final byte[] password, final String privateKeyPath, final String publicKeyPath) {
+ public boolean clone(String path, String uri, final String password, final String privateKeyPath, final String publicKeyPath) {
 	 boolean cloneSuccesfull = false;
-	 CloneCommand clone = git.cloneRepository();
+	 CloneCommand clone = Git.cloneRepository();
 	 try {
 		  final Properties config = new Properties();
 	    config.put("StrictHostKeyChecking", "no");
 	    JSch.setConfig(config);
 	    JSch.setLogger(new JschLogger());
 	    
-	    SshSessionFactory.setInstance(new JschConfigSessionFactory() {
-	      @Override
-	      protected void configure(Host hc, Session session) {
-	        try {
-	        	UserInfo userinfo = new MyUserInfo();
-	        	session.setUserInfo(userinfo);
-	        	
-	          final JSch jsch = getJSch(hc, FS.DETECTED);
-
-	    	    RandomAccessFile publicKeyFile = new RandomAccessFile(publicKeyPath, "rw");
-	    	    byte [] publicKey = new byte[(int)publicKeyFile.length()];
-	    	    publicKeyFile.read(publicKey);
-	    	    publicKeyFile.close();
-	    	    
-	    	    RandomAccessFile privateKeyFile = new RandomAccessFile(privateKeyPath, "rw");
-	    	    byte [] privateKey = new byte[(int)privateKeyFile.length()];
-	    	    privateKeyFile.read(privateKey);
-	    	    privateKeyFile.close();
-	    	       	    
-	          jsch.addIdentity("git", privateKey, publicKey, password);
-	        } catch (JSchException e) {
-	          throw new RuntimeException(e);
-	        } catch (FileNotFoundException e) {
-	          // TODO Auto-generated catch block
-	          e.printStackTrace();
-          } catch (IOException e) {
-	          // TODO Auto-generated catch block
-	          e.printStackTrace();
-          } catch (JGitInternalException e) {
-          	e.printStackTrace();
-          }
-	      }
-	    }); 	    
+	    CustomJschConfigSessionFactory factory = new CustomJschConfigSessionFactory(password, privateKeyPath, publicKeyPath);
+	    SshSessionFactory.setInstance(factory); 	    
 		 clone.setCloneAllBranches(true);
 		 clone.setDirectory(new File(path + "/"));
 		 clone.setURI(uri);
@@ -400,9 +387,10 @@ public class GitRepository {
 	 return cloneSuccesfull;
  }
  
- private boolean cloneViaGit(String path, String uri) {
+ // TODO merge into clone
+ public boolean cloneViaGit(String path, String uri) {
 	 boolean cloneSuccesfull = false;
-	 CloneCommand clone = git.cloneRepository();
+	 CloneCommand clone = Git.cloneRepository();
 	 try {	
 		 clone.setCloneAllBranches(true);
 		 clone.setDirectory(new File(path + "/"));
@@ -434,7 +422,7 @@ public class GitRepository {
 	 try {
 	  config.save();
   } catch (IOException e) {
-	  // TODO Auto-generated catch block
+	  Log.e(TAG, "Wasn't able to set default config");
 	  e.printStackTrace();
   }
  }
@@ -455,7 +443,7 @@ public class GitRepository {
 	        	Log.e(TAG, "IAM CALLED");
 	        	Log.e(TAG, "Host " + session.getHost());
 	        	Log.e(TAG, "User " + session.getUserName());
-	        	UserInfo userinfo = new MyUserInfo();
+	        	UserInfo userinfo = new MyUserInfo(password.toString());
 	        	session.setUserInfo(userinfo);
 	        	Log.e(TAG, session.getHost());
 	          final JSch jsch = getJSch(hc, FS.DETECTED);
@@ -542,7 +530,10 @@ public class GitRepository {
 	        	Log.e(TAG, "IAM CALLED");
 	        	Log.e(TAG, "Host " + session.getHost());
 	        	Log.e(TAG, "User " + session.getUserName());
-	        	UserInfo userinfo = new MyUserInfo();
+	        	
+	        	//TODO provide password
+	        	Log.d(TAG, password.toString());
+	        	UserInfo userinfo = new MyUserInfo(password.toString());
 	        	session.setUserInfo(userinfo);
 	        	Log.e(TAG, session.getHost());
 	          final JSch jsch = getJSch(hc, FS.DETECTED);
