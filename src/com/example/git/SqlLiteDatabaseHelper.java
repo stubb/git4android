@@ -9,7 +9,7 @@ public class SqlLiteDatabaseHelper extends SQLiteOpenHelper {
 		private static SqlLiteDatabaseHelper mInstance;
 		private static final String DATABASE_NAME = "woopwoop";
 		private static final int DATABASE_VERSION = 2;
-		private static final String TABLE_NAME = "woop";
+		private static final String TABLE_NAME = "Repositories";
 		private static final String TABLE_CREATE = "CREATE TABLE " + TABLE_NAME + " (repoPath VARCHAR UNIQUE NOT NULL);";
 		
 		private SqlLiteDatabaseHelper(Context context) {

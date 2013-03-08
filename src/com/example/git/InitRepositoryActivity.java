@@ -72,7 +72,7 @@ public class InitRepositoryActivity extends Activity {
 			      				if (git.init(selectedPath)) {
 			      					SqlLiteDatabaseHelper dbHelper = SqlLiteDatabaseHelper.getInstance(InitRepositoryActivity.this);
 			      					SQLiteDatabase db = dbHelper.getWritableDatabase();
-			      					db.execSQL("INSERT INTO " + "woop" + " ('repoPath') VALUES ('" +  selectedPath + "');");
+			      					db.execSQL("INSERT INTO " + "Repositories" + " ('repoPath') VALUES ('" +  selectedPath + "');");
 			      					selectedPath = "";
 			      					ToastNotification.makeToast("Repo created!", Toast.LENGTH_LONG, InitRepositoryActivity.this);
 			      					finish();
