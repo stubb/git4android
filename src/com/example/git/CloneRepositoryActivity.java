@@ -1,12 +1,12 @@
 package com.example.git;
 
-import java.io.UnsupportedEncodingException;
+import java.io.File;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -16,14 +16,13 @@ import android.widget.Toast;
 
 /**
  * 
- * @author kili
  *
  */
 public class CloneRepositoryActivity extends Activity {
 	
 		private final String TAG = getClass().getName();
 		private String selectedPath = "";
-		GitRepository git = null;
+		GitRepository git = new GitRepository();
 	
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
@@ -44,7 +43,7 @@ public class CloneRepositoryActivity extends Activity {
 			 Button button_submit_clone_repository = (Button) findViewById(R.id.button_submit_clone_repository);
  			 button_submit_clone_repository.setOnClickListener(new View.OnClickListener(){
       		public void onClick(View v) {
-						Toaster.makeToast("Enter URL and select a path", Toast.LENGTH_LONG, CloneRepositoryActivity.this);
+      			ToastNotification.makeToast("Enter URL and select a path", Toast.LENGTH_LONG, CloneRepositoryActivity.this);
     			}
       });
 		}
@@ -70,32 +69,37 @@ public class CloneRepositoryActivity extends Activity {
 			    	 pathEditText.setText(selectedPath);
 			    	 pathEditText.setEnabled(false);
 						
-						
 			    	 Button button_submit_clone_repository = (Button) findViewById(R.id.button_submit_clone_repository);
 			 			 button_submit_clone_repository.setOnClickListener(new View.OnClickListener(){
 			      		public void onClick(View v) {     			
-			      				if (repositoryUrl != "" && selectedPath != "") {	//password can be empty
-			      					git = new GitRepository(selectedPath, repositoryUrl, password.getBytes(), Environment.getExternalStorageDirectory().getAbsolutePath() + "/.ssh/id_rsa",
-												Environment.getExternalStorageDirectory().getAbsolutePath() + "/.ssh/id_rsa.pub");
-			      					SqlLiteDatabaseHelper dbHelper = SqlLiteDatabaseHelper.getInstance(CloneRepositoryActivity.this);
-			      					SQLiteDatabase db = dbHelper.getWritableDatabase();
-			      					db.execSQL("INSERT INTO " + "woop" + " ('repoPath') VALUES ('" +  selectedPath + "');");
-			      					selectedPath = "";
-			      					Toaster.makeToast("Repo cloned!", Toast.LENGTH_LONG, CloneRepositoryActivity.this);
-			    						finish();
-			      			} else {
-										Toaster.makeToast("Cant clone", Toast.LENGTH_LONG, CloneRepositoryActivity.this);
+			      				if (repositoryUrl != "" && selectedPath != "") {
+			      					File path = new File(selectedPath);
+			      					if (path.isDirectory()) {
+			            			SharedPreferences settings = getSharedPreferences(CloneRepositoryActivity.this.getResources().getString(R.string.APPSETTINGS), 0);
+			            			String privateKeyFilenameWithPath = settings.getString(CloneRepositoryActivity.this.getResources().getString(R.string.SSHPRIVATEKEYPATHSETTING), "");
+			            			String publicKeyFilenameWithPath = settings.getString(CloneRepositoryActivity.this.getResources().getString(R.string.SSHPUBLICKEYPATHSETTING), "");
+			                	Log.d(TAG, privateKeyFilenameWithPath);
+			                	Log.d(TAG, publicKeyFilenameWithPath);
+			      						if (git.clone(selectedPath, repositoryUrl, password, privateKeyFilenameWithPath, publicKeyFilenameWithPath)) {
+			      							SqlLiteDatabaseHelper dbHelper = SqlLiteDatabaseHelper.getInstance(CloneRepositoryActivity.this);
+			      							SQLiteDatabase db = dbHelper.getWritableDatabase();
+			      							db.execSQL("INSERT INTO " + "woop" + " ('repoPath') VALUES ('" +  selectedPath + "');");
+			      							selectedPath = "";
+			      							ToastNotification.makeToast("Repo cloned!", Toast.LENGTH_LONG, CloneRepositoryActivity.this);
+			      							finish();
+			      						}	else {
+			      							ToastNotification.makeToast("Something went wrong during the clone process", Toast.LENGTH_LONG, CloneRepositoryActivity.this);
+			      						}
+			      					} else {
+			      						ToastNotification.makeToast("Cant clone", Toast.LENGTH_LONG, CloneRepositoryActivity.this);
+			      					}
+			      				}
 			      			}
-
-			  				}
-			        });
-			     					      
+			        });				      
 			     }
 
 			     if (resultCode == RESULT_CANCELED) {
-
-			     //Write your code on no result return 
-
+			    	 ToastNotification.makeToast("Something went wrong during the selection, please do it again!", Toast.LENGTH_LONG, CloneRepositoryActivity.this);
 			     }
 			}
 		}

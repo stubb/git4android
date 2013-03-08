@@ -1,17 +1,11 @@
 package com.example.git;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -21,14 +15,13 @@ import android.widget.Toast;
 
 /**
  * 
- * @author kili
  *
  */
 public class InitRepositoryActivity extends Activity {
 	
 		private final String TAG = getClass().getName();
 		private String selectedPath = "";
-		GitRepository git = null;
+		GitRepository git = new GitRepository();
 	
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
@@ -72,53 +65,30 @@ public class InitRepositoryActivity extends Activity {
 						
 						 Button button_submit_init_repository = (Button) findViewById(R.id.button_submit_init_repository);
 			 			 button_submit_init_repository.setOnClickListener(new View.OnClickListener(){
-			      		public void onClick(View v) {     			
-			      				if (selectedPath != "") {
-			      					init(selectedPath);
+			      	public void onClick(View v) {
+			      		if (selectedPath != "") {
+			      			File path = new File(selectedPath);
+			      			if (path.isDirectory()) {		
+			      				if (git.init(selectedPath)) {
 			      					SqlLiteDatabaseHelper dbHelper = SqlLiteDatabaseHelper.getInstance(InitRepositoryActivity.this);
 			      					SQLiteDatabase db = dbHelper.getWritableDatabase();
 			      					db.execSQL("INSERT INTO " + "woop" + " ('repoPath') VALUES ('" +  selectedPath + "');");
 			      					selectedPath = "";
 			      					ToastNotification.makeToast("Repo created!", Toast.LENGTH_LONG, InitRepositoryActivity.this);
-			    						finish();
+			      					finish();
+			      				} else {
+			      					ToastNotification.makeToast("Somethign went wrong during the init process", Toast.LENGTH_LONG, InitRepositoryActivity.this);
+			      				}
 			      			} else {
-										ToastNotification.makeToast("Cant init", Toast.LENGTH_LONG, InitRepositoryActivity.this);
+										ToastNotification.makeToast("You havn't selected a valid folder", Toast.LENGTH_LONG, InitRepositoryActivity.this);
 			      			}
-
-			  				}
-			        });
-			     					      
-			     }
-
-			     if (resultCode == RESULT_CANCELED) {
-
-			     //Write your code on no result return 
-
-			     }
+			      		}
+		  				}
+		        });		     					      
+			    }
+			    if (resultCode == RESULT_CANCELED) {
+			    	ToastNotification.makeToast("Something went wrong during the selection, please do it again!", Toast.LENGTH_LONG, InitRepositoryActivity.this);
+			    }
 			}
-		}
-		
-	   /**
-	    * Inits a new GIT repo within a given folder.
-	    * A .git folder is created where all the stuff is inside
-	    * @param String targetDirectory 
-	    */
-	   private boolean init(String targetDirectory){
-	  	 boolean buildRepoSuccessfully = false;
-		   Repository repository;
-		   File path = new File(targetDirectory + "/.git/");
-		   FileRepositoryBuilder builder = new FileRepositoryBuilder();
-		   try {
-			   repository = builder.setGitDir(path)
-					   .readEnvironment()
-					   .findGitDir()
-					   .build();
-			   repository.create();
-			   buildRepoSuccessfully = true;
-		   } catch (IOException e1) {
-			   Log.e(TAG, "Wasn't able to init Repo : /");
-			   e1.printStackTrace();
-		   } 
-		   return buildRepoSuccessfully;
 		}
 }
