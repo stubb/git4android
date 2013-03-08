@@ -1,18 +1,12 @@
 package com.example.git;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.security.Security;
-
-import android.os.Bundle;
-import android.os.Environment;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
+import android.os.Environment;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
@@ -22,16 +16,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
-import org.spongycastle.jce.provider.BouncyCastleProvider;
-
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.KeyPair;
 
-import com.example.git.SqlLiteDatabaseHelper;
+import org.spongycastle.jce.provider.BouncyCastleProvider;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.security.Security;
 
 public class MainActivity extends Activity {
   
@@ -40,8 +34,9 @@ public class MainActivity extends Activity {
   	Security.insertProviderAt(provider, 1);
   }
   
+	final String TAG = getClass().getName();
 	String selectedPath = "";
-	String TAG = getClass().getName();
+
 	
 	//TODO select via intent if only files, dirs or both are allowed to select
     @Override
@@ -65,7 +60,7 @@ public class MainActivity extends Activity {
       		public void onClick(View v) {
       			SharedPreferences settings = getSharedPreferences(MainActivity.this.getResources().getString(R.string.APPSETTINGS), 0);
       			String privateKeyFilenameWithPath = settings.getString(MainActivity.this.getResources().getString(R.string.SSHPRIVATEKEYPATHSETTING), "");
-      			String publicKeyFilenameWithPath = settings.getString(MainActivity.this.getResources().getString(R.string.SSHPRIVATEKEYPATHSETTING), "");
+      			String publicKeyFilenameWithPath = settings.getString(MainActivity.this.getResources().getString(R.string.SSHPUBLICKEYPATHSETTING), "");
       			
 						boolean privateKey = new File(privateKeyFilenameWithPath).isFile();
 						boolean publicKey = new File(publicKeyFilenameWithPath).isFile();
