@@ -34,14 +34,14 @@ public class RepositoryListActivity extends Activity {
 				super.onCreate(savedInstanceState);
 				setContentView(R.layout.repository_list);
 				
-				SqlLiteDatabaseHelper dbHelper = SqlLiteDatabaseHelper.getInstance(RepositoryListActivity.this);
-				final SQLiteDatabase db = dbHelper.getWritableDatabase();
+				final SqlLiteDatabaseHelper databaseHelper = SqlLiteDatabaseHelper.getInstance(RepositoryListActivity.this);
+				final SQLiteDatabase database = databaseHelper.getWritableDatabase();
 				
 				repositoryPathsListView = (ListView)findViewById(R.id.repo_list_view);
 	      // By using setAdpater method in listview we an add string array in list.
 			  
 			  final String[] columns = new String[]{"repoPath"};
-			  loadStringsFromDataBaseTable(db, "woop", repositoryPathList, columns, " ");
+			  loadStringsFromDataBaseTable(database, "Repositories", repositoryPathList, columns, " ");
 				  
 			  tableRowAdapter = new ArrayAdapter<String>(RepositoryListActivity.this, android.R.layout.simple_list_item_1 , repositoryPathList);
 			  repositoryPathsListView.setAdapter(tableRowAdapter);
@@ -65,9 +65,9 @@ public class RepositoryListActivity extends Activity {
 
 								public void onClick(DialogInterface dialog, int which) {
 									Log.d(TAG, repositoryPathList.get(arg2));
-									db.execSQL("DELETE FROM " + "woop" + " WHERE repoPath = '" + repositoryPathList.get(arg2) + "';");
+									databaseHelper.removeRepositoryPathfromTableRepositories(repositoryPathList.get(arg2));
 									repositoryPathList = new ArrayList<String>();
-							  	loadStringsFromDataBaseTable(db, "woop", repositoryPathList, columns, " ");
+							  	loadStringsFromDataBaseTable(database, "Repositories", repositoryPathList, columns, " ");
 							  	tableRowAdapter = new ArrayAdapter<String>(RepositoryListActivity.this, android.R.layout.simple_list_item_1 , repositoryPathList);
 							  	repositoryPathsListView.setAdapter(tableRowAdapter);
 							  	tableRowAdapter.notifyDataSetChanged();
