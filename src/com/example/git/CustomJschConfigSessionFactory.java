@@ -27,7 +27,7 @@ public class CustomJschConfigSessionFactory extends JschConfigSessionFactory {
 	private final String TAG = getClass().getName();
 	private String privateKeyPath = "";
 	private String publicKeyPath = "";
-	private byte[] privateKeyPassword = null;
+	private String privateKeyPassword = "";
 	
 	/**
 	 * 
@@ -35,7 +35,7 @@ public class CustomJschConfigSessionFactory extends JschConfigSessionFactory {
 	 * @param privateKeyPath
 	 * @param publicKeyPath
 	 */
-	CustomJschConfigSessionFactory(final byte[] password, final String newPrivateKeyPath, final String newPublicKeyPath) {
+	CustomJschConfigSessionFactory(final String password, final String newPrivateKeyPath, final String newPublicKeyPath) {
 		privateKeyPassword = password;
 		privateKeyPath = newPrivateKeyPath;
 		publicKeyPath = newPublicKeyPath;
@@ -47,7 +47,12 @@ public class CustomJschConfigSessionFactory extends JschConfigSessionFactory {
 	 */
   protected void configure(Host hc, Session session) {
 		try {
-			UserInfo userinfo = new MyUserInfo();
+    	Log.d(TAG, "++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    	Log.d(TAG, privateKeyPassword);
+    	Log.d(TAG, privateKeyPath);
+    	Log.d(TAG, publicKeyPath);
+    	
+			UserInfo userinfo = new MyUserInfo(privateKeyPassword);
 			session.setUserInfo(userinfo);
 			
 			final Properties jschConfig = new Properties();
@@ -64,11 +69,12 @@ public class CustomJschConfigSessionFactory extends JschConfigSessionFactory {
 			byte [] privateKey = new byte[(int)privateKeyFile.length()];
 			privateKeyFile.read(privateKey);
 			privateKeyFile.close();
-  	    
+  	  
 			final JSch jsch = getJSch(hc, FS.DETECTED);
-        jsch.addIdentity("git", privateKey, publicKey, privateKeyPassword); 
+      jsch.addIdentity("git", privateKey, publicKey, privateKeyPassword.getBytes()); 
      } catch (JSchException e) {
-        throw new RuntimeException(e);       
+    	 Log.e(TAG, "Authentification failed!");
+    	 e.printStackTrace();     
      } catch (FileNotFoundException e) {
     	 Log.e(TAG, "Private/Public key not found!");
        e.printStackTrace();
