@@ -28,8 +28,10 @@ public class SettingsActivity extends Activity {
 		sshPublicKeyPath = settings.getString(SettingsActivity.this.getResources().getString(R.string.SSHPUBLICKEYPATHSETTING), "");
 		
  	 	EditText sshPrivateKeyPathEditText = (EditText) findViewById(R.id.ssh_private_key_path);
- 	 	sshPrivateKeyPath = sshPrivateKeyPathEditText.getText().toString();
- 	 	sshPrivateKeyPathEditText.setText(sshPrivateKeyPath);
+ 	 	//sshPrivateKeyPath = sshPrivateKeyPathEditText.getText().toString();
+ 	 	if (sshPrivateKeyPath != "") {
+ 	 		sshPrivateKeyPathEditText.setText(sshPrivateKeyPath);
+ 	 	}
  	 	sshPrivateKeyPathEditText.setEnabled(false);
 		
  	 	Button sshPrivateKeyPathButton = (Button) findViewById(R.id.button_select_folder_ssh_private_key_path);
@@ -42,8 +44,10 @@ public class SettingsActivity extends Activity {
  	 	});
  	 	
  	 	EditText sshPublicKeyPathEditText = (EditText) findViewById(R.id.ssh_public_key_path);
- 	 	sshPublicKeyPath = sshPublicKeyPathEditText.getText().toString();
- 	 	sshPublicKeyPathEditText.setText(sshPublicKeyPath);
+ 	 	//sshPublicKeyPath = sshPublicKeyPathEditText.getText().toString();
+ 	 	if (sshPublicKeyPath != "") {
+ 	 		sshPublicKeyPathEditText.setText(sshPublicKeyPath);
+ 	 	}
  	 	sshPublicKeyPathEditText.setEnabled(false);
  	
   	Button sshPublicKeyPathButton = (Button) findViewById(R.id.button_select_folder_ssh_public_key_path);
