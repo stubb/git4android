@@ -24,6 +24,9 @@ import android.widget.AdapterView.OnItemClickListener;
  */
 public class RepositoryListActivity extends Activity {
 
+	/**
+	 * The tag is used to identify the class while logging
+	 */
 			private final String TAG = getClass().getName();
 			private ListView repositoryPathsListView;
 			private ArrayAdapter<String> tableRowAdapter;			
@@ -32,7 +35,7 @@ public class RepositoryListActivity extends Activity {
 			@Override
 			public void onCreate(Bundle savedInstanceState) {
 				super.onCreate(savedInstanceState);
-				setContentView(R.layout.repository_list);
+				setContentView(R.layout.activity_repository_list);
 				
 				final SqlLiteDatabaseHelper databaseHelper = SqlLiteDatabaseHelper.getInstance(RepositoryListActivity.this);
 				final SQLiteDatabase database = databaseHelper.getWritableDatabase();

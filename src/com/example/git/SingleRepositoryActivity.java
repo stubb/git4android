@@ -1,12 +1,9 @@
 package com.example.git;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.util.Locale;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,12 +16,13 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 /**
- * 
- * @author kili
- *
+ * This activity 
  */
-public class SingleRepositoryActivity extends Activity{
+public class SingleRepositoryActivity extends Activity {
 
+	/**
+	 * The tag is used to identify the class while logging
+	 */
 	private final String TAG = getClass().getName();
 	private String repoPath = "";
 	private String filePathToAdd = "";
@@ -36,7 +34,7 @@ public class SingleRepositoryActivity extends Activity{
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.single_repository_overview);
+		setContentView(R.layout.activity_single_repository_overview);
 
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
@@ -54,37 +52,66 @@ public class SingleRepositoryActivity extends Activity{
 			Button buttonStatus = (Button) findViewById(R.id.button_status);
 			Button buttonShowRemote = (Button) findViewById(R.id.button_show_remote);
 
+			final int protocol = repository.checkUrlforProtokoll(repository.getRemoteOriginUrl(), SingleRepositoryActivity.this);
+
 			buttonPull.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
-					// check
-					AlertDialog.Builder alert = new AlertDialog.Builder(SingleRepositoryActivity.this);                 
-					alert.setTitle("Enter pw");  
-					alert.setMessage("pw");                
-
-					final EditText input = new EditText(SingleRepositoryActivity.this); 
-					input.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
-					alert.setView(input);
-
-					alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
-						public void onClick(DialogInterface dialog, int whichButton) {
-				/*			try {
-						//		repository.pull(input.getText().toString().getBytes("UTF-8"), Environment.getExternalStorageDirectory().getAbsolutePath() + "/.ssh/id_rsa",
-						//				Environment.getExternalStorageDirectory().getAbsolutePath() + "/.ssh/id_rsa.pub");
-							} catch (UnsupportedEncodingException e) {
-								Log.e(TAG, "Encoding UTF-8 not supported");
-								e.printStackTrace();
-							}*/
+					if(repository.getRemoteOriginUrl() == "") {
+						ToastNotification.makeToast("There is no Remote Origin Url configured", Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+					}
+					else {
+						if (protocol == SingleRepositoryActivity.this.getResources().getInteger(R.integer.GITPROTOCOL)) {
+							repository.pull();
 						}
-					});
+						else if (protocol == SingleRepositoryActivity.this.getResources().getInteger(R.integer.SSHPROTOCOL)) {
+							AlertDialog.Builder alert = new AlertDialog.Builder(SingleRepositoryActivity.this);                 
+							alert.setTitle("Enter password");           
 
-					alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							// TODO Auto-generated method stub
-							return;   
+							final EditText inputPassword = new EditText(SingleRepositoryActivity.this); 
+							inputPassword.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+							alert.setView(inputPassword);
+
+							alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
+								public void onClick(DialogInterface dialog, int whichButton) {
+									repository.pull(inputPassword.getText().toString(), Environment.getExternalStorageDirectory().getAbsolutePath() + "/.ssh/id_rsa",
+											Environment.getExternalStorageDirectory().getAbsolutePath() + "/.ssh/id_rsa.pub");
+								}
+							});
+
+							alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int which) {
+									return;   
+								}
+							});
+							alert.show();
 						}
-					});
-					alert.show();
+						else if (protocol == SingleRepositoryActivity.this.getResources().getInteger(R.integer.HTTPPROTOCOL) || 
+								protocol == SingleRepositoryActivity.this.getResources().getInteger(R.integer.HTTPSPROTOCOL)) {
+							AlertDialog.Builder alert = new AlertDialog.Builder(SingleRepositoryActivity.this);
+							alert.setTitle("Enter password");  
+							
+							final EditText inputPassword = new EditText(SingleRepositoryActivity.this); 
+							inputPassword.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+							alert.setView(inputPassword);
 
+							final EditText inputUsername = new EditText(SingleRepositoryActivity.this); 
+							inputUsername.setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
+							alert.setView(inputUsername);
+
+							alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
+								public void onClick(DialogInterface dialog, int whichButton) {
+									repository.pull(inputUsername.getText().toString(), inputPassword.getText().toString());
+								}
+							});
+
+							alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int which) {
+									return;   
+								}
+							});
+							alert.show();
+						}
+					}
 				}
 			});
 
@@ -105,13 +132,86 @@ public class SingleRepositoryActivity extends Activity{
 
 			buttonCommit.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
-					repository.commit("ABC");
+					AlertDialog.Builder alert = new AlertDialog.Builder(SingleRepositoryActivity.this);                 
+					alert.setTitle("Enter commit message");                
+
+					final EditText inputMessage = new EditText(SingleRepositoryActivity.this); 
+					inputMessage.setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
+					alert.setView(inputMessage);
+
+					alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
+						public void onClick(DialogInterface dialog, int whichButton) {
+							repository.commit(inputMessage.getText().toString());
+						}
+					});
+
+					alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							return;   
+						}
+					});
+					alert.show();
 				}
 			});
 
 			buttonPush.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
-					//repository.push();
+					if(repository.getRemoteOriginUrl() == "") {
+						ToastNotification.makeToast("There is no Remote Origin Url configured", Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+					}
+					else {
+						if (protocol == SingleRepositoryActivity.this.getResources().getInteger(R.integer.GITPROTOCOL)) {
+							ToastNotification.makeToast("the git:// protocol is ready only, can't used to push", Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+						}
+						else if (protocol == SingleRepositoryActivity.this.getResources().getInteger(R.integer.SSHPROTOCOL)) {
+							AlertDialog.Builder alert = new AlertDialog.Builder(SingleRepositoryActivity.this);                 
+							alert.setTitle("Enter password");  
+							alert.setMessage("pw");                
+
+							final EditText inputPassword = new EditText(SingleRepositoryActivity.this); 
+							inputPassword.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+							alert.setView(inputPassword);
+
+							alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
+								public void onClick(DialogInterface dialog, int whichButton) {
+									repository.push(inputPassword.getText().toString(), Environment.getExternalStorageDirectory().getAbsolutePath() + "/.ssh/id_rsa",
+											Environment.getExternalStorageDirectory().getAbsolutePath() + "/.ssh/id_rsa.pub");
+								}
+							});
+
+							alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int which) {
+									return;   
+								}
+							});
+							alert.show();
+						}
+						else if (protocol == SingleRepositoryActivity.this.getResources().getInteger(R.integer.HTTPPROTOCOL) || 
+								protocol == SingleRepositoryActivity.this.getResources().getInteger(R.integer.HTTPSPROTOCOL)) {
+							AlertDialog.Builder alert = new AlertDialog.Builder(SingleRepositoryActivity.this);
+
+							final EditText inputPassword = new EditText(SingleRepositoryActivity.this); 
+							inputPassword.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+							alert.setView(inputPassword);
+
+							final EditText inputUsername = new EditText(SingleRepositoryActivity.this); 
+							inputUsername.setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
+							alert.setView(inputUsername);
+
+							alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
+								public void onClick(DialogInterface dialog, int whichButton) {
+									repository.push(inputUsername.getText().toString(), inputPassword.getText().toString());
+								}
+							});
+
+							alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int which) {
+									return;   
+								}
+							});
+							alert.show();
+						}
+					}
 				}
 			});
 
@@ -120,7 +220,7 @@ public class SingleRepositoryActivity extends Activity{
 					ToastNotification.makeToast(repository.getRemoteOriginUrl(), Toast.LENGTH_LONG, SingleRepositoryActivity.this);
 				}
 			});
-			
+
 			buttonAddRemote.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
 					AlertDialog.Builder alert = new AlertDialog.Builder(SingleRepositoryActivity.this);                 
@@ -143,7 +243,6 @@ public class SingleRepositoryActivity extends Activity{
 						}
 					});
 					alert.show();
-					
 				}
 			});
 
@@ -173,49 +272,13 @@ public class SingleRepositoryActivity extends Activity{
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
 		if (requestCode == 1) {
-
-			if(resultCode == RESULT_OK){
-
+			if(resultCode == RESULT_OK) {
 				filePathToAdd = data.getStringExtra("currentPath");
 				ToastNotification.makeToast(filePathToAdd, Toast.LENGTH_LONG, SingleRepositoryActivity.this);
-
 			}
-
 			if (resultCode == RESULT_CANCELED) {
-
-				//Write your code on no result return 
-
 			}
 		}
 	}
-	
-	/**
-	 * Checks the given URL for a known protocol (ssh://, git://, http:// or https://)
-	 * @param url	The url that should be checked.
-	 * @param context The activity context, from which this function is called.
-	 * @return	The result of the check 0, if no protocol was recognized, 1 for ssh://, 2 for git://, 3 for http:// and 4 for https:// .
-	 */
-	private int checkUrlforProtokoll(String url, Context context){
-		int result = 0;
-		// Locale.US is guaranteed to be available on all devices
-		// http://developer.android.com/reference/java/util/Locale.html
-		if (url.toLowerCase(Locale.US).startsWith("ssh://")) {
-			result = context.getResources().getInteger(R.integer.SSHPROTOCOL);
-		}
-		else if (url.toLowerCase(Locale.US).startsWith("git://")) {
-			result = context.getResources().getInteger(R.integer.GITPROTOCOL);
-		}
-		else if (url.toLowerCase(Locale.US).startsWith("http://")) {
-			result = context.getResources().getInteger(R.integer.HTTPPROTOCOL);
-		}
-		else if (url.toLowerCase(Locale.US).startsWith("https://")) {
-			result = context.getResources().getInteger(R.integer.HTTPSPROTOCOL);
-		}
-		else {
-			Log.e(TAG, "The URL " + url + " is not supported!");
-		}
-		return result;
-	}
-
 }
 
