@@ -3,16 +3,9 @@ package com.example.git;
 import android.util.Log;
 
 import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
-import com.jcraft.jsch.UserInfo;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.util.Properties;
 
 import org.eclipse.jgit.api.AddCommand;
@@ -46,14 +39,8 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
-import org.eclipse.jgit.transport.JschConfigSessionFactory;
-import org.eclipse.jgit.transport.OpenSshConfig.Host;
-import org.eclipse.jgit.transport.RefSpec;
-import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.SshSessionFactory;
-import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
-import org.eclipse.jgit.util.FS;
 
 /**
  *  This is a wrapper class for the JGIT library
@@ -118,8 +105,9 @@ public class GitRepository {
 	}
 
 	/**
-	 * 
-	 * @return
+	 * Creates a simple log of the repository. It includes all commits
+	 * with the commit ID's and the commit messages.
+	 * @return The log.
 	 */
 	public String log(){
 		String log = "";
@@ -127,16 +115,16 @@ public class GitRepository {
 		try {
 			loggedCommits = git.log().call();
 			for (RevCommit commit : loggedCommits) {
-				log += commit.toString();
-				log += "\n";
+				String entry = "";
+				entry += commit.getName() + "\n";		
+				entry += commit.getFullMessage() + "\n\n";
+				log += entry;
 			}
 		} catch (NoHeadException e) {
-			// TODO Auto-generated catch block
-			Log.e(TAG, "Log failed, no head ex");
+			Log.e(TAG, "Log creation failed, no HEAD reference available.");
 			e.printStackTrace();
 		} catch (GitAPIException e) {
-			// TODO Auto-generated catch block
-			Log.e(TAG, "Log failed, git api ex");
+			Log.e(TAG, "Log creation failed, wasn't able to access the repository.");
 			e.printStackTrace();
 		}
 		return log;
@@ -182,9 +170,6 @@ public class GitRepository {
 	}
 
 	/**
-	 * Inits a new GIT repo within a given folder.
-	 * A .git folder is created where all the stuff is inside
-	 * @param String targetDirectory 
 	 */
 	public boolean open(String targetDirectory){
 		boolean buildRepoSuccessfully = false;
@@ -222,7 +207,6 @@ public class GitRepository {
 		try {
 			AddCommand add = git.add();
 			add.addFilepattern(file).call();
-			//	git.add().addFilepattern(".").call();
 			addedFileSuccesfully = true;
 		} catch (NoFilepatternException e) {
 			// TODO Auto-generated catch block
@@ -236,20 +220,15 @@ public class GitRepository {
 		return addedFileSuccesfully;
 	}
 
-	public boolean setRemote(String remoteUri) {
+	public boolean setRemoteOriginUrl(String url) {
 		boolean setSuccesfully = false;
+		StoredConfig config = git.getRepository().getConfig();
+		config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
+		config.setString("remote", "origin", "url", url);
 		try {
-			git.fetch().setRemote(remoteUri)
-			.setRefSpecs(new RefSpec("refs/heads/foo:refs/heads/foo"))
-			.call();
+			config.save();
 			setSuccesfully = true;
-		} catch (InvalidRemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (TransportException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (GitAPIException e) {
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -260,10 +239,17 @@ public class GitRepository {
 	 * 
 	 * @return
 	 */
-	public String getRemote() {
-		String remote = "";
-		remote = git.fetch().getRemote();
-		return remote;
+	public String getRemoteOriginUrl() {
+		String remoteUrl = "";
+		if (inited()) {
+			StoredConfig config = git.getRepository().getConfig();
+			String tempRemoteUrl = config.getString("remote", "origin", "url");
+			if (tempRemoteUrl != null) {
+				remoteUrl = tempRemoteUrl;
+			}
+			Log.d(TAG, "remoteurl " + remoteUrl);
+		}
+		return remoteUrl;
 	}
 
 
@@ -301,55 +287,6 @@ public class GitRepository {
 	}
 
 	/**
-	 * 
-	 * @param nameOrSpec
-	 * @param commitMessage
-	 * @return
-	 */
-	public boolean push(String nameOrSpec, String commitMessage) {
-		boolean pushSuccesfully = false;
-		CommitCommand commit = git.commit();
-		try {
-			final StoredConfig config = git.getRepository().getConfig();
-			RemoteConfig remoteConfig = new RemoteConfig(config, "test");
-			URIish uri = new URIish(git.getRepository().getDirectory().toURI().toURL());
-			remoteConfig.addURI(uri);
-			remoteConfig.update(config);
-			config.save();			
-			commit.setMessage(commitMessage).call();
-			pushSuccesfully = true;
-		} catch (NoHeadException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoMessageException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UnmergedPathsException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ConcurrentRefUpdateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (WrongRepositoryStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (GitAPIException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return pushSuccesfully;
-	}
-
-	/**
 	 * HTTP
 	 * @param path
 	 * @param uri
@@ -366,21 +303,21 @@ public class GitRepository {
 		clone.setDirectory(new File(path + "/"));
 		clone.setURI(uri);
 		try {
-	    clone.call();
-    } catch (InvalidRemoteException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-    } catch (TransportException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-    } catch (GitAPIException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-    }
+			clone.call();
+		} catch (InvalidRemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TransportException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (GitAPIException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		cloneSuccesfull = true;
 		return cloneSuccesfull;
 	}
-	
+
 	/**
 	 * SSH
 	 * @param uri
@@ -440,9 +377,6 @@ public class GitRepository {
 		} catch (InvalidRemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (TransportException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (GitAPIException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -467,53 +401,16 @@ public class GitRepository {
 		}
 	}
 
-	public boolean pull(final byte[] password, final String privateKeyPath, final String publicKeyPath) {
+	public boolean pull(final String password, final String privateKeyPath, final String publicKeyPath) {
 		boolean successful = false;
 		try {
-			setDefaultConfig();
-			final Properties jschConfig = new Properties();
-			jschConfig.put("StrictHostKeyChecking", "no");
-			JSch.setConfig(jschConfig);
+			final Properties config = new Properties();
+			config.put("StrictHostKeyChecking", "no");
+			JSch.setConfig(config);
 			JSch.setLogger(new JschLogger());
 
-			SshSessionFactory.setInstance(new JschConfigSessionFactory() {
-				@Override
-				protected void configure(Host hc, Session session) {
-					try {
-						Log.e(TAG, "IAM CALLED");
-						Log.e(TAG, "Host " + session.getHost());
-						Log.e(TAG, "User " + session.getUserName());
-						UserInfo userinfo = new MyUserInfo(password.toString());
-						session.setUserInfo(userinfo);
-						Log.e(TAG, session.getHost());
-						final JSch jsch = getJSch(hc, FS.DETECTED);
-
-						RandomAccessFile publicKeyFile = new RandomAccessFile(publicKeyPath, "rw");
-						byte [] publicKey = new byte[(int)publicKeyFile.length()];
-						publicKeyFile.read(publicKey);
-						publicKeyFile.close();
-
-						RandomAccessFile privateKeyFile = new RandomAccessFile(privateKeyPath, "rw");
-						byte [] privateKey = new byte[(int)privateKeyFile.length()];
-						privateKeyFile.read(privateKey);
-						privateKeyFile.close();
-
-						//    byte [] passphrase = password.getBytes();
-
-						jsch.addIdentity("git", privateKey, publicKey, password);
-					} catch (JSchException e) {
-						throw new RuntimeException(e);
-					} catch (FileNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (JGitInternalException e) {
-						e.printStackTrace();
-					}
-				}
-			}); 
+			CustomJschConfigSessionFactory factory = new CustomJschConfigSessionFactory(password, privateKeyPath, publicKeyPath);
+			SshSessionFactory.setInstance(factory); 	 
 
 			PullCommand pullCommand = git.pull();
 			PullResult res = pullCommand.call();
@@ -554,57 +451,123 @@ public class GitRepository {
 		return successful;
 	}
 
-	public boolean push(final byte[] password, final String privateKeyPath, final String publicKeyPath) {
+	public boolean pull(String username, final String password) {
 		boolean successful = false;
 		try {
-			setDefaultConfig();
-			final Properties jschConfig = new Properties();
-			jschConfig.put("StrictHostKeyChecking", "no");
-			JSch.setConfig(jschConfig);
+			PullCommand pullCommand = git.pull();
+			UsernamePasswordCredentialsProvider user = new UsernamePasswordCredentialsProvider(username, password);                
+			pullCommand.setCredentialsProvider(user);
+			PullResult res = pullCommand.call();
+			org.eclipse.jgit.api.MergeResult mergeResult = res.getMergeResult();
+			Log.d(TAG, mergeResult.getMergeStatus().toString());
+			if (!res.getFetchResult().getTrackingRefUpdates().isEmpty() &&
+					!res.getMergeResult().getMergeStatus().equals(MergeStatus.ALREADY_UP_TO_DATE)) {
+				successful = true;
+			}
+		} catch (WrongRepositoryStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (DetachedHeadException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidRemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (CanceledException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (RefNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoHeadException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TransportException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (GitAPIException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		return successful;
+	}
+
+	public boolean pull() {
+		boolean successful = false;
+		try {
+			PullCommand pullCommand = git.pull();
+			PullResult res = pullCommand.call();
+			org.eclipse.jgit.api.MergeResult mergeResult = res.getMergeResult();
+			Log.d(TAG, mergeResult.getMergeStatus().toString());
+			if (!res.getFetchResult().getTrackingRefUpdates().isEmpty() &&
+					!res.getMergeResult().getMergeStatus().equals(MergeStatus.ALREADY_UP_TO_DATE)) {
+				successful = true;
+			}
+		} catch (WrongRepositoryStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (DetachedHeadException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidRemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (CanceledException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (RefNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoHeadException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TransportException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (GitAPIException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		return successful;
+	}
+
+	public boolean push(final String password, final String privateKeyPath, final String publicKeyPath) {
+		boolean successful = false;
+		try {
+			final Properties config = new Properties();
+			config.put("StrictHostKeyChecking", "no");
+			JSch.setConfig(config);
 			JSch.setLogger(new JschLogger());
-
-			SshSessionFactory.setInstance(new JschConfigSessionFactory() {
-				@Override
-				protected void configure(Host hc, Session session) {
-					try {
-						Log.e(TAG, "IAM CALLED");
-						Log.e(TAG, "Host " + session.getHost());
-						Log.e(TAG, "User " + session.getUserName());
-
-						//TODO provide password
-						Log.d(TAG, password.toString());
-						UserInfo userinfo = new MyUserInfo(password.toString());
-						session.setUserInfo(userinfo);
-						Log.e(TAG, session.getHost());
-						final JSch jsch = getJSch(hc, FS.DETECTED);
-
-						RandomAccessFile publicKeyFile = new RandomAccessFile(publicKeyPath, "rw");
-						byte [] publicKey = new byte[(int)publicKeyFile.length()];
-						publicKeyFile.read(publicKey);
-						publicKeyFile.close();
-
-						RandomAccessFile privateKeyFile = new RandomAccessFile(privateKeyPath, "rw");
-						byte [] privateKey = new byte[(int)privateKeyFile.length()];
-						privateKeyFile.read(privateKey);
-						privateKeyFile.close();
-
-						//    byte [] passphrase = password.getBytes();
-
-						jsch.addIdentity("git", privateKey, publicKey, password);
-					} catch (JSchException e) {
-						throw new RuntimeException(e);
-					} catch (FileNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (JGitInternalException e) {
-						e.printStackTrace();
-					}
-				}
-			});
+			CustomJschConfigSessionFactory factory = new CustomJschConfigSessionFactory(password, privateKeyPath, publicKeyPath);
+			SshSessionFactory.setInstance(factory); 	 
 			PushCommand pushCommand = git.push();
+			pushCommand.call();
+			successful = true;
+		} catch (InvalidRemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TransportException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (GitAPIException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return successful;
+	}
+
+	public boolean push(final String username, final String password) {
+		boolean successful = false;
+		try {
+			PushCommand pushCommand = git.push();
+			UsernamePasswordCredentialsProvider user = new UsernamePasswordCredentialsProvider(username, password);                
+			pushCommand.setCredentialsProvider(user);
 			pushCommand.call();
 			successful = true;
 		} catch (InvalidRemoteException e) {

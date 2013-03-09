@@ -14,6 +14,7 @@
      <string name="button_push">Push changes</string>
      <string name="button_pull">Pull changes</string>
      <string name="button_add_remote">Add remote repository</string>
+     <string name="button_show_remote">Show remote origin url</string>
      <string name="button_list_repos">List repositories</string>
      <string name="repository_textview">Select a repo:</string>
      <string name="button_log">Show log</string>
