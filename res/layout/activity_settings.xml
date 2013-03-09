@@ -55,9 +55,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_below="@+id/ssh_public_key_path"
-        android:text="@string/button_select_folder" />
-    
-               
+        android:text="@string/button_select_folder" />            
         
     <Button
         android:id="@+id/button_genKeys"

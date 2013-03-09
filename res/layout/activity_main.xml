@@ -37,16 +37,4 @@
         android:layout_marginTop="8sp"
         android:text="@string/button_clone" />
         
-        
-    <Button
-        android:id="@+id/button_genKeys"
-        android:layout_gravity="bottom"
-        android:layout_below="@+id/button_clone"
-        android:layout_width="fill_parent"
-        android:layout_height="60sp"
-        android:layout_marginRight="4sp"
-        android:layout_marginLeft="4sp"
-        android:layout_marginTop="8sp"
-        android:text="@string/button_genKeys" />
-
 </RelativeLayout>
