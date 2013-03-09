@@ -4,18 +4,21 @@ import android.util.Log;
 
 import com.jcraft.jsch.Logger;
 
-/** This class provides a custom logger for the Jsch library.
+/** This class provides a custom logger for the Java Secure Channel library.
  * 	It forwards all messages to the Android API for sending log output. 
  */
 public class JschLogger implements Logger {
-	
+
+	/**
+	 * The name thats used as identifier for the log output.
+	 */
 	private final String loggerName = "JschLogger";
 
-/**
- * Checks if logging of some level is actually enabled.
- * @level		The level that is checked.
- * @return	Always true to enable logging for all levels.
- */
+	/**
+	 * Checks if logging of some level is actually enabled.
+	 * @level		The level that is checked.
+	 * @return	Always true to enable logging for all levels.
+	 */
 	public boolean isEnabled(int level) {
 		return true;
 	}

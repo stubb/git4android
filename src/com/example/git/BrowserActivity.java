@@ -32,9 +32,13 @@ import android.widget.Toast;
 public class BrowserActivity extends Activity {
 	
 		private static final String PARENT_DIR = "..";
+		
+		/**
+		 * The tag is used to identify the class while logging
+		 */
 		private final String TAG = getClass().getName();
 		private List<String> fileList = new ArrayList<String>();
-		private File currentPath; 
+		private String currentPath = ""; 
  
 		private ArrayAdapter<String> wurst;
 		private String startPath = "";
@@ -97,9 +101,9 @@ public class BrowserActivity extends Activity {
 				Button button_select_directory = (Button) findViewById(R.id.button_select_directory);
 				button_select_directory.setOnClickListener(new View.OnClickListener() {
 					public void onClick(View v) {
-						Log.d(TAG, currentPath.getPath());			
+						Log.d(TAG, currentPath);			
 						Intent returnIntent = new Intent();
-						returnIntent.putExtra("currentPath", currentPath.getAbsolutePath());
+						returnIntent.putExtra("currentPath", currentPath);
 						returnIntent.putExtra("originOfRequestforResult", origin);
 						setResult(RESULT_OK, returnIntent);     
 						finish();
@@ -121,7 +125,7 @@ public class BrowserActivity extends Activity {
 							public void onClick(DialogInterface dialog, int whichButton) {  
 								String value = input.getText().toString();
 								Log.d(TAG, "Name " + value);
-								Log.d(TAG, currentPath.toString());
+								Log.d(TAG, currentPath);
 								//TODO check permissions correctlyk
 								File file = new File(currentPath, value);
 								
@@ -131,7 +135,7 @@ public class BrowserActivity extends Activity {
 								else {
 									ToastNotification.makeToast("Directory created", Toast.LENGTH_LONG, BrowserActivity.this);
 									// update fileListView
-									loadFileList(currentPath);
+									loadFileList(new File(currentPath));
 									wurst = new ArrayAdapter<String>(BrowserActivity.this, android.R.layout.simple_list_item_1, fileList);
 									fileListView.setAdapter(wurst);
 									wurst.notifyDataSetChanged();
@@ -186,7 +190,7 @@ public class BrowserActivity extends Activity {
 		}
 		
 	private void loadFileList(File path) {
-			this.currentPath = path;
+			currentPath = path.getAbsolutePath();
 			List<String> r = new ArrayList<String>();
 			if (path.exists()) {
 				Log.e(TAG, "Here be dragons");
@@ -210,9 +214,20 @@ public class BrowserActivity extends Activity {
 			fileList = r;
 
 		}
-
+	
+		/**
+		 * 
+		 * @param fileChosen The selected file entry
+		 * @return
+		 */
 		public File getChosenFile(String fileChosen) {
-			if (fileChosen.equals(PARENT_DIR)) return currentPath.getParentFile();
-			else return new File(currentPath, fileChosen);
+			File theChosenOne;
+			if (fileChosen.equals(PARENT_DIR)) {
+				theChosenOne = new File(currentPath).getParentFile();
+			}
+			else {
+				theChosenOne = new File(currentPath, fileChosen);
+			}
+			return theChosenOne;
 		}
 }

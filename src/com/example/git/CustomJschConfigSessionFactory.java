@@ -19,7 +19,6 @@ import com.jcraft.jsch.UserInfo;
 
 /**
  * 
- * @author kili
  *
  */
 public class CustomJschConfigSessionFactory extends JschConfigSessionFactory {
@@ -47,11 +46,8 @@ public class CustomJschConfigSessionFactory extends JschConfigSessionFactory {
 	 */
   protected void configure(Host hc, Session session) {
 		try {
-    	Log.d(TAG, "++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-    	Log.d(TAG, privateKeyPassword);
-    	Log.d(TAG, privateKeyPath);
-    	Log.d(TAG, publicKeyPath);
-    	
+			Log.d(TAG, "+++++++++++++++++++++++++++++++++");
+			Log.d(TAG, privateKeyPassword);
 			UserInfo userinfo = new MyUserInfo(privateKeyPassword);
 			session.setUserInfo(userinfo);
 			
@@ -71,6 +67,8 @@ public class CustomJschConfigSessionFactory extends JschConfigSessionFactory {
 			privateKeyFile.close();
   	  
 			final JSch jsch = getJSch(hc, FS.DETECTED);
+			Log.d(TAG, "+++++++++++++++++++++++++++++++++");
+			Log.d(TAG, privateKeyPassword);
       jsch.addIdentity("git", privateKey, publicKey, privateKeyPassword.getBytes()); 
      } catch (JSchException e) {
     	 Log.e(TAG, "Authentification failed!");

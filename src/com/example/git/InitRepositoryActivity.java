@@ -17,6 +17,9 @@ import java.io.File;
  */
 public class InitRepositoryActivity extends Activity {
 
+	/**
+	 * The tag is used to identify the class while logging
+	 */
 	private final String TAG = getClass().getName();
 
 	@Override

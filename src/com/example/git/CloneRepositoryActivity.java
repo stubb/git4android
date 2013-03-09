@@ -1,10 +1,8 @@
 package com.example.git;
 
 import java.io.File;
-import java.util.Locale;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -21,9 +19,15 @@ import android.widget.Toast;
  */
 public class CloneRepositoryActivity extends Activity {
 
+	/**
+	 * The tag is used to identify the class while logging
+	 */
 	private final String TAG = getClass().getName();
 
 	@Override
+	/**
+	 * 
+	 */
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_clone_repository);
@@ -68,21 +72,25 @@ public class CloneRepositoryActivity extends Activity {
 				Button button_submit_clone_repository = (Button) findViewById(R.id.button_submit_clone_repository);
 				button_submit_clone_repository.setOnClickListener(new View.OnClickListener(){
 					public void onClick(View v) {
-						int protocol = checkUrlforProtokoll(repositoryUrl, CloneRepositoryActivity.this);
-						Log.d(TAG, "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+						GitRepository git = new GitRepository();
+						int protocol = git.checkUrlforProtokoll(repositoryUrl, CloneRepositoryActivity.this);
 						Log.d(TAG, String.valueOf(protocol));
 						if (repositoryUrl != "" && selectedPath != "" && protocol != 0) {
 							File path = new File(selectedPath);
 							boolean cloneResult = false;
 							if (path.isDirectory()) {
-								GitRepository git = new GitRepository();
 								if (protocol == CloneRepositoryActivity.this.getResources().getInteger(R.integer.SSHPROTOCOL)) {
 									EditText passwordEditText = (EditText) findViewById(R.id.input_password);
 									String password = passwordEditText.getText().toString();
 									SharedPreferences settings = getSharedPreferences(CloneRepositoryActivity.this.getResources().getString(R.string.APPSETTINGS), 0);
 									String privateKeyFilenameWithPath = settings.getString(CloneRepositoryActivity.this.getResources().getString(R.string.SSHPRIVATEKEYPATHSETTING), "");
 									String publicKeyFilenameWithPath = settings.getString(CloneRepositoryActivity.this.getResources().getString(R.string.SSHPUBLICKEYPATHSETTING), "");
-									cloneResult = git.clone(selectedPath, repositoryUrl, password, privateKeyFilenameWithPath, publicKeyFilenameWithPath);
+									if (privateKeyFilenameWithPath != "" && publicKeyFilenameWithPath != "") {
+										cloneResult = git.clone(selectedPath, repositoryUrl, password, privateKeyFilenameWithPath, publicKeyFilenameWithPath);
+									}
+									else {
+										ToastNotification.makeToast("No ssh keys available add some in the settings menu", Toast.LENGTH_LONG, CloneRepositoryActivity.this);
+									}
 								}
 								if (protocol == CloneRepositoryActivity.this.getResources().getInteger(R.integer.GITPROTOCOL)) {
 									// no authentification is required
@@ -116,31 +124,5 @@ public class CloneRepositoryActivity extends Activity {
 				ToastNotification.makeToast("Something went wrong during the selection, please do it again!", Toast.LENGTH_LONG, CloneRepositoryActivity.this);
 			}
 		}
-	}
-
-	/**
-	 * Checks the given URL for the used protocol and returns
-	 * @param url
-	 * @return
-	 * TODO remove context?
-	 */
-	private int checkUrlforProtokoll(String url, Context context){
-		int result = 0;
-		if (url.toLowerCase(Locale.US).startsWith("ssh://")) {
-			result = context.getResources().getInteger(R.integer.SSHPROTOCOL);
-		}
-		else if (url.toLowerCase(Locale.US).startsWith("git://")) {
-			result = context.getResources().getInteger(R.integer.GITPROTOCOL);
-		}
-		else if (url.toLowerCase(Locale.US).startsWith("http://")) {
-			result = context.getResources().getInteger(R.integer.HTTPPROTOCOL);
-		}
-		else if (url.toLowerCase(Locale.US).startsWith("https://")) {
-			result = context.getResources().getInteger(R.integer.HTTPSPROTOCOL);
-		}
-		else {
-			Log.e(TAG, "The URL " + url + " is not supported!");
-		}
-		return result;
 	}
 }

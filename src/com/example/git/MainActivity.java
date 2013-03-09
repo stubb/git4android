@@ -7,22 +7,36 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.Security;
 
+/**
+ * This application can be used to manage Git (http://git-scm.com/) repositories.
+ * It is possible to create new repositories or clone existing ones, via the Git, SSH or HTTP/HTTPS protocol.
+ * Every created or cloned repository can be accessed from a list. For each of these repositories
+ * different actions can be performed:
+ * PULL - Fetch new data from a remote instance of a Git repository.
+ * ADD - Adds a modified or new file to the Git repository.
+ * COMMIT - Make the changes done via ADD persistent.
+ * PUSH - Sends the changes done via COMMIT to a remote Git repository via the SSH or HTTP/HTTPS protocol.
+ * SET REMOTE - Overwrite the current used remote Git repository.
+ * SHOW REMOTE - Show the current used remote Git repository.
+ * LOG - Shows a log of all commits done on this repository
+ * STATUS - 
+ * 
+ * This is the first activity that is started on the application start.
+ * The activity provides a menu to create, clone or open a Git repository.
+ */
 public class MainActivity extends Activity {
 
+	// This provider is used to provide necessary functions for the Java Secure Channel library.
 	static {
 		BouncyCastleProvider provider = new BouncyCastleProvider();
 		Security.insertProviderAt(provider, 1);
 	}
-
-	final String TAG = getClass().getName();
-	String selectedPath = "";
-
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -54,36 +68,13 @@ public class MainActivity extends Activity {
 		});
 	}   
 
-	/**
-	 * 
-	 */
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-		if (requestCode == 1) {
-			if(resultCode == RESULT_OK) {
-				selectedPath = data.getStringExtra("currentPath");
-				ToastNotification.makeToast("Directory " + selectedPath.toString() + " selected!", Toast.LENGTH_LONG, MainActivity.this);	     					      
-			}
-
-			if (resultCode == RESULT_CANCELED) {
-				//Write your code on no result return 
-			}
-		}
-	}
-
 	@Override
-	/**
-	 * 
-	 */
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_main, menu);
 		return true;
 	}  
 
 	@Override
-	/**
-	 * 
-	 */
 	public boolean onOptionsItemSelected (MenuItem item) {
 		Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
 		startActivity(intent);

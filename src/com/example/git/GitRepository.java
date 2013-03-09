@@ -1,11 +1,13 @@
 package com.example.git;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.jcraft.jsch.JSch;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Properties;
 
 import org.eclipse.jgit.api.AddCommand;
@@ -48,34 +50,40 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 public class GitRepository {
 
 	/**
-	 * The tag thats used for the logging system.
+	 * The tag is used to identify the class while logging
 	 */
 	private final String TAG = getClass().getName();
+
+	/**
+	 * 
+	 */
+	private final String sshUrl = "ssh://";
+
+	/**
+	 * 
+	 */
+	private final String gitUrl = "git://";
+
+	/**
+	 * 
+	 */
+	private final String httpUrl = "http://";
+
+	/**
+	 * 
+	 */
+	private final String httpsUrl = "https://";
 
 	/**
 	 * The Git object that includes the repository.
 	 */
 	private Git git = null;
 
-	// static {
-	//	Security.insertProviderAt(new BouncyCastleProvider(), 1);
-	//Security.addProvider(new BouncyCastleProvider());
-	// }
-
 	/**
 	 * 
 	 */
 	GitRepository() {	
 	}
-
-	/**
-	 * 
-	 * @param targetDirectory
-	 * @param uri
-	 */
-	/* GitRepository(String targetDirectory, String uri, final String password, final String privateKeyPath, final String publicKeyPath) {
-	 clone(targetDirectory, uri, password, privateKeyPath, publicKeyPath);
- } */
 
 	/**
 	 * The current status of the git repository.
@@ -143,7 +151,9 @@ public class GitRepository {
 		init.setDirectory(directory);
 		try {
 			init.call();
-			setDefaultConfig();
+			if (open(targetDirectory)) {
+				setDefaultConfig();
+			}
 			buildRepoSuccessfully = true;
 		} catch (GitAPIException e) {
 			Log.e(TAG, "Wasn't able to init Repo : /");
@@ -153,20 +163,6 @@ public class GitRepository {
 			e.printStackTrace();
 		}
 		return buildRepoSuccessfully;
-
-		//TODO use dotgit constant
-		/*   File path = new File(targetDirectory + "/.git/");
-     FileRepositoryBuilder builder = new FileRepositoryBuilder();
-     try {
-         Repository repository = builder.setGitDir(path).readEnvironment().findGitDir().build();
-         repository.create();
-         git = new Git(repository);
-         buildRepoSuccessfully = true;
-     } catch (IOException e1) {
-         Log.e(TAG, "Wasn't able to init Repo : /");
-         e1.printStackTrace();
-     } 
-     return buildRepoSuccessfully; */
 	}
 
 	/**
@@ -390,14 +386,17 @@ public class GitRepository {
 	}
 
 	public void setDefaultConfig() {
-		StoredConfig config = git.getRepository().getConfig();
-		config.setString("branch", "master", "remote", "origin");
-		config.setString("branch", "master", "merge", "refs/heads/master");
-		try {
-			config.save();
-		} catch (IOException e) {
-			Log.e(TAG, "Wasn't able to set default config");
-			e.printStackTrace();
+		if (inited()) {
+			Log.d(TAG, "Inited");
+			StoredConfig config = git.getRepository().getConfig();
+			config.setString("branch", "master", "remote", "origin");
+			config.setString("branch", "master", "merge", "refs/heads/master");
+			try {
+				config.save();
+			} catch (IOException e) {
+				Log.e(TAG, "Wasn't able to set default config");
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -581,6 +580,35 @@ public class GitRepository {
 			e.printStackTrace();
 		}
 		return successful;
+	}
+
+	//TODO remvoe context
+	/**
+	 * Checks the given URL for a known protocol (ssh://, git://, http:// or https://)
+	 * @param url	The url that should be checked.
+	 * @param context The activity context, from which this function is called.
+	 * @return	The result of the check 0, if no protocol was recognized, 1 for ssh://, 2 for git://, 3 for http:// and 4 for https:// .
+	 */
+	public int checkUrlforProtokoll(String url, Context context){
+		int result = 0;
+		// Locale.US is guaranteed to be available on all devices
+		// http://developer.android.com/reference/java/util/Locale.html
+		if (url.toLowerCase(Locale.US).startsWith(sshUrl)) {
+			result = context.getResources().getInteger(R.integer.SSHPROTOCOL);
+		}
+		else if (url.toLowerCase(Locale.US).startsWith(gitUrl)) {
+			result = context.getResources().getInteger(R.integer.GITPROTOCOL);
+		}
+		else if (url.toLowerCase(Locale.US).startsWith(httpUrl)) {
+			result = context.getResources().getInteger(R.integer.HTTPPROTOCOL);
+		}
+		else if (url.toLowerCase(Locale.US).startsWith(httpsUrl)) {
+			result = context.getResources().getInteger(R.integer.HTTPSPROTOCOL);
+		}
+		else {
+			Log.e(TAG, "The URL " + url + " is not supported!");
+		}
+		return result;
 	}
 }
 

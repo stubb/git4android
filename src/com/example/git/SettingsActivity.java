@@ -21,10 +21,26 @@ import com.jcraft.jsch.KeyPair;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+/**
+ * This activity handles the settings of the application.
+ * It is possible to generate new SSH keys and select key files
+ * which should be used with this application.
+ */
 public class SettingsActivity extends Activity {
 
+	/**
+	 * The tag is used to identify the class while logging.
+	 */
 	private final String TAG = getClass().getName();
+	
+	/**
+	 * The path to the private key.
+	 */
 	private String sshPrivateKeyPath = "";
+	
+	/**
+	 * The path to the public key.
+	 */
 	private String sshPublicKeyPath = "";
 
 	@Override
@@ -140,12 +156,12 @@ public class SettingsActivity extends Activity {
 	}
 
 	/**
-	 * 
-	 * @param keyType
-	 * @param absolutePath
-	 * @param filename
-	 * @param comment
-	 * @param password
+	 * Generates a public and a private key, which can be used for SSH.
+	 * @param keyType	The type of the keys.
+	 * @param absolutePath	The path where the keys should be stored.
+	 * @param filename 	The filename thats used for the keys, the public key will be named filename.pub
+	 * @param comment The comment thats included in the public key file.
+	 * @param password The password that will be used for the private key, can be an empty String.
 	 */
 	private boolean generateKeyPair(String keyType, String absolutePath, String filename, String comment, String password) {
 		boolean success = false;
