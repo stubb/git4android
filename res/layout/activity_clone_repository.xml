@@ -1,101 +1,101 @@
-<?xml version="1.0" encoding="utf-8"?>     
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="fill_parent" 
-    android:layout_width="fill_parent" >
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content" >
 
-    <TextView
-        android:id="@+id/clone_repository_url_description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:text="@string/clone_repository_url_description" />
-
-    <EditText
-        android:id="@+id/clone_repository_url"
-        android:inputType="textUri"
+    <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_below="@+id/clone_repository_url_description"
-        android:layout_alignParentLeft="true" >
-        <requestFocus />
-    </EditText>
+        android:layout_height="wrap_content" >
 
-    <TextView
-        android:id="@+id/path_to_save_repository_description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_below="@+id/clone_repository_url"
-        android:layout_alignParentLeft="true"
-        android:text="@string/path_to_save_repository_description" />
+        <TextView
+            android:id="@+id/clone_repository_url_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:text="@string/clone_repository_url_description" />
 
-    <EditText
-        android:id="@+id/path_to_save_repository"
-        android:inputType="text"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_below="@+id/path_to_save_repository_description"
-        android:layout_alignParentLeft="true" />
+        <EditText
+            android:id="@+id/clone_repository_url"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/clone_repository_url_description"
+            android:layout_gravity="bottom"
+            android:inputType="textUri" >
 
-    <Button
-        android:id="@+id/button_select_folder"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_below="@+id/path_to_save_repository"
-        android:layout_alignParentLeft="@+id/path_to_save_repository"
-        android:text="@string/button_select_folder" />
-    
-    
-    <TextView
-        android:id="@+id/password_description"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_below="@+id/button_select_folder"
-        android:layout_alignParentLeft="true"
-        android:text="@string/password_description" />
+            <requestFocus />
+        </EditText>
 
-    <EditText
-        android:id="@+id/input_password"
-        android:inputType="textPassword"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_below="@+id/password_description"
-        android:layout_alignParentLeft="true" />
-    
-    <TextView
-        android:id="@+id/username_description"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_below="@+id/input_password"
-        android:layout_alignParentLeft="true"
-        android:text="@string/username_description" />
+        <TextView
+            android:id="@+id/path_to_save_repository_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/clone_repository_url"
+            android:layout_gravity="bottom"
+            android:text="@string/path_to_save_repository_description" />
 
-    <EditText
-        android:id="@+id/input_username"
-        android:inputType="text"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_below="@+id/username_description"
-        android:layout_alignParentLeft="true" />
-    
+        <EditText
+            android:id="@+id/path_to_save_repository"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/path_to_save_repository_description"
+            android:layout_gravity="bottom"
+            android:inputType="text" />
 
-   <Button
-        android:id="@+id/button_submit_clone_repository"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_below="@+id/input_username"
-        android:text="@string/button_submit_clone_repository" />
+        <Button
+            android:id="@+id/button_select_folder"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="@+id/path_to_save_repository"
+            android:layout_below="@+id/path_to_save_repository"
+            android:layout_gravity="bottom"
+            android:text="@string/button_select_folder" />
 
-</RelativeLayout>
+        <TextView
+            android:id="@+id/password_description"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/button_select_folder"
+            android:layout_gravity="bottom"
+            android:text="@string/password_description" />
 
+        <EditText
+            android:id="@+id/input_password"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/password_description"
+            android:layout_gravity="bottom"
+            android:inputType="textPassword" />
 
+        <TextView
+            android:id="@+id/username_description"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/input_password"
+            android:layout_gravity="bottom"
+            android:text="@string/username_description" />
 
+        <EditText
+            android:id="@+id/input_username"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/username_description"
+            android:layout_gravity="bottom"
+            android:inputType="text" />
+
+        <Button
+            android:id="@+id/button_submit_clone_repository"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/input_username"
+            android:layout_gravity="bottom"
+            android:text="@string/button_submit_clone_repository" />
+    </RelativeLayout>
+
+</ScrollView>

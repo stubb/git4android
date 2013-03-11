@@ -62,8 +62,7 @@ public class CloneRepositoryActivity extends Activity {
 			if(resultCode == RESULT_OK){
 				final String selectedPath = data.getStringExtra("currentPath");
 
-				EditText urlEditText = (EditText) findViewById(R.id.clone_repository_url);
-				final String repositoryUrl = urlEditText.getText().toString();
+				final EditText urlEditText = (EditText) findViewById(R.id.clone_repository_url);
 
 				EditText pathEditText = (EditText) findViewById(R.id.path_to_save_repository);
 				pathEditText.setText(selectedPath);
@@ -73,6 +72,7 @@ public class CloneRepositoryActivity extends Activity {
 				button_submit_clone_repository.setOnClickListener(new View.OnClickListener(){
 					public void onClick(View v) {
 						GitRepository git = new GitRepository();
+						final String repositoryUrl = urlEditText.getText().toString();
 						int protocol = git.checkUrlforProtokoll(repositoryUrl, CloneRepositoryActivity.this);
 						Log.d(TAG, String.valueOf(protocol));
 						if (repositoryUrl != "" && selectedPath != "" && protocol != 0) {

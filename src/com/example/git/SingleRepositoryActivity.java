@@ -6,13 +6,14 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Environment;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 /**
@@ -25,7 +26,6 @@ public class SingleRepositoryActivity extends Activity {
 	 */
 	private final String TAG = getClass().getName();
 	private String repoPath = "";
-	private String filePathToAdd = "";
 	GitRepository repository = new GitRepository();
 
 	/**
@@ -53,6 +53,10 @@ public class SingleRepositoryActivity extends Activity {
 			Button buttonShowRemote = (Button) findViewById(R.id.button_show_remote);
 
 			final int protocol = repository.checkUrlforProtokoll(repository.getRemoteOriginUrl(), SingleRepositoryActivity.this);
+			
+			SharedPreferences settings = getSharedPreferences(SingleRepositoryActivity.this.getResources().getString(R.string.APPSETTINGS), 0);
+			final String sshPrivateKeyPath = settings.getString(SingleRepositoryActivity.this.getResources().getString(R.string.SSHPRIVATEKEYPATHSETTING), "");
+			final String sshPublicKeyPath = settings.getString(SingleRepositoryActivity.this.getResources().getString(R.string.SSHPUBLICKEYPATHSETTING), "");
 
 			buttonPull.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
@@ -61,7 +65,11 @@ public class SingleRepositoryActivity extends Activity {
 					}
 					else {
 						if (protocol == SingleRepositoryActivity.this.getResources().getInteger(R.integer.GITPROTOCOL)) {
-							repository.pull();
+							if(repository.pull()) {
+								ToastNotification.makeToast("Pull succesful!", Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+							} else{
+								ToastNotification.makeToast("Pull failed!", Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+							}
 						}
 						else if (protocol == SingleRepositoryActivity.this.getResources().getInteger(R.integer.SSHPROTOCOL)) {
 							AlertDialog.Builder alert = new AlertDialog.Builder(SingleRepositoryActivity.this);                 
@@ -73,8 +81,11 @@ public class SingleRepositoryActivity extends Activity {
 
 							alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
 								public void onClick(DialogInterface dialog, int whichButton) {
-									repository.pull(inputPassword.getText().toString(), Environment.getExternalStorageDirectory().getAbsolutePath() + "/.ssh/id_rsa",
-											Environment.getExternalStorageDirectory().getAbsolutePath() + "/.ssh/id_rsa.pub");
+									if(repository.pull(inputPassword.getText().toString(), sshPrivateKeyPath, sshPublicKeyPath))  {
+										ToastNotification.makeToast("Pull succesful!", Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+									} else{
+										ToastNotification.makeToast("Pull failed!", Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+									}
 								}
 							});
 
@@ -88,19 +99,30 @@ public class SingleRepositoryActivity extends Activity {
 						else if (protocol == SingleRepositoryActivity.this.getResources().getInteger(R.integer.HTTPPROTOCOL) || 
 								protocol == SingleRepositoryActivity.this.getResources().getInteger(R.integer.HTTPSPROTOCOL)) {
 							AlertDialog.Builder alert = new AlertDialog.Builder(SingleRepositoryActivity.this);
-							alert.setTitle("Enter password");  
-							
-							final EditText inputPassword = new EditText(SingleRepositoryActivity.this); 
-							inputPassword.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
-							alert.setView(inputPassword);
+							alert.setTitle("Enter credentials");
+
+							LinearLayout linearLayout = new LinearLayout(SingleRepositoryActivity.this);
+							linearLayout.setOrientation(1);
 
 							final EditText inputUsername = new EditText(SingleRepositoryActivity.this); 
 							inputUsername.setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
-							alert.setView(inputUsername);
+							inputUsername.setHint("username");
+							linearLayout.addView(inputUsername);
+
+							final EditText inputPassword = new EditText(SingleRepositoryActivity.this); 
+							inputPassword.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+							inputPassword.setHint("password");
+							linearLayout.addView(inputPassword);
+
+							alert.setView(linearLayout);
 
 							alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
 								public void onClick(DialogInterface dialog, int whichButton) {
-									repository.pull(inputUsername.getText().toString(), inputPassword.getText().toString());
+									if(repository.pull(inputUsername.getText().toString(), inputPassword.getText().toString())) {
+										ToastNotification.makeToast("Pull succesful!", Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+									} else{
+										ToastNotification.makeToast("Pull failed!", Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+									}
 								}
 							});
 
@@ -110,23 +132,18 @@ public class SingleRepositoryActivity extends Activity {
 								}
 							});
 							alert.show();
-						}
+						} 
 					}
 				}
 			});
 
 			buttonAddFiles.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
-					if (filePathToAdd == "") {
-						Intent intent = new Intent(SingleRepositoryActivity.this, BrowserActivity.class);
-						intent.putExtra("startPath", repoPath);
-						startActivityForResult(intent, 1);
-					}
-					else {
-						Log.d(TAG, filePathToAdd);
-						String filename = new File(filePathToAdd).getName();
-						repository.add(filename);
-					}
+					Intent intent = new Intent(SingleRepositoryActivity.this, BrowserActivity.class);
+					intent.putExtra("startPath", repoPath);
+					intent.putExtra("originOfRequestforResult", "buttonAddFiles");
+					intent.putExtra("selectionTyp", "file");
+					startActivityForResult(intent, 1);
 				}
 			});
 
@@ -141,7 +158,11 @@ public class SingleRepositoryActivity extends Activity {
 
 					alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
 						public void onClick(DialogInterface dialog, int whichButton) {
-							repository.commit(inputMessage.getText().toString());
+							if (repository.commit(inputMessage.getText().toString())) {
+								ToastNotification.makeToast("Commit succesful!", Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+							} else{
+								ToastNotification.makeToast("Commit failed!", Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+							}
 						}
 					});
 
@@ -165,8 +186,7 @@ public class SingleRepositoryActivity extends Activity {
 						}
 						else if (protocol == SingleRepositoryActivity.this.getResources().getInteger(R.integer.SSHPROTOCOL)) {
 							AlertDialog.Builder alert = new AlertDialog.Builder(SingleRepositoryActivity.this);                 
-							alert.setTitle("Enter password");  
-							alert.setMessage("pw");                
+							alert.setTitle("Enter password");             
 
 							final EditText inputPassword = new EditText(SingleRepositoryActivity.this); 
 							inputPassword.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
@@ -174,8 +194,13 @@ public class SingleRepositoryActivity extends Activity {
 
 							alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
 								public void onClick(DialogInterface dialog, int whichButton) {
-									repository.push(inputPassword.getText().toString(), Environment.getExternalStorageDirectory().getAbsolutePath() + "/.ssh/id_rsa",
-											Environment.getExternalStorageDirectory().getAbsolutePath() + "/.ssh/id_rsa.pub");
+									if (sshPublicKeyPath != "" && sshPrivateKeyPath != "") {
+										if (repository.push(inputPassword.getText().toString(), sshPrivateKeyPath, sshPublicKeyPath)) {
+											ToastNotification.makeToast("Push succesfull!", Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+										} else {
+											ToastNotification.makeToast("Push failed!", Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+										}
+									}
 								}
 							});
 
@@ -189,18 +214,30 @@ public class SingleRepositoryActivity extends Activity {
 						else if (protocol == SingleRepositoryActivity.this.getResources().getInteger(R.integer.HTTPPROTOCOL) || 
 								protocol == SingleRepositoryActivity.this.getResources().getInteger(R.integer.HTTPSPROTOCOL)) {
 							AlertDialog.Builder alert = new AlertDialog.Builder(SingleRepositoryActivity.this);
+							alert.setTitle("Enter credentials");
 
-							final EditText inputPassword = new EditText(SingleRepositoryActivity.this); 
-							inputPassword.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
-							alert.setView(inputPassword);
+							LinearLayout linearLayout = new LinearLayout(SingleRepositoryActivity.this);
+							linearLayout.setOrientation(1);
 
 							final EditText inputUsername = new EditText(SingleRepositoryActivity.this); 
 							inputUsername.setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
-							alert.setView(inputUsername);
+							inputUsername.setHint("username");
+							linearLayout.addView(inputUsername);
+
+							final EditText inputPassword = new EditText(SingleRepositoryActivity.this); 
+							inputPassword.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+							inputPassword.setHint("password");
+							linearLayout.addView(inputPassword);
+
+							alert.setView(linearLayout);
 
 							alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
 								public void onClick(DialogInterface dialog, int whichButton) {
-									repository.push(inputUsername.getText().toString(), inputPassword.getText().toString());
+									if (repository.push(inputUsername.getText().toString(), inputPassword.getText().toString())) {
+										ToastNotification.makeToast("Push succesfull!", Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+									} else {
+										ToastNotification.makeToast("Push failed!", Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+									}
 								}
 							});
 
@@ -270,11 +307,19 @@ public class SingleRepositoryActivity extends Activity {
 	 * 
 	 */
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
 		if (requestCode == 1) {
 			if(resultCode == RESULT_OK) {
-				filePathToAdd = data.getStringExtra("currentPath");
-				ToastNotification.makeToast(filePathToAdd, Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+				String filePathToAdd = data.getStringExtra("currentPath");
+				String originOfRequestforResult = data.getStringExtra("originOfRequestforResult");
+				if (originOfRequestforResult.equalsIgnoreCase("buttonAddFiles")) {
+					Log.d(TAG, filePathToAdd);
+					String filename = new File(filePathToAdd).getName();
+					if (repository.add(filename)) {
+						ToastNotification.makeToast("Added " + filePathToAdd, Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+					} else {
+						ToastNotification.makeToast("Adding " + filePathToAdd + "failed!", Toast.LENGTH_LONG, SingleRepositoryActivity.this);
+					}
+				}
 			}
 			if (resultCode == RESULT_CANCELED) {
 			}

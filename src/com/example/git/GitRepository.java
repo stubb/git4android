@@ -80,14 +80,14 @@ public class GitRepository {
 	private Git git = null;
 
 	/**
-	 * 
+	 * Creates a new git repository.
 	 */
 	GitRepository() {	
 	}
 
 	/**
-	 * The current status of the git repository.
-	 * @return
+	 * The current status of the git repository, shows new added and changed files.
+	 * @return The current status of this repository.
 	 */
 	public String status(){
 		String actualStatus = new String("");
@@ -97,6 +97,7 @@ public class GitRepository {
 				Status statusObject = status.call();
 				actualStatus += "Added: ";
 				actualStatus += statusObject.getAdded();
+				actualStatus += "\n";
 				actualStatus += "Changed: ";
 				actualStatus += statusObject.getChanged();
 			} catch (NoWorkTreeException e) {
@@ -161,6 +162,9 @@ public class GitRepository {
 		} catch (JGitInternalException e) {
 			Log.e(TAG, "Wasn't able to init Repo : /");
 			e.printStackTrace();
+		}
+		if(buildRepoSuccessfully == false) {
+			resetRepository(directory);
 		}
 		return buildRepoSuccessfully;
 	}
@@ -292,16 +296,18 @@ public class GitRepository {
 	 */
 	public boolean clone(String path, String uri, String username, String password) {
 		boolean cloneSuccesfull = false;
+		File directory = new File (path + "/");
 		CloneCommand clone = Git.cloneRepository();
 		UsernamePasswordCredentialsProvider user = new UsernamePasswordCredentialsProvider(username, password);                
 		clone.setCredentialsProvider(user);
 		clone.setCloneAllBranches(true);
-		clone.setDirectory(new File(path + "/"));
+		clone.setDirectory(directory);
 		clone.setURI(uri);
 		try {
 			clone.call();
+			cloneSuccesfull = true;
 		} catch (InvalidRemoteException e) {
-			// TODO Auto-generated catch block
+			Log.e(TAG, "The remote repository doesn't exist!");
 			e.printStackTrace();
 		} catch (TransportException e) {
 			// TODO Auto-generated catch block
@@ -309,8 +315,13 @@ public class GitRepository {
 		} catch (GitAPIException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}	catch (JGitInternalException e) {
+			Log.e(TAG, "Wasn't able to store repository!");
+			e.printStackTrace();
 		}
-		cloneSuccesfull = true;
+		if(cloneSuccesfull == false) {
+			resetRepository(directory);
+		}
 		return cloneSuccesfull;
 	}
 
@@ -322,6 +333,7 @@ public class GitRepository {
 	 */
 	public boolean clone(String path, String uri, final String password, final String privateKeyPath, final String publicKeyPath) {
 		boolean cloneSuccesfull = false;
+		File directory = new File (path + "/");
 		CloneCommand clone = Git.cloneRepository();
 		try {
 			final Properties config = new Properties();
@@ -332,12 +344,12 @@ public class GitRepository {
 			CustomJschConfigSessionFactory factory = new CustomJschConfigSessionFactory(password, privateKeyPath, publicKeyPath);
 			SshSessionFactory.setInstance(factory); 	    
 			clone.setCloneAllBranches(true);
-			clone.setDirectory(new File(path + "/"));
+			clone.setDirectory(directory);
 			clone.setURI(uri);
 			clone.call();
 			cloneSuccesfull = true;
 		} catch (InvalidRemoteException e) {
-			// TODO Auto-generated catch block
+			Log.e(TAG, "The remote repository doesn't exist!");
 			e.printStackTrace();
 		} catch (TransportException e) {
 			// TODO Auto-generated catch block
@@ -348,9 +360,12 @@ public class GitRepository {
 		} catch (UnsupportedCredentialItem e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		catch (JGitInternalException e) {
+		}	catch (JGitInternalException e) {
+			Log.e(TAG, "Wasn't able to store repository!");
 			e.printStackTrace();
+		}
+		if(cloneSuccesfull == false) {
+			resetRepository(directory);
 		}
 		return cloneSuccesfull;
 	}
@@ -363,15 +378,16 @@ public class GitRepository {
 	 */
 	public boolean clone(String path, String uri) {
 		boolean cloneSuccesfull = false;
+		File directory = new File (path + "/");
 		CloneCommand clone = Git.cloneRepository();
 		try {	
 			clone.setCloneAllBranches(true);
-			clone.setDirectory(new File(path + "/"));
+			clone.setDirectory(directory);
 			clone.setURI(uri);
 			clone.call();
 			cloneSuccesfull = true;
 		} catch (InvalidRemoteException e) {
-			// TODO Auto-generated catch block
+			Log.e(TAG, "The remote repository doesn't exist!");
 			e.printStackTrace();
 		} catch (GitAPIException e) {
 			// TODO Auto-generated catch block
@@ -380,8 +396,12 @@ public class GitRepository {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (JGitInternalException e) {
+			Log.e(TAG, "Wasn't able to store repository!");
 			e.printStackTrace();
-		} 
+		}
+		if(cloneSuccesfull == false) {
+			resetRepository(directory);
+		}
 		return cloneSuccesfull;
 	}
 
@@ -609,6 +629,26 @@ public class GitRepository {
 			Log.e(TAG, "The URL " + url + " is not supported!");
 		}
 		return result;
+	}
+
+	/**
+	 * Resets the complete Repository, everything which was saved will be removed.
+	 * @param path	The path of the repository on the storage.
+	 */
+	private void resetRepository(File path) {
+		File repositoryDirectory = new File(path.getAbsolutePath() + "/.git");
+		deleteFileOrDirectoryRecursive(repositoryDirectory);
+	}
+
+	/**
+	 * 
+	 * @param fileOrDirectory
+	 */
+	private void deleteFileOrDirectoryRecursive(File fileOrDirectory) {
+		if (fileOrDirectory.isDirectory())
+			for (File child : fileOrDirectory.listFiles())
+				deleteFileOrDirectoryRecursive(child);
+		fileOrDirectory.delete();
 	}
 }
 

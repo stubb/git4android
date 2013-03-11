@@ -54,8 +54,8 @@ public class SqlLiteDatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	/**
-	 * 
-	 * @param path
+	 * Inserts a given path to a Git repository into the database.
+	 * @param path The path to a Git repository that will be inserted.
 	 */
 	public void insertRepositoryPathintoTableRepositories(String path) {
 		SQLiteDatabase database = getWritableDatabase();
@@ -63,8 +63,8 @@ public class SqlLiteDatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	/**
-	 * 
-	 * @param path
+	 * Removes a given path of a Git repository from the database. 
+	 * @param path The path to a Git repository that will be removed.
 	 */
 	public void removeRepositoryPathfromTableRepositories(String path) {
 		SQLiteDatabase database = getWritableDatabase();

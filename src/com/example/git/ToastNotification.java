@@ -14,7 +14,7 @@ public class ToastNotification {
 	 */
 	private ToastNotification() {
 	}
-	
+
 	/**
 	 * 	Show a notification with the given, message for a specific duration for
 	 * 	the application context. The notification isn't destroyed while changing
