@@ -5,12 +5,8 @@
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="lib" path="libs/jsch-0.1.49.jar"/>
-	<classpathentry kind="lib" path="/home/kili/workspace/git/libs/sc-light-jdk15on-1.47.0.2.jar"/>
-	<classpathentry kind="lib" path="/home/kili/workspace/git/libs/scprov-jdk15on-1.47.0.2.jar"/>
-	<classpathentry kind="lib" path="libs/jzlib-1.1.1.zip"/>
-	<classpathentry kind="lib" path="/home/kili/workspace/git/libs/sc-bzip2-1.47.0.2.jar"/>
-	<classpathentry kind="lib" path="/home/kili/workspace/git/libs/scpkix-jdk15on-1.47.0.2.jar"/>
-	<classpathentry kind="lib" path="/home/kili/workspace/git/libs/sshj-0.8.1.zip"/>
-	<classpathentry kind="lib" path="/home/kili/workspace/git/libs/org.eclipse.jgit-2.3.1.201302201838-r.jar"/>
+	<classpathentry kind="lib" path="libs/org.eclipse.jgit-2.3.1.201302201838-r.jar"/>
+	<classpathentry kind="lib" path="libs/sc-light-jdk15on-1.47.0.2.jar"/>
+	<classpathentry kind="lib" path="libs/scprov-jdk15on-1.47.0.2.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
