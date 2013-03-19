@@ -17,7 +17,7 @@ import android.widget.Toast;
  * 
  *
  */
-public class CloneRepositoryActivity extends Activity {
+public class CloneGitRepositoryActivity extends Activity {
 
 	/**
 	 * The tag is used to identify the class while logging
@@ -38,7 +38,7 @@ public class CloneRepositoryActivity extends Activity {
 		Button button_select_folder = (Button) findViewById(R.id.button_select_folder);
 		button_select_folder.setOnClickListener(new View.OnClickListener(){
 			public void onClick(View v) {     			
-				Intent intent = new Intent(CloneRepositoryActivity.this, BrowserActivity.class);
+				Intent intent = new Intent(CloneGitRepositoryActivity.this, BrowserActivity.class);
 				startActivityForResult(intent, 1);
 			}
 		});
@@ -46,7 +46,7 @@ public class CloneRepositoryActivity extends Activity {
 		Button button_submit_clone_repository = (Button) findViewById(R.id.button_submit_clone_repository);
 		button_submit_clone_repository.setOnClickListener(new View.OnClickListener(){
 			public void onClick(View v) {
-				ToastNotification.makeToast("Enter URL and select a path", Toast.LENGTH_LONG, CloneRepositoryActivity.this);
+				ToastNotification.makeToast("Enter URL and select a path", Toast.LENGTH_LONG, CloneGitRepositoryActivity.this);
 			}
 		});
 	}
@@ -73,31 +73,31 @@ public class CloneRepositoryActivity extends Activity {
 					public void onClick(View v) {
 						GitRepository git = new GitRepository();
 						final String repositoryUrl = urlEditText.getText().toString();
-						int protocol = git.checkUrlforProtokoll(repositoryUrl, CloneRepositoryActivity.this);
+						int protocol = git.checkUrlforProtokoll(repositoryUrl, CloneGitRepositoryActivity.this);
 						Log.d(TAG, String.valueOf(protocol));
 						if (repositoryUrl != "" && selectedPath != "" && protocol != 0) {
 							File path = new File(selectedPath);
 							boolean cloneResult = false;
 							if (path.isDirectory()) {
-								if (protocol == CloneRepositoryActivity.this.getResources().getInteger(R.integer.SSHPROTOCOL)) {
+								if (protocol == CloneGitRepositoryActivity.this.getResources().getInteger(R.integer.SSHPROTOCOL)) {
 									EditText passwordEditText = (EditText) findViewById(R.id.input_password);
 									String password = passwordEditText.getText().toString();
-									SharedPreferences settings = getSharedPreferences(CloneRepositoryActivity.this.getResources().getString(R.string.APPSETTINGS), 0);
-									String privateKeyFilenameWithPath = settings.getString(CloneRepositoryActivity.this.getResources().getString(R.string.SSHPRIVATEKEYPATHSETTING), "");
-									String publicKeyFilenameWithPath = settings.getString(CloneRepositoryActivity.this.getResources().getString(R.string.SSHPUBLICKEYPATHSETTING), "");
+									SharedPreferences settings = getSharedPreferences(CloneGitRepositoryActivity.this.getResources().getString(R.string.APPSETTINGS), 0);
+									String privateKeyFilenameWithPath = settings.getString(CloneGitRepositoryActivity.this.getResources().getString(R.string.SSHPRIVATEKEYPATHSETTING), "");
+									String publicKeyFilenameWithPath = settings.getString(CloneGitRepositoryActivity.this.getResources().getString(R.string.SSHPUBLICKEYPATHSETTING), "");
 									if (privateKeyFilenameWithPath != "" && publicKeyFilenameWithPath != "") {
 										cloneResult = git.clone(selectedPath, repositoryUrl, password, privateKeyFilenameWithPath, publicKeyFilenameWithPath);
 									}
 									else {
-										ToastNotification.makeToast("No ssh keys available add some in the settings menu", Toast.LENGTH_LONG, CloneRepositoryActivity.this);
+										ToastNotification.makeToast("No ssh keys available add some in the settings menu", Toast.LENGTH_LONG, CloneGitRepositoryActivity.this);
 									}
 								}
-								if (protocol == CloneRepositoryActivity.this.getResources().getInteger(R.integer.GITPROTOCOL)) {
+								if (protocol == CloneGitRepositoryActivity.this.getResources().getInteger(R.integer.GITPROTOCOL)) {
 									// no authentification is required
 									cloneResult = git.clone(selectedPath, repositoryUrl);
 								}
-								if (protocol == CloneRepositoryActivity.this.getResources().getInteger(R.integer.HTTPPROTOCOL) || 
-										protocol == CloneRepositoryActivity.this.getResources().getInteger(R.integer.HTTPSPROTOCOL)) {
+								if (protocol == CloneGitRepositoryActivity.this.getResources().getInteger(R.integer.HTTPPROTOCOL) || 
+										protocol == CloneGitRepositoryActivity.this.getResources().getInteger(R.integer.HTTPSPROTOCOL)) {
 									EditText passwordEditText = (EditText) findViewById(R.id.input_password);
 									String password = passwordEditText.getText().toString();
 									EditText usernameEditText = (EditText) findViewById(R.id.input_username);
@@ -105,23 +105,23 @@ public class CloneRepositoryActivity extends Activity {
 									cloneResult = git.clone(selectedPath, repositoryUrl, username, password);
 								}
 								if (cloneResult) {
-									GitRepositoryDatabase repositoryDatabase = GitRepositoryDatabase.getInstance(CloneRepositoryActivity.this);
+									GitRepositoryDatabase repositoryDatabase = GitRepositoryDatabase.getInstance(CloneGitRepositoryActivity.this);
 									repositoryDatabase.addRepository(selectedPath);
-									ToastNotification.makeToast("Repo cloned!", Toast.LENGTH_LONG, CloneRepositoryActivity.this);
+									ToastNotification.makeToast("Repo cloned!", Toast.LENGTH_LONG, CloneGitRepositoryActivity.this);
 									finish();
 								}	else {
-									ToastNotification.makeToast("Something went wrong during the clone process", Toast.LENGTH_LONG, CloneRepositoryActivity.this);
+									ToastNotification.makeToast("Something went wrong during the clone process", Toast.LENGTH_LONG, CloneGitRepositoryActivity.this);
 								}
 							}
 						} else {
-							ToastNotification.makeToast("Cant clone", Toast.LENGTH_LONG, CloneRepositoryActivity.this);
+							ToastNotification.makeToast("Cant clone", Toast.LENGTH_LONG, CloneGitRepositoryActivity.this);
 						}
 					}
 				});				      
 			}
 
 			if (resultCode == RESULT_CANCELED) {
-				ToastNotification.makeToast("Something went wrong during the selection, please do it again!", Toast.LENGTH_LONG, CloneRepositoryActivity.this);
+				ToastNotification.makeToast("Something went wrong during the selection, please do it again!", Toast.LENGTH_LONG, CloneGitRepositoryActivity.this);
 			}
 		}
 	}

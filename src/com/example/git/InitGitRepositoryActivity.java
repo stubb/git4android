@@ -15,7 +15,7 @@ import java.io.File;
  * 
  *
  */
-public class InitRepositoryActivity extends Activity {
+public class InitGitRepositoryActivity extends Activity {
 
 	/**
 	 * The tag is used to identify the class while logging
@@ -33,7 +33,7 @@ public class InitRepositoryActivity extends Activity {
 		Button button_select_folder = (Button) findViewById(R.id.button_init_select_folder);
 		button_select_folder.setOnClickListener(new View.OnClickListener(){
 			public void onClick(View v) {     			
-				Intent intent = new Intent(InitRepositoryActivity.this, BrowserActivity.class);
+				Intent intent = new Intent(InitGitRepositoryActivity.this, BrowserActivity.class);
 				startActivityForResult(intent, 1);
 			}
 		});
@@ -41,7 +41,7 @@ public class InitRepositoryActivity extends Activity {
 		Button button_submit_init_repository = (Button) findViewById(R.id.button_submit_init_repository);
 		button_submit_init_repository.setOnClickListener(new View.OnClickListener(){
 			public void onClick(View v) {
-				ToastNotification.makeToast("Select a path", Toast.LENGTH_LONG, InitRepositoryActivity.this);
+				ToastNotification.makeToast("Select a path", Toast.LENGTH_LONG, InitGitRepositoryActivity.this);
 			}
 		});
 	}
@@ -69,22 +69,22 @@ public class InitRepositoryActivity extends Activity {
 							if (path.isDirectory()) {
 								GitRepository git = new GitRepository();
 								if (git.init(selectedPath)) {
-									GitRepositoryDatabase repositoryDatabase = GitRepositoryDatabase.getInstance(InitRepositoryActivity.this);
+									GitRepositoryDatabase repositoryDatabase = GitRepositoryDatabase.getInstance(InitGitRepositoryActivity.this);
 									repositoryDatabase.addRepository(selectedPath);
-									ToastNotification.makeToast("Repository created!", Toast.LENGTH_LONG, InitRepositoryActivity.this);
+									ToastNotification.makeToast("Repository created!", Toast.LENGTH_LONG, InitGitRepositoryActivity.this);
 									finish();
 								} else {
-									ToastNotification.makeToast("Something went wrong during the init process", Toast.LENGTH_LONG, InitRepositoryActivity.this);
+									ToastNotification.makeToast("Something went wrong during the init process", Toast.LENGTH_LONG, InitGitRepositoryActivity.this);
 								}
 							} else {
-								ToastNotification.makeToast("You havn't selected a valid folder", Toast.LENGTH_LONG, InitRepositoryActivity.this);
+								ToastNotification.makeToast("You havn't selected a valid folder", Toast.LENGTH_LONG, InitGitRepositoryActivity.this);
 							}
 						}
 					}
 				});		     					      
 			}
 			if (resultCode == RESULT_CANCELED) {
-				ToastNotification.makeToast("Something went wrong during the selection, please do it again!", Toast.LENGTH_LONG, InitRepositoryActivity.this);
+				ToastNotification.makeToast("Something went wrong during the selection, please do it again!", Toast.LENGTH_LONG, InitGitRepositoryActivity.this);
 			}
 		}
 	}

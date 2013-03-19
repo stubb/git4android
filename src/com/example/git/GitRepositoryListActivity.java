@@ -74,7 +74,7 @@ public class GitRepositoryListActivity extends Activity {
 						public void onClick(DialogInterface dialog, int whichButton) {
 							File folder = new File(repositoryPathList.get(position));
 							if (folder.exists()) {
-								Intent intent = new Intent(GitRepositoryListActivity.this, SingleRepositoryActivity.class);
+								Intent intent = new Intent(GitRepositoryListActivity.this, SingleGitRepositoryActivity.class);
 								intent.putExtra("repo", repositoryPathList.get(position));
 								startActivity(intent);
 							} else {

@@ -55,14 +55,14 @@ public class MainActivity extends Activity {
 
 		button_clone.setOnClickListener(new View.OnClickListener(){
 			public void onClick(View v) {
-				Intent intent = new Intent(MainActivity.this, CloneRepositoryActivity.class);
+				Intent intent = new Intent(MainActivity.this, CloneGitRepositoryActivity.class);
 				startActivity(intent);
 			}
 		});
 
 		button_init_repo.setOnClickListener(new View.OnClickListener(){
 			public void onClick(View v) {
-				Intent intent = new Intent(MainActivity.this, InitRepositoryActivity.class);
+				Intent intent = new Intent(MainActivity.this, InitGitRepositoryActivity.class);
 				startActivity(intent);
 			}
 		});
