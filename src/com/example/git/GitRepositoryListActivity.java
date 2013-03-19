@@ -20,7 +20,7 @@ import android.widget.AdapterView.OnItemClickListener;
 /**
  * This activity lists all repositories that are known by the application.
  */
-public class RepositoryListActivity extends Activity {
+public class GitRepositoryListActivity extends Activity {
 
 	/**
 	 * The tag is used to identify the class while logging
@@ -42,7 +42,7 @@ public class RepositoryListActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_repository_list);
 
-		final GitRepositoryDatabase repositoryDatabase = GitRepositoryDatabase.getInstance(RepositoryListActivity.this);
+		final GitRepositoryDatabase repositoryDatabase = GitRepositoryDatabase.getInstance(GitRepositoryListActivity.this);
 
 		final ListView repositoryPathsListView = (ListView)findViewById(R.id.repo_list_view);
 
@@ -51,7 +51,7 @@ public class RepositoryListActivity extends Activity {
 
 		if(!repositoryPathList.isEmpty()) {
 
-			tableRowAdapter = new ArrayAdapter<String>(RepositoryListActivity.this, android.R.layout.simple_list_item_1 , repositoryPathList);
+			tableRowAdapter = new ArrayAdapter<String>(GitRepositoryListActivity.this, android.R.layout.simple_list_item_1 , repositoryPathList);
 			repositoryPathsListView.setAdapter(tableRowAdapter);
 			repositoryPathsListView.setOnItemClickListener( new OnItemClickListener() {
 
@@ -65,7 +65,7 @@ public class RepositoryListActivity extends Activity {
 				 */
 				public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
 
-					AlertDialog.Builder builder = new AlertDialog.Builder(RepositoryListActivity.this);                 
+					AlertDialog.Builder builder = new AlertDialog.Builder(GitRepositoryListActivity.this);                 
 					builder.setTitle("Repository");
 					builder.setMessage(repositoryPathList.get(position));               
 
@@ -74,11 +74,11 @@ public class RepositoryListActivity extends Activity {
 						public void onClick(DialogInterface dialog, int whichButton) {
 							File folder = new File(repositoryPathList.get(position));
 							if (folder.exists()) {
-								Intent intent = new Intent(RepositoryListActivity.this, SingleRepositoryActivity.class);
+								Intent intent = new Intent(GitRepositoryListActivity.this, SingleRepositoryActivity.class);
 								intent.putExtra("repo", repositoryPathList.get(position));
 								startActivity(intent);
 							} else {
-								ToastNotification.makeToast("The repository doesn't exist!", Toast.LENGTH_LONG, RepositoryListActivity.this);
+								ToastNotification.makeToast("The repository doesn't exist!", Toast.LENGTH_LONG, GitRepositoryListActivity.this);
 							}
 						}
 					});  
@@ -88,7 +88,7 @@ public class RepositoryListActivity extends Activity {
 							Log.d(TAG, repositoryPathList.get(position));
 							repositoryDatabase.removeRepository(repositoryPathList.get(position));
 							repositoryPathList = repositoryDatabase.loadRepositories();
-							tableRowAdapter = new ArrayAdapter<String>(RepositoryListActivity.this, android.R.layout.simple_list_item_1 , repositoryPathList);
+							tableRowAdapter = new ArrayAdapter<String>(GitRepositoryListActivity.this, android.R.layout.simple_list_item_1 , repositoryPathList);
 							repositoryPathsListView.setAdapter(tableRowAdapter);
 							tableRowAdapter.notifyDataSetChanged();
 						}
@@ -98,7 +98,7 @@ public class RepositoryListActivity extends Activity {
 				}
 			});
 		} else {
-			ToastNotification.makeToast("No repositories known so far", Toast.LENGTH_LONG, RepositoryListActivity.this);	
+			ToastNotification.makeToast("No repositories known so far", Toast.LENGTH_LONG, GitRepositoryListActivity.this);	
 		}
 	}
 }

@@ -48,7 +48,7 @@ public class MainActivity extends Activity {
 
 		button_list_repos.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				Intent intent = new Intent(MainActivity.this, RepositoryListActivity.class);
+				Intent intent = new Intent(MainActivity.this, GitRepositoryListActivity.class);
 				startActivity(intent);
 			}
 		});
