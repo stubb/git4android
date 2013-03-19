@@ -68,6 +68,11 @@ public class MainActivity extends Activity {
 		});
 	}   
 
+	protected void onDestroy(){
+		GitRepositoryDatabase repositoryDatabase = GitRepositoryDatabase.getInstance(MainActivity.this);
+		repositoryDatabase.close();
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_main, menu);
