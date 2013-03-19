@@ -69,7 +69,7 @@ public class InitRepositoryActivity extends Activity {
 							if (path.isDirectory()) {
 								GitRepository git = new GitRepository();
 								if (git.init(selectedPath)) {
-									RepositoryDatabase repositoryDatabase = RepositoryDatabase.getInstance(InitRepositoryActivity.this);
+									GitRepositoryDatabase repositoryDatabase = GitRepositoryDatabase.getInstance(InitRepositoryActivity.this);
 									repositoryDatabase.addRepository(selectedPath);
 									ToastNotification.makeToast("Repository created!", Toast.LENGTH_LONG, InitRepositoryActivity.this);
 									finish();

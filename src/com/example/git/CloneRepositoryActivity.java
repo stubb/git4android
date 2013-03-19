@@ -105,7 +105,7 @@ public class CloneRepositoryActivity extends Activity {
 									cloneResult = git.clone(selectedPath, repositoryUrl, username, password);
 								}
 								if (cloneResult) {
-									RepositoryDatabase repositoryDatabase = RepositoryDatabase.getInstance(CloneRepositoryActivity.this);
+									GitRepositoryDatabase repositoryDatabase = GitRepositoryDatabase.getInstance(CloneRepositoryActivity.this);
 									repositoryDatabase.addRepository(selectedPath);
 									ToastNotification.makeToast("Repo cloned!", Toast.LENGTH_LONG, CloneRepositoryActivity.this);
 									finish();

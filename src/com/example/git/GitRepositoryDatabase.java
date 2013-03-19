@@ -13,11 +13,12 @@ import android.util.Log;
  * This class handles the storage of the different repositories.
  *
  */
-public final class RepositoryDatabase extends SQLiteOpenHelper {
+public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 
-	private static RepositoryDatabase mInstance;
-	private static final String DATABASE_NAME = "woopwoop";
-	private static final int DATABASE_VERSION = 2;
+	private static GitRepositoryDatabase mInstance;
+	private static Context myContext;
+	private static final String DATABASE_NAME = "Git4Android";
+	private static final int DATABASE_VERSION = 1;
 	private static final String TABLE_NAME = "Repositories";
 	private static final String TABLE_CREATE = "CREATE TABLE " + TABLE_NAME + " (repoPath VARCHAR UNIQUE NOT NULL);";
 
@@ -25,8 +26,9 @@ public final class RepositoryDatabase extends SQLiteOpenHelper {
 	 * 
 	 * @param context
 	 */
-	private RepositoryDatabase(Context context) {
+	private GitRepositoryDatabase(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
+		myContext = context;
 	}
 
 	/**
@@ -34,9 +36,9 @@ public final class RepositoryDatabase extends SQLiteOpenHelper {
 	 * @param context
 	 * @return
 	 */
-	public synchronized static RepositoryDatabase getInstance(Context context) {
+	public synchronized static GitRepositoryDatabase getInstance(Context context) {
 		if (mInstance == null) {
-			mInstance = new RepositoryDatabase(context.getApplicationContext());
+			mInstance = new GitRepositoryDatabase(context.getApplicationContext());
 		}
 		return mInstance;
 	}

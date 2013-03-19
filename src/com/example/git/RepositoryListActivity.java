@@ -42,7 +42,7 @@ public class RepositoryListActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_repository_list);
 
-		final RepositoryDatabase repositoryDatabase = RepositoryDatabase.getInstance(RepositoryListActivity.this);
+		final GitRepositoryDatabase repositoryDatabase = GitRepositoryDatabase.getInstance(RepositoryListActivity.this);
 
 		final ListView repositoryPathsListView = (ListView)findViewById(R.id.repo_list_view);
 
