@@ -139,7 +139,7 @@ public class SingleGitRepositoryActivity extends Activity {
 
 			buttonAddFiles.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
-					Intent intent = new Intent(SingleGitRepositoryActivity.this, BrowserActivity.class);
+					Intent intent = new Intent(SingleGitRepositoryActivity.this, FileBrowserActivity.class);
 					intent.putExtra("startPath", repoPath);
 					intent.putExtra("originOfRequestforResult", "buttonAddFiles");
 					intent.putExtra("selectionTyp", "file");

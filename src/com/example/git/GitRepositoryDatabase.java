@@ -10,16 +10,38 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 /**
- * This class handles the storage of the different repositories.
- *
+ * This class handles the storage of the different repositories links.
  */
 public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 
+	/**
+	 * This is the single instance that is created of this class.
+	 */
 	private static GitRepositoryDatabase mInstance;
+	
+	/** 
+	 * The Context to access Android related resources.
+	 */
 	private static Context myContext;
+	
+	/**
+	 * The name of the database that will be created.
+	 */
 	private static final String DATABASE_NAME = "Git4Android";
+	
+	/**
+	 * The version of the database.
+	 */
 	private static final int DATABASE_VERSION = 1;
+	
+	/**
+	 * The name of the table that will be created.
+	 */
 	private static final String TABLE_NAME = "Repositories";
+	
+	/**
+	 * The table that will hold the repositories paths and other attributes.
+	 */
 	private static final String TABLE_CREATE = "CREATE TABLE " + TABLE_NAME + " (repoPath VARCHAR UNIQUE NOT NULL);";
 
 	/**
@@ -64,7 +86,7 @@ public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 		// TODO Auto-generated method stub
 
 	}
-
+	
 	/**
 	 * Inserts a given path to a Git repository into the database.
 	 * @param path The path to a Git repository that will be inserted.

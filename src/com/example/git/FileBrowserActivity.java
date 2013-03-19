@@ -29,7 +29,7 @@ import android.widget.Toast;
  * @author kili
  *
  */
-public class BrowserActivity extends Activity {
+public class FileBrowserActivity extends Activity {
 
 	private static final String PARENT_DIR = "..";
 
@@ -122,11 +122,11 @@ public class BrowserActivity extends Activity {
 		Button button_new_directory = (Button) findViewById(R.id.button_new_directory);
 		button_new_directory.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(BrowserActivity.this);                 
+				AlertDialog.Builder builder = new AlertDialog.Builder(FileBrowserActivity.this);                 
 				builder.setTitle("New Dir");
 				builder.setMessage("Name");               
 
-				final EditText input = new EditText(BrowserActivity.this);
+				final EditText input = new EditText(FileBrowserActivity.this);
 				builder.setView(input);
 
 				builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
@@ -138,13 +138,13 @@ public class BrowserActivity extends Activity {
 						File file = new File(currentPath, value);
 
 						if (!file.mkdirs()) {
-							ToastNotification.makeToast("Directory NOT created", Toast.LENGTH_LONG, BrowserActivity.this);
+							ToastNotification.makeToast("Directory NOT created", Toast.LENGTH_LONG, FileBrowserActivity.this);
 						}
 						else {
-							ToastNotification.makeToast("Directory created", Toast.LENGTH_LONG, BrowserActivity.this);
+							ToastNotification.makeToast("Directory created", Toast.LENGTH_LONG, FileBrowserActivity.this);
 							// update fileListView
 							loadFileList(new File(currentPath));
-							wurst = new ArrayAdapter<String>(BrowserActivity.this, android.R.layout.simple_list_item_1, fileList);
+							wurst = new ArrayAdapter<String>(FileBrowserActivity.this, android.R.layout.simple_list_item_1, fileList);
 							fileListView.setAdapter(wurst);
 							wurst.notifyDataSetChanged();
 
@@ -180,7 +180,7 @@ public class BrowserActivity extends Activity {
 				if (chosenFile.isDirectory()) {
 					Log.e(TAG, "is dir");
 					loadFileList(chosenFile);
-					wurst = new ArrayAdapter<String>(BrowserActivity.this, android.R.layout.simple_list_item_1, fileList);
+					wurst = new ArrayAdapter<String>(FileBrowserActivity.this, android.R.layout.simple_list_item_1, fileList);
 					fileListView.setAdapter(wurst);
 					wurst.notifyDataSetChanged();
 					// else file is a file

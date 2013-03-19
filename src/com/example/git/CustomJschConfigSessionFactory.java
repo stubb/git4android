@@ -18,14 +18,29 @@ import com.jcraft.jsch.Session;
 import com.jcraft.jsch.UserInfo;
 
 /**
- * 
+ * This class is ussed to provides the necessary authentification settings for the SSH
  *
  */
 public class CustomJschConfigSessionFactory extends JschConfigSessionFactory {
 	
+	/**
+	 * 
+	 */
 	private final String TAG = getClass().getName();
+	
+	/**
+	 * 
+	 */
 	private String privateKeyPath = "";
+	
+	/**
+	 * 
+	 */
 	private String publicKeyPath = "";
+	
+	/**
+	 * 
+	 */
 	private String privateKeyPassword = "";
 	
 	/**
@@ -54,7 +69,7 @@ public class CustomJschConfigSessionFactory extends JschConfigSessionFactory {
 			final Properties jschConfig = new Properties();
 			jschConfig.put("StrictHostKeyChecking", "no");
 		  JSch.setConfig(jschConfig);
-		  JSch.setLogger(new JschLogger());
+		  JSch.setLogger(new JschAndroidLogger());
 		    
 			RandomAccessFile publicKeyFile = new RandomAccessFile(publicKeyPath, "rw");
 			byte [] publicKey = new byte[(int)publicKeyFile.length()];

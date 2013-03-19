@@ -339,7 +339,7 @@ public class GitRepository {
 			final Properties config = new Properties();
 			config.put("StrictHostKeyChecking", "no");
 			JSch.setConfig(config);
-			JSch.setLogger(new JschLogger());
+			JSch.setLogger(new JschAndroidLogger());
 
 			CustomJschConfigSessionFactory factory = new CustomJschConfigSessionFactory(password, privateKeyPath, publicKeyPath);
 			SshSessionFactory.setInstance(factory); 	    
@@ -426,7 +426,7 @@ public class GitRepository {
 			final Properties config = new Properties();
 			config.put("StrictHostKeyChecking", "no");
 			JSch.setConfig(config);
-			JSch.setLogger(new JschLogger());
+			JSch.setLogger(new JschAndroidLogger());
 
 			CustomJschConfigSessionFactory factory = new CustomJschConfigSessionFactory(password, privateKeyPath, publicKeyPath);
 			SshSessionFactory.setInstance(factory); 	 
@@ -562,7 +562,7 @@ public class GitRepository {
 			final Properties config = new Properties();
 			config.put("StrictHostKeyChecking", "no");
 			JSch.setConfig(config);
-			JSch.setLogger(new JschLogger());
+			JSch.setLogger(new JschAndroidLogger());
 			CustomJschConfigSessionFactory factory = new CustomJschConfigSessionFactory(password, privateKeyPath, publicKeyPath);
 			SshSessionFactory.setInstance(factory); 	 
 			PushCommand pushCommand = git.push();

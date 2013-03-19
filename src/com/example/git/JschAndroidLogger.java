@@ -7,7 +7,7 @@ import com.jcraft.jsch.Logger;
 /** This class provides a custom logger for the Java Secure Channel library.
  * 	It forwards all messages to the Android API for sending log output. 
  */
-public class JschLogger implements Logger {
+public class JschAndroidLogger implements Logger {
 
 	/**
 	 * The name thats used as identifier for the log output.
@@ -30,7 +30,7 @@ public class JschLogger implements Logger {
 	 */
 	public void log(int level, String message) {
 		// There is no documentation about the range of the log level
-		// so there is always performed the same action for all log levels
+		// so there is always the same action performed for all log levels
 		Log.d(loggerName, message);
 	}
 }
