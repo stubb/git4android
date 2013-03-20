@@ -10,90 +10,66 @@
         <Button
             android:id="@+id/button_pull"
             android:layout_width="fill_parent"
-            android:layout_height="60sp"
+            android:layout_height="wrap_content"
             android:layout_alignParentLeft="TRUE"
             android:layout_alignParentRight="TRUE"
             android:layout_alignParentTop="TRUE"
-            android:layout_marginLeft="4sp"
-            android:layout_marginRight="4sp"
-            android:layout_marginTop="8sp"
             android:text="@string/button_pull" />
 
         <Button
             android:id="@+id/button_add_files"
             android:layout_width="fill_parent"
-            android:layout_height="60sp"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/button_pull"
             android:layout_gravity="bottom"
-            android:layout_marginLeft="4sp"
-            android:layout_marginRight="4sp"
-            android:layout_marginTop="8sp"
             android:text="@string/button_add_files" />
 
         <Button
             android:id="@+id/button_commit"
             android:layout_width="fill_parent"
-            android:layout_height="60sp"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/button_add_files"
             android:layout_gravity="bottom"
-            android:layout_marginLeft="4sp"
-            android:layout_marginRight="4sp"
-            android:layout_marginTop="8sp"
             android:text="@string/button_commit" />
 
         <Button
             android:id="@+id/button_push"
             android:layout_width="fill_parent"
-            android:layout_height="60sp"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/button_commit"
             android:layout_gravity="bottom"
-            android:layout_marginLeft="4sp"
-            android:layout_marginRight="4sp"
-            android:layout_marginTop="8sp"
             android:text="@string/button_push" />
 
         <Button
             android:id="@+id/button_add_remote"
             android:layout_width="fill_parent"
-            android:layout_height="60sp"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/button_push"
             android:layout_gravity="bottom"
-            android:layout_marginLeft="4sp"
-            android:layout_marginRight="4sp"
-            android:layout_marginTop="8sp"
             android:text="@string/button_add_remote" />
 
         <Button
             android:id="@+id/button_log"
             android:layout_width="fill_parent"
-            android:layout_height="60sp"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/button_add_remote"
             android:layout_gravity="bottom"
-            android:layout_marginLeft="4sp"
-            android:layout_marginRight="4sp"
-            android:layout_marginTop="8sp"
             android:text="@string/button_log" />
 
         <Button
             android:id="@+id/button_status"
             android:layout_width="fill_parent"
-            android:layout_height="60sp"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/button_log"
             android:layout_gravity="bottom"
-            android:layout_marginLeft="4sp"
-            android:layout_marginRight="4sp"
-            android:layout_marginTop="8sp"
             android:text="@string/button_status" />
-        
-                <Button
+
+        <Button
             android:id="@+id/button_show_remote"
             android:layout_width="fill_parent"
-            android:layout_height="60sp"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/button_status"
             android:layout_gravity="bottom"
-            android:layout_marginLeft="4sp"
-            android:layout_marginRight="4sp"
-            android:layout_marginTop="8sp"
             android:text="@string/button_show_remote" />
     </RelativeLayout>
 

@@ -7,10 +7,7 @@
     <TextView 
         android:id="@+id/textview"
         android:layout_width="fill_parent"
-        android:layout_height="60sp"
-        android:layout_marginRight="4sp"
-        android:layout_marginLeft="4sp"
-        android:layout_marginTop="8sp"
+        android:layout_height="wrap_content"
         android:text="@string/repository_textview" />
     
     <ListView

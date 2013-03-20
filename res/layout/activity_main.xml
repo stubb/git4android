@@ -2,39 +2,30 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-    
+
     <Button
         android:id="@+id/button_list_repos"
         android:layout_width="fill_parent"
-        android:layout_height="60sp"
-        android:layout_alignParentRight="TRUE"
+        android:layout_height="wrap_content"
         android:layout_alignParentLeft="TRUE"
+        android:layout_alignParentRight="TRUE"
         android:layout_alignParentTop="TRUE"
-        android:layout_marginRight="4sp"
-        android:layout_marginLeft="4sp"
-        android:layout_marginTop="8sp"
         android:text="@string/button_list_repos" />
-    
-       <Button
+
+    <Button
         android:id="@+id/button_init_repo"
-        android:layout_gravity="bottom"
-        android:layout_below="@+id/button_list_repos"
         android:layout_width="fill_parent"
-        android:layout_height="60sp"
-        android:layout_marginRight="4sp"
-        android:layout_marginLeft="4sp"
-        android:layout_marginTop="8sp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/button_list_repos"
+        android:layout_gravity="bottom"
         android:text="@string/button_init_repo" />
-          
+
     <Button
         android:id="@+id/button_clone"
-        android:layout_gravity="bottom"
-        android:layout_below="@+id/button_init_repo"
         android:layout_width="fill_parent"
-        android:layout_height="60sp"
-        android:layout_marginRight="4sp"
-        android:layout_marginLeft="4sp"
-        android:layout_marginTop="8sp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/button_init_repo"
+        android:layout_gravity="bottom"
         android:text="@string/button_clone" />
-        
+
 </RelativeLayout>

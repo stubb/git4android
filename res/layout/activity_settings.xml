@@ -65,23 +65,17 @@
         <Button
             android:id="@+id/button_genKeys"
             android:layout_width="fill_parent"
-            android:layout_height="60sp"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/button_select_folder_ssh_public_key_path"
             android:layout_gravity="bottom"
-            android:layout_marginLeft="4sp"
-            android:layout_marginRight="4sp"
-            android:layout_marginTop="8sp"
             android:text="@string/button_genKeys" />
 
         <Button
             android:id="@+id/button_save"
             android:layout_width="fill_parent"
-            android:layout_height="60sp"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/button_genKeys"
             android:layout_gravity="bottom"
-            android:layout_marginLeft="4sp"
-            android:layout_marginRight="4sp"
-            android:layout_marginTop="8sp"
             android:text="@string/button_save" />
     </RelativeLayout>
 
