@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item type="string" name="APPSETTINGS" format="string">sshkeysettings</item>
-    <item type="string" name="SSHPRIVATEKEYPATHSETTING" format="string">sshPrivateKeySetting</item>
-    <item type="string" name="SSHPUBLICKEYPATHSETTING" format="string">sshPublicKeySetting</item>
-    <item type="integer"    name="SSHPROTOCOL"  format="integer">1</item>
-    <item type="integer"    name="GITPROTOCOL"  format="integer">2</item>
-    <item type="integer"    name="HTTPPROTOCOL" format="integer">3</item>
-    <item type="integer"    name="HTTPSPROTOCOL"    format="integer">4</item>
+
+    <item name="APPSETTINGS" format="string" type="string">sshkeysettings</item>
+    <item name="SSHPRIVATEKEYPATHSETTING" format="string" type="string">sshPrivateKeySetting</item>
+    <item name="SSHPUBLICKEYPATHSETTING" format="string" type="string">sshPublicKeySetting</item>
+    <item name="SSHPROTOCOL" format="integer" type="integer">1</item>
+    <item name="GITPROTOCOL" format="integer" type="integer">2</item>
+    <item name="HTTPPROTOCOL" format="integer" type="integer">3</item>
+    <item name="HTTPSPROTOCOL" format="integer" type="integer">4</item> 
+
 </resources>

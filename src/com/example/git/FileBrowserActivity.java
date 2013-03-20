@@ -21,40 +21,65 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
 /**
  * 
- * @author kili
  *
  */
 public class FileBrowserActivity extends Activity {
 
+	/**
+	 * 
+	 */
+	public static final Integer SELECTIONTYP_FILE = 0;
+	
+	/**
+	 * 
+	 */
+	public static final Integer SELECTIONTYP_FOLDER = 1;
+	
+	/**
+	 * 
+	 */
+	public static final Integer SELECTIONTYP_FILE_AND_FOLDER = 2;
+
+	/**
+	 * 
+	 */
 	private static final String PARENT_DIR = "..";
+	
+	/**
+	 *
+	 */
+	private Integer selectionType = SELECTIONTYP_FILE_AND_FOLDER;
 
 	/**
 	 * The tag is used to identify the class while logging
 	 */
 	private final String TAG = getClass().getName();
-	private List<String> fileList = new ArrayList<String>();
+
+
 	private String currentPath = ""; 
+	private ArrayAdapter<String> listItemArrayAdapter;
+	List<String> fileList = new ArrayList<String>();
 
-	private ArrayAdapter<String> wurst;
-	private String startPath = "";
 	private String origin = "";
-	private String selectionTyp = "dir"; 
-
-	boolean mExternalStorageAvailable = false;
-	boolean mExternalStorageWriteable = false;
-
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		boolean mExternalStorageAvailable = false;
+		boolean mExternalStorageWriteable = false;
+
 		setContentView(R.layout.activity_browser);
 		final ListView fileListView = (ListView)findViewById(R.id.file_list_view);
 		Log.d(TAG, "Browser Activity onCreate");
+
+		String startPath = "";
 
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
@@ -69,42 +94,42 @@ public class FileBrowserActivity extends Activity {
 				origin = tempOrigin;
 			}
 			if(tempSelection != null) {
-				selectionTyp = tempSelection;
+				selectionType = Integer.getInteger(tempSelection, SELECTIONTYP_FILE_AND_FOLDER);
 			}
 		}
 
 		String state = Environment.getExternalStorageState();
-
 		if (Environment.MEDIA_MOUNTED.equals(state)) {
-			// We can read and write the media
-			mExternalStorageAvailable = mExternalStorageWriteable = true;
+			mExternalStorageAvailable = true;
+			mExternalStorageWriteable = true;
 		} else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-			// We can only read the media
 			mExternalStorageAvailable = true;
 			mExternalStorageWriteable = false;
 		} else {
-			// Something else is wrong. It may be one of many other states, but all we need
-			//  to know is we can neither read nor write
 			mExternalStorageAvailable = mExternalStorageWriteable = false;
 		}
 
-		// select startPath
+		// select start path
 		Log.e(TAG, startPath);
 		if (startPath != "") {
-			//TODO test if exists already or not
-			loadFileList(new File(startPath));
+			File fileOfStartPath = new File(startPath);
+			if(fileOfStartPath.exists()) {
+				loadFileList(fileOfStartPath);
+			}
 		}
 		else {		
-			if (mExternalStorageWriteable) {
+			if (mExternalStorageAvailable && mExternalStorageWriteable) {
 				loadFileList(Environment.getExternalStorageDirectory());
 			} else {
 				loadFileList(Environment.getRootDirectory());
 			}
 		}
 
+		final TextView currentPathTextView = (TextView)findViewById(R.id.current_path);  
+		currentPathTextView.setText("Current path: " + currentPath);
 
 		Button button_select_directory = (Button) findViewById(R.id.button_select_directory);
-		if (selectionTyp.equalsIgnoreCase("file")) {
+		if (selectionType == SELECTIONTYP_FILE) {
 			button_select_directory.setEnabled(false);
 		} else {
 			button_select_directory.setOnClickListener(new View.OnClickListener() {
@@ -144,9 +169,9 @@ public class FileBrowserActivity extends Activity {
 							ToastNotification.makeToast("Directory created", Toast.LENGTH_LONG, FileBrowserActivity.this);
 							// update fileListView
 							loadFileList(new File(currentPath));
-							wurst = new ArrayAdapter<String>(FileBrowserActivity.this, android.R.layout.simple_list_item_1, fileList);
-							fileListView.setAdapter(wurst);
-							wurst.notifyDataSetChanged();
+							listItemArrayAdapter = new ArrayAdapter<String>(FileBrowserActivity.this, android.R.layout.simple_list_item_1, fileList);
+							fileListView.setAdapter(listItemArrayAdapter);
+							listItemArrayAdapter.notifyDataSetChanged();
 
 						}
 					}  
@@ -167,8 +192,8 @@ public class FileBrowserActivity extends Activity {
 
 
 		// By using setAdpater method in listview we an add string array in list.
-		wurst = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, fileList);
-		fileListView.setAdapter(wurst);
+		listItemArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, fileList);
+		fileListView.setAdapter(listItemArrayAdapter);
 		fileListView.setOnItemClickListener( new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
@@ -178,22 +203,27 @@ public class FileBrowserActivity extends Activity {
 				File chosenFile = getChosenFile(fileChosen);
 				// if file is dir
 				if (chosenFile.isDirectory()) {
-					Log.e(TAG, "is dir");
+					Log.e(TAG, "Directory selected");
 					loadFileList(chosenFile);
-					wurst = new ArrayAdapter<String>(FileBrowserActivity.this, android.R.layout.simple_list_item_1, fileList);
-					fileListView.setAdapter(wurst);
-					wurst.notifyDataSetChanged();
+					listItemArrayAdapter = new ArrayAdapter<String>(FileBrowserActivity.this, android.R.layout.simple_list_item_1, fileList);
+					fileListView.setAdapter(listItemArrayAdapter);
+					listItemArrayAdapter.notifyDataSetChanged();
+					currentPathTextView.setText("Current path: " + currentPath);
 					// else file is a file
 				} else {
-					Intent returnIntent = new Intent();
-					returnIntent.putExtra("currentPath", chosenFile.getAbsolutePath());
-					returnIntent.putExtra("originOfRequestforResult", origin);
-					setResult(RESULT_OK, returnIntent);     
-					finish();
+					if (selectionType == SELECTIONTYP_FILE_AND_FOLDER) {
+						ToastNotification.makeToast("Please select a folder!", Toast.LENGTH_LONG, FileBrowserActivity.this);
+					} else{
+						Log.e(TAG, "File selected");
+						Intent returnIntent = new Intent();
+						returnIntent.putExtra("currentPath", chosenFile.getAbsolutePath());
+						returnIntent.putExtra("originOfRequestforResult", origin);
+						setResult(RESULT_OK, returnIntent);     
+						finish();
+					}
 				}
 			}
 		});
-
 	}
 
 	private void loadFileList(File path) {
@@ -228,6 +258,7 @@ public class FileBrowserActivity extends Activity {
 	 * @return
 	 */
 	public File getChosenFile(String fileChosen) {
+		//TODO init theChosenOne
 		File theChosenOne;
 		if (fileChosen.equals(PARENT_DIR)) {
 			theChosenOne = new File(currentPath).getParentFile();
