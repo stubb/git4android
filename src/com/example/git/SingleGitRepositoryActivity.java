@@ -142,7 +142,7 @@ public class SingleGitRepositoryActivity extends Activity {
 					Intent intent = new Intent(SingleGitRepositoryActivity.this, FileBrowserActivity.class);
 					intent.putExtra("startPath", repoPath);
 					intent.putExtra("originOfRequestforResult", "buttonAddFiles");
-					intent.putExtra("selectionTyp", "file");
+					intent.putExtra("selectionTyp", FileBrowserActivity.SELECTIONTYP_FILE);
 					startActivityForResult(intent, 1);
 				}
 			});

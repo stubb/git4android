@@ -34,6 +34,7 @@ public class InitGitRepositoryActivity extends Activity {
 		button_select_folder.setOnClickListener(new View.OnClickListener(){
 			public void onClick(View v) {     			
 				Intent intent = new Intent(InitGitRepositoryActivity.this, FileBrowserActivity.class);
+				intent.putExtra("selectionTyp", FileBrowserActivity.SELECTIONTYP_FOLDER);
 				startActivityForResult(intent, 1);
 			}
 		});
