@@ -42,7 +42,7 @@ public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 	/**
 	 * The table that will hold the repositories paths and other attributes.
 	 */
-	private static final String TABLE_CREATE = "CREATE TABLE " + TABLE_NAME + " (repoPath VARCHAR UNIQUE NOT NULL);";
+	private static final String TABLE_CREATE = "CREATE TABLE " + TABLE_NAME + " (repoPath VARCHAR UNIQUE NOT NULL, name VARCHAR, date DATETIME);";
 
 	/**
 	 * 
@@ -91,10 +91,10 @@ public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 	 * Inserts a given path to a Git repository into the database.
 	 * @param path The path to a Git repository that will be inserted.
 	 */
-	public void addRepository(String path) {
+	public void addRepository(String path, String name, Integer date) {
 		SQLiteDatabase database = getWritableDatabase();
 		if (database.isOpen()) {
-			database.execSQL("INSERT INTO " + TABLE_NAME + " ('repoPath') VALUES ('" +  path + "');");
+			database.execSQL("INSERT INTO " + TABLE_NAME + " ('repoPath', 'name', 'date') VALUES ('" +  path + "', '" +  name + "', '" +  date + "');");
 			database.close();
 		} else {
 			Log.e("database", "Can't open database!");

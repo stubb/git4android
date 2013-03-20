@@ -29,6 +29,8 @@ public class InitGitRepositoryActivity extends Activity {
 
 		EditText pathEditText = (EditText) findViewById(R.id.path_to_init_repository);
 		pathEditText.setEnabled(false);
+		
+		EditText nameToRepresentGitRepositoryEditText = (EditText) findViewById(R.id.path_to_init_repository);
 
 		Button button_select_folder = (Button) findViewById(R.id.button_init_select_folder);
 		button_select_folder.setOnClickListener(new View.OnClickListener(){

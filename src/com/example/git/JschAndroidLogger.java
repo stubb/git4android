@@ -16,7 +16,7 @@ public class JschAndroidLogger implements Logger {
 
 	/**
 	 * Checks if logging of some level is actually enabled.
-	 * @level		The level that is checked.
+	 * @level	The level that is checked.
 	 * @return	Always true to enable logging for all levels.
 	 */
 	public boolean isEnabled(int level) {
