@@ -69,6 +69,7 @@ public class MainActivity extends Activity {
 	}   
 
 	protected void onDestroy(){
+		super.onDestroy();
 		GitRepositoryDatabase repositoryDatabase = GitRepositoryDatabase.getInstance(MainActivity.this);
 		repositoryDatabase.close();
 	}
