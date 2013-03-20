@@ -114,7 +114,7 @@ public class SettingsActivity extends Activity {
 					alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
 						public void onClick(DialogInterface dialog, int whichButton) {
 							Log.d(TAG,"generate Keys");				
-							if (generateKeyPair("RSA", defaultAbsoluteKeyPath, defaultPrivateKeyName, defaultPublicKeyName, "", input.getText().toString())) {
+							if (generateKeyPair(KeyPair.RSA, defaultAbsoluteKeyPath, defaultPrivateKeyName, defaultPublicKeyName, "", input.getText().toString())) {
 								ToastNotification.makeToast("Generated the keys in the folder " + defaultAbsoluteKeyPath + "!", Toast.LENGTH_LONG, SettingsActivity.this);
 							} else {
 								ToastNotification.makeToast("Wasn't able to gen keys : (", Toast.LENGTH_LONG, SettingsActivity.this);
@@ -173,14 +173,14 @@ public class SettingsActivity extends Activity {
 
 	/**
 	 * Generates a public and a private key, which can be used for SSH.
-	 * @param keyType	The type of the keys DSA or RSA
+	 * @param keyType	The type of the keys DSA or RSA, 1 for DSA, 2 for RSA
 	 * @param absoluteKeyPath	The path where the keys should be stored.
 	 * @param privateKeyFilename The filename of the private key.
 	 * @param publicKeyFilename The filename of the public key.
 	 * @param comment The comment thats included in the public key file.
 	 * @param password The password that will be used for the private key, can be an empty String.
 	 */
-	private boolean generateKeyPair(String keyType, String absoluteKeyPath, String privateKeyFilename, String publicKeyFilename, String comment, String password) {
+	private boolean generateKeyPair(Integer keyType, String absoluteKeyPath, String privateKeyFilename, String publicKeyFilename, String comment, String password) {
 		boolean success = false;
 		boolean folderExists = false;
 		File folder = new File(absoluteKeyPath);
@@ -188,32 +188,29 @@ public class SettingsActivity extends Activity {
 			folderExists = folder.mkdir();
 		}
 		if (folderExists) {
-			int type = 0;
-			if (keyType.equals("DSA")) {
-				type = KeyPair.DSA;
-			}
-			else {
-				type = KeyPair.RSA;
-			}
-			JSch jsch = new JSch();
-			KeyPair kpair;
-			try {
-				kpair = KeyPair.genKeyPair(jsch, type);
-				kpair.setPassphrase(password);
-				kpair.writePrivateKey(absoluteKeyPath + privateKeyFilename);
-				kpair.writePublicKey(absoluteKeyPath + publicKeyFilename, comment);
-				Log.d(TAG,"Finger print: " + kpair.getFingerPrint());
-				kpair.dispose();
-				success = true;
-			} catch (JSchException e) {
-				Log.e(TAG, "JSchException gen keys");
-				e.printStackTrace();
-			} catch (FileNotFoundException e) {
-				Log.e(TAG, "FileNotFoundException gen keys");
-				e.printStackTrace();
-			} catch (IOException e) {
-				Log.e(TAG, "IOException gen key");
-				e.printStackTrace();
+			if (keyType == KeyPair.DSA || keyType == KeyPair.RSA) {
+				JSch jsch = new JSch();
+				KeyPair kpair;
+				try {
+					kpair = KeyPair.genKeyPair(jsch, keyType);
+					kpair.setPassphrase(password);
+					kpair.writePrivateKey(absoluteKeyPath + privateKeyFilename);
+					kpair.writePublicKey(absoluteKeyPath + publicKeyFilename, comment);
+					Log.d(TAG,"Finger print: " + kpair.getFingerPrint());
+					kpair.dispose();
+					success = true;
+				} catch (JSchException e) {
+					Log.e(TAG, "JSchException gen keys");
+					e.printStackTrace();
+				} catch (FileNotFoundException e) {
+					Log.e(TAG, "FileNotFoundException gen keys");
+					e.printStackTrace();
+				} catch (IOException e) {
+					Log.e(TAG, "IOException gen key");
+					e.printStackTrace();
+				}
+			} else {
+				Log.e(TAG, "Invalid Key type");
 			}
 		} else {
 			Log.e(TAG, "Wasn't able to create folder for ssh keys");
