@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="jsch_authetifiaction_failed">Authentification failed!</string>
+    <string name="keys_not_found">Private/Public key not found!</string>
+    <string name="keys_not_readable">Private/Public key not readable!</string>
+    <string name="jgit_session_configuration_failed">Configuration of session failed!</string>
+
+</resources>
