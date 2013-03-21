@@ -72,7 +72,7 @@ public class CloneGitRepositoryActivity extends Activity {
 				Button button_submit_clone_repository = (Button) findViewById(R.id.button_submit_clone_repository);
 				button_submit_clone_repository.setOnClickListener(new View.OnClickListener(){
 					public void onClick(View v) {
-						GitRepository git = new GitRepository();
+						GitRepository git = new GitRepository(CloneGitRepositoryActivity.this);
 						final String repositoryUrl = urlEditText.getText().toString();
 						int protocol = git.checkUrlforProtokoll(repositoryUrl, CloneGitRepositoryActivity.this);
 						Log.d(TAG, String.valueOf(protocol));
@@ -107,7 +107,7 @@ public class CloneGitRepositoryActivity extends Activity {
 								}
 								if (cloneResult) {
 									GitRepositoryDatabase repositoryDatabase = GitRepositoryDatabase.getInstance(CloneGitRepositoryActivity.this);
-									repositoryDatabase.addRepository(selectedPath);
+									repositoryDatabase.addRepository(selectedPath, "namerepo");
 									ToastNotification.makeToast("Repo cloned!", Toast.LENGTH_LONG, CloneGitRepositoryActivity.this);
 									finish();
 								}	else {

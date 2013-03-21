@@ -26,7 +26,7 @@ public class SingleGitRepositoryActivity extends Activity {
 	 */
 	private final String TAG = getClass().getName();
 	private String repoPath = "";
-	GitRepository repository = new GitRepository();
+	GitRepository repository = new GitRepository(SingleGitRepositoryActivity.this);
 
 	/**
 	 * 

@@ -55,6 +55,11 @@ public class GitRepository {
 	private final String TAG = getClass().getName();
 
 	/**
+	 * The context from where this class is used.
+	 */
+	private Context context;
+	
+	/**
 	 * 
 	 */
 	private final String sshUrl = "ssh://";
@@ -82,7 +87,8 @@ public class GitRepository {
 	/**
 	 * Creates a new git repository.
 	 */
-	GitRepository() {	
+	GitRepository(Context newContext) {
+		context = newContext;
 	}
 
 	/**
@@ -340,8 +346,7 @@ public class GitRepository {
 			config.put("StrictHostKeyChecking", "no");
 			JSch.setConfig(config);
 			JSch.setLogger(new JschAndroidLogger());
-
-			CustomJschConfigSessionFactory factory = new CustomJschConfigSessionFactory(password, privateKeyPath, publicKeyPath);
+			CustomJschConfigSessionFactory factory = new CustomJschConfigSessionFactory(context, "git4android", password, privateKeyPath, publicKeyPath);
 			SshSessionFactory.setInstance(factory); 	    
 			clone.setCloneAllBranches(true);
 			clone.setDirectory(directory);
@@ -428,7 +433,7 @@ public class GitRepository {
 			JSch.setConfig(config);
 			JSch.setLogger(new JschAndroidLogger());
 
-			CustomJschConfigSessionFactory factory = new CustomJschConfigSessionFactory(password, privateKeyPath, publicKeyPath);
+			CustomJschConfigSessionFactory factory = new CustomJschConfigSessionFactory(context, "git4android", password, privateKeyPath, publicKeyPath);
 			SshSessionFactory.setInstance(factory); 	 
 
 			PullCommand pullCommand = git.pull();
@@ -563,7 +568,7 @@ public class GitRepository {
 			config.put("StrictHostKeyChecking", "no");
 			JSch.setConfig(config);
 			JSch.setLogger(new JschAndroidLogger());
-			CustomJschConfigSessionFactory factory = new CustomJschConfigSessionFactory(password, privateKeyPath, publicKeyPath);
+			CustomJschConfigSessionFactory factory = new CustomJschConfigSessionFactory(context, "git4android", password, privateKeyPath, publicKeyPath);
 			SshSessionFactory.setInstance(factory); 	 
 			PushCommand pushCommand = git.push();
 			pushCommand.call();

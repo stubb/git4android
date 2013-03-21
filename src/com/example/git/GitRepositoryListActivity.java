@@ -36,21 +36,14 @@ public class GitRepositoryListActivity extends Activity {
 	 * The list that holds all repository paths from the database.
 	 */
 	private List<String> gitRepositoryPathList = new ArrayList<String>();
-	
-	/**
-	 * The database 
-	 */
-	private final GitRepositoryDatabase gitRepositoryDatabase = GitRepositoryDatabase.getInstance(GitRepositoryListActivity.this);
-	
-	/**
-	 * The Listview that
-	 */
-	private final ListView gitRepositoryPathsListView = (ListView)findViewById(R.id.repo_list_view);
+
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_repository_list);
+		final GitRepositoryDatabase gitRepositoryDatabase = GitRepositoryDatabase.getInstance(GitRepositoryListActivity.this);
+		final ListView gitRepositoryPathsListView = (ListView)findViewById(R.id.repo_list_view);
 		if (loadGitRepositoryList(gitRepositoryDatabase, gitRepositoryPathsListView, gitRepositoryPathList, tableRowAdapter)){
 			gitRepositoryPathsListView.setOnItemClickListener( new OnItemClickListener() {
 
