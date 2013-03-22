@@ -16,7 +16,7 @@ public class JschAndroidLogger implements Logger {
 
 	/**
 	 * Checks if logging of some level is actually enabled.
-	 * @level	The level that is checked.
+	 * @param level	The level that is checked.
 	 * @return	Always true to enable logging for all levels.
 	 */
 	public boolean isEnabled(int level) {
@@ -25,8 +25,8 @@ public class JschAndroidLogger implements Logger {
 
 	/**
 	 * Used to log the messages from Jsch to the Android API.
-	 * @param The level	of the message.
-	 * @param The message that will be logged.
+	 * @param level The level	of the message.
+	 * @param message The message that will be logged.
 	 */
 	public void log(int level, String message) {
 		// There is no documentation about the range of the log level
