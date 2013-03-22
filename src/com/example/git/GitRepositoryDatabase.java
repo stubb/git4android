@@ -57,8 +57,8 @@ public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 	 * @param context
 	 */
 	private GitRepositoryDatabase(Context newContext) {
-		super(context, DATABASE_NAME, null, DATABASE_VERSION);
-		context = context;
+		super(newContext, DATABASE_NAME, null, DATABASE_VERSION);
+		context = newContext;
 	}
 
 	/**
@@ -118,18 +118,18 @@ public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 		boolean added = false;
 		try {
 			SQLiteDatabase database = getWritableDatabase();
-			if (database.isOpen()) {
+/**			if (database.isOpen()) {
 				database.execSQL("INSERT INTO " + TABLE_NAME + " ('repoPath', 'name', 'date') VALUES ('" +  path + "', '" +  name + "', '" +  dateFormat.format(date) + "');");
 				database.close();
 				added = true;
 			} else {
 				Log.e("database", "Can't open database!");
-			}
+			}*/
 		} catch (SQLiteException exception) {
 			Log.e("database", "SQLITE");
 			exception.printStackTrace();
 		}catch (NullPointerException exception) {
-			Log.e("database", "addrepo");
+			Log.e("database", "addrepo null");
 			exception.printStackTrace();
 		}
 		return added;
