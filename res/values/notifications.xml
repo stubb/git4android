@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="select_a_path">Select a path!</string>
+    <string name="repository_created">Git Repository created!</string>
+    <string name="init_git_repository_failed">Something went wrong during the init process of the Git repository</string>
+    <string name="no_vaild_folder_selected">You havn\'t selected a valid folder</string>
+    <string name="file_browser_selection_failed">"Something went wrong during the selection, please do it again!</string>
+  
+</resources>
