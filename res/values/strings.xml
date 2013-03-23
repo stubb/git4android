@@ -37,5 +37,6 @@
     <string name="button_checkout_commit">Checkout by commit</string>
     <string name="button_all_branches">Show all branches</string>
     <string name="button_current_branch">Show current branch name</string>
+    <string name="button_checkout_branch">Check out branch</string>
 
 </resources>

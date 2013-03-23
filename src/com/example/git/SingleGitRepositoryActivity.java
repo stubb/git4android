@@ -58,6 +58,7 @@ public class SingleGitRepositoryActivity extends Activity {
 			Button buttonCheckoutByCommit = (Button) findViewById(R.id.button_checkout_commit);
 			Button buttonCurrentBranch = (Button) findViewById(R.id.button_current_branch);
 			Button buttonShowAllBranches = (Button) findViewById(R.id.button_all_branches);
+			Button buttonCheckoutBranch = (Button) findViewById(R.id.button_checkout_branch);
 
 			final int protocol = repository.checkUrlforProtokoll(repository.getRemoteOriginUrl(), SingleGitRepositoryActivity.this);
 
@@ -314,17 +315,29 @@ public class SingleGitRepositoryActivity extends Activity {
 			buttonCheckoutByCommit.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
 					AlertDialog.Builder alert = new AlertDialog.Builder(SingleGitRepositoryActivity.this);                 
-					alert.setTitle("Enter Commit ID");                 
+					alert.setTitle("Checkout commit to branch");
+					
+					LinearLayout linearLayout = new LinearLayout(SingleGitRepositoryActivity.this);
+					linearLayout.setOrientation(1);
 
-					final EditText input = new EditText(SingleGitRepositoryActivity.this); 
-					input.setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
-					alert.setView(input);
+					final EditText branchNameView = new EditText(SingleGitRepositoryActivity.this); 
+					branchNameView.setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
+					branchNameView.setHint("branch name");
+					linearLayout.addView(branchNameView);
+					
+					final EditText commitIdView = new EditText(SingleGitRepositoryActivity.this);
+					commitIdView.setHint("commit id");
+					commitIdView.setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
+					linearLayout.addView(commitIdView);
 
+					alert.setView(linearLayout);
 					alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
 						public void onClick(DialogInterface dialog, int whichButton) {
-							//todo string empty
-							String commitID = input.getText().toString();
-							if(repository.checkoutCommit(commitID)) {
+							String branchName = "";
+							branchName = branchNameView.getText().toString();
+							String commitId = "";
+							commitId = commitIdView.getText().toString();
+							if(repository.checkoutCommitToNewBranch(commitId, branchName)) {
 								ToastNotification.makeToast("Check out succesfull", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
 							} else {
 								ToastNotification.makeToast("Checked out failed", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
@@ -347,12 +360,40 @@ public class SingleGitRepositoryActivity extends Activity {
 					startActivity(intent);
 				}
 			});
-			buttonCurrentBranch .setOnClickListener(new View.OnClickListener() {
+			buttonCurrentBranch.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
 					String branchname = repository.getCurrentBranch();
 					Intent intent = new Intent(context, TextActivity.class);
 					intent.putExtra(TextActivity.INTENTNAME, branchname);
 					startActivity(intent);
+				}
+			});
+			buttonCheckoutBranch.setOnClickListener(new View.OnClickListener() {
+				public void onClick(View v) {
+					AlertDialog.Builder alert = new AlertDialog.Builder(SingleGitRepositoryActivity.this);                 
+					alert.setTitle("Enter branch name e.g. master");                 
+
+					final EditText input = new EditText(SingleGitRepositoryActivity.this); 
+					input.setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
+					alert.setView(input);
+
+					alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
+						public void onClick(DialogInterface dialog, int whichButton) {
+							//todo string empty
+							String branchName = input.getText().toString();
+							if(repository.checkoutBranch(branchName)) {
+								ToastNotification.makeToast("Check out succesfull", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+							} else {
+								ToastNotification.makeToast("Checked out failed", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+							}
+						}
+					});
+					alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							return;   
+						}
+					});
+					alert.show();
 				}
 			});
 		}

@@ -95,6 +95,14 @@
             android:layout_below="@+id/button_current_branch"
             android:layout_gravity="bottom"
             android:text="@string/button_all_branches" />
+        
+         <Button
+            android:id="@+id/button_checkout_branch"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/button_all_branches"
+            android:layout_gravity="bottom"
+            android:text="@string/button_checkout_branch" />
     </RelativeLayout>
 
 </ScrollView>

@@ -113,6 +113,7 @@ public class GitRepository {
 				actualStatus += "\n";
 				actualStatus += "Changed: ";
 				actualStatus += statusObject.getChanged();
+				
 			} catch (NoWorkTreeException e) {
 				// TODO Auto-generated catch block
 				Log.e(TAG, "Status failed");
@@ -664,19 +665,27 @@ public class GitRepository {
 	}
 
 	/**
-	 * Checks out a commit at the current branch
+	 * Checks out a commit to a new branch
 	 * @param commit
 	 * @return
 	 */
-	public boolean checkoutCommit(String commitID){
+	public boolean checkoutCommitToNewBranch(String commitID, String newBranchName){
 		boolean checkedOut = false;
 		RevCommit commit = getCommit(commitID);
 		if (commit != null) {
 			Log.e(TAG, getAllBranchNames());
-			CheckoutCommand checkout = git.checkout().setName(getCurrentBranch()).setStartPoint(commit.getId().getName());
+			
+			CheckoutCommand checkout = git.checkout();
 			try {
+	//			git.branchCreate().setName("test").call();
+				checkout.setCreateBranch(true);
+				checkout.setName(newBranchName);
+				checkout.setStartPoint(commit.getId().getName()); 
+	//			checkout.setCreateBranch(true).setName("stable").setStartPoint(getCurrentBranch()).call();
+
 				checkout.call();
 				checkedOut = true;
+				Log.e(TAG, "checked out");
 			} catch (RefAlreadyExistsException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -696,6 +705,33 @@ public class GitRepository {
 		} else {
 			Log.e(TAG, "Check out");
 		}
+		return checkedOut;
+	}
+	
+	/**
+	 * Checks out a branch
+	 * @param name Name of the branch e.g. master
+	 * @return
+	 */
+	public boolean checkoutBranch(String name) {
+		boolean checkedOut = false;
+		try {
+			git.checkout().setName(name).call();
+	    //git.branchCreate().setName(name).call();
+	    checkedOut = true;
+    } catch (RefAlreadyExistsException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+    } catch (RefNotFoundException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+    } catch (InvalidRefNameException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+    } catch (GitAPIException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+    }
 		return checkedOut;
 	}
 
