@@ -33,5 +33,7 @@
     <string name="ssh_public_key_description">Public key:</string>
     <string name="button_save">Save</string>
     <string name="username_description">Username for http/https</string>
+    <string name="git_repository_name_description">Name for the Git Repository</string>
+    <string name="button_checkout_commit">Checkout by commit</string>
 
 </resources>

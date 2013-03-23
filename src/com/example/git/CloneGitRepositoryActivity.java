@@ -39,7 +39,7 @@ public class CloneGitRepositoryActivity extends Activity {
 		button_select_folder.setOnClickListener(new View.OnClickListener(){
 			public void onClick(View v) {     			
 				Intent intent = new Intent(CloneGitRepositoryActivity.this, FileBrowserActivity.class);
-				intent.putExtra("selectionTyp", FileBrowserActivity.SELECTIONTYP_FOLDER);
+				intent.putExtra("selectionTyp", Integer.toString(FileBrowserActivity.SELECTIONTYP_FOLDER));
 				startActivityForResult(intent, 1);
 			}
 		});
@@ -69,6 +69,8 @@ public class CloneGitRepositoryActivity extends Activity {
 				pathEditText.setText(selectedPath);
 				pathEditText.setEnabled(false);
 
+				final EditText gitRepositoryName = (EditText) findViewById(R.id.git_repository_name);
+				
 				Button button_submit_clone_repository = (Button) findViewById(R.id.button_submit_clone_repository);
 				button_submit_clone_repository.setOnClickListener(new View.OnClickListener(){
 					public void onClick(View v) {
@@ -107,7 +109,7 @@ public class CloneGitRepositoryActivity extends Activity {
 								}
 								if (cloneResult) {
 									GitRepositoryDatabase repositoryDatabase = GitRepositoryDatabase.getInstance(CloneGitRepositoryActivity.this);
-									repositoryDatabase.addRepository(selectedPath, "namerepo");
+									repositoryDatabase.addRepository(selectedPath, gitRepositoryName.getText().toString());
 									ToastNotification.makeToast("Repo cloned!", Toast.LENGTH_LONG, CloneGitRepositoryActivity.this);
 									finish();
 								}	else {

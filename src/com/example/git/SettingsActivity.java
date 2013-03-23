@@ -79,6 +79,7 @@ public class SettingsActivity extends Activity {
 		sshPrivateKeyPathButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				Intent intent = new Intent(SettingsActivity.this, FileBrowserActivity.class);
+				intent.putExtra("selectionTyp", Integer.toString(FileBrowserActivity.SELECTIONTYP_FILE));
 				intent.putExtra("originOfRequestforResult", "sshPrivateKeyPathButton");
 				startActivityForResult(intent, 1);
 			}
@@ -94,6 +95,7 @@ public class SettingsActivity extends Activity {
 		sshPublicKeyPathButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				Intent intent = new Intent(SettingsActivity.this, FileBrowserActivity.class);
+				intent.putExtra("selectionTyp", Integer.toString(FileBrowserActivity.SELECTIONTYP_FILE));
 				intent.putExtra("originOfRequestforResult", "sshPublicKeyPathButton");
 				startActivityForResult(intent, 1);
 			}

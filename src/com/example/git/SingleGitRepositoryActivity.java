@@ -4,6 +4,7 @@ import java.io.File;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -26,7 +27,10 @@ public class SingleGitRepositoryActivity extends Activity {
 	 */
 	private final String TAG = getClass().getName();
 	private String repoPath = "";
-	GitRepository repository = new GitRepository(SingleGitRepositoryActivity.this);
+	private GitRepository repository = new GitRepository(SingleGitRepositoryActivity.this);
+
+	private final Context context = SingleGitRepositoryActivity.this;
+
 
 	/**
 	 * 
@@ -51,9 +55,10 @@ public class SingleGitRepositoryActivity extends Activity {
 			Button buttonLog = (Button) findViewById(R.id.button_log);
 			Button buttonStatus = (Button) findViewById(R.id.button_status);
 			Button buttonShowRemote = (Button) findViewById(R.id.button_show_remote);
+			Button buttonCheckoutByCommit = (Button) findViewById(R.id.button_checkout_commit);
 
 			final int protocol = repository.checkUrlforProtokoll(repository.getRemoteOriginUrl(), SingleGitRepositoryActivity.this);
-			
+
 			SharedPreferences settings = getSharedPreferences(SingleGitRepositoryActivity.this.getResources().getString(R.string.APPSETTINGS), 0);
 			final String sshPrivateKeyPath = settings.getString(SingleGitRepositoryActivity.this.getResources().getString(R.string.SSHPRIVATEKEYPATHSETTING), "");
 			final String sshPublicKeyPath = settings.getString(SingleGitRepositoryActivity.this.getResources().getString(R.string.SSHPUBLICKEYPATHSETTING), "");
@@ -142,7 +147,7 @@ public class SingleGitRepositoryActivity extends Activity {
 					Intent intent = new Intent(SingleGitRepositoryActivity.this, FileBrowserActivity.class);
 					intent.putExtra("startPath", repoPath);
 					intent.putExtra("originOfRequestforResult", "buttonAddFiles");
-					intent.putExtra("selectionTyp", FileBrowserActivity.SELECTIONTYP_FILE);
+					intent.putExtra("selectionTyp", Integer.toString(FileBrowserActivity.SELECTIONTYP_FILE));
 					startActivityForResult(intent, 1);
 				}
 			});
@@ -254,7 +259,10 @@ public class SingleGitRepositoryActivity extends Activity {
 
 			buttonShowRemote.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
-					ToastNotification.makeToast(repository.getRemoteOriginUrl(), Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+					String urlOfRemoteRepository = repository.getRemoteOriginUrl();
+					Intent intent = new Intent(context, TextActivity.class);
+					intent.putExtra(TextActivity.INTENTNAME, urlOfRemoteRepository);
+					startActivity(intent);
 				}
 			});
 
@@ -286,15 +294,46 @@ public class SingleGitRepositoryActivity extends Activity {
 			buttonLog.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
 					String log = repository.log();
-					ToastNotification.makeToast(log, Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
-
+					Intent intent = new Intent(context, TextActivity.class);
+					intent.putExtra(TextActivity.INTENTNAME, log);
+					startActivity(intent);
 				}
 			});
 
 			buttonStatus.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
 					String status = repository.status();
-					ToastNotification.makeToast(status, Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+					Intent intent = new Intent(context, TextActivity.class);
+					intent.putExtra(TextActivity.INTENTNAME, status);
+					startActivity(intent);
+				}
+			});
+
+			buttonCheckoutByCommit.setOnClickListener(new View.OnClickListener() {
+				public void onClick(View v) {
+					AlertDialog.Builder alert = new AlertDialog.Builder(SingleGitRepositoryActivity.this);                 
+					alert.setTitle("Enter Commit ID");                 
+
+					EditText input = new EditText(SingleGitRepositoryActivity.this); 
+					input.setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
+					alert.setView(input);
+					final String commitID = input.getText().toString();
+
+					alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
+						public void onClick(DialogInterface dialog, int whichButton) {
+							if(repository.checkoutCommit(commitID)) {
+								ToastNotification.makeToast("Check out failed", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+							} else {
+								ToastNotification.makeToast("Checked out succesfull", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+							}
+						}
+					});
+					alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							return;   
+						}
+					});
+					alert.show();
 				}
 			});
 		}

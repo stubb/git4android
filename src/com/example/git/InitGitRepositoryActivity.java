@@ -33,14 +33,12 @@ public class InitGitRepositoryActivity extends Activity {
 
 		EditText pathEditText = (EditText) findViewById(R.id.path_to_init_repository);
 		pathEditText.setEnabled(false);
-		
-		EditText nameToRepresentGitRepositoryEditText = (EditText) findViewById(R.id.path_to_init_repository);
 
 		Button button_select_folder = (Button) findViewById(R.id.button_init_select_folder);
 		button_select_folder.setOnClickListener(new View.OnClickListener(){
 			public void onClick(View v) {     			
 				Intent intent = new Intent(context, FileBrowserActivity.class);
-				intent.putExtra("selectionTyp", FileBrowserActivity.SELECTIONTYP_FOLDER);
+				intent.putExtra("selectionTyp", Integer.toString(FileBrowserActivity.SELECTIONTYP_FOLDER));
 				startActivityForResult(intent, 1);
 			}
 		});
@@ -65,7 +63,9 @@ public class InitGitRepositoryActivity extends Activity {
 				EditText pathEditText = (EditText) findViewById(R.id.path_to_init_repository);
 				pathEditText.setText(selectedPath);
 				pathEditText.setEnabled(false);
-
+				
+				final EditText gitRepositoryName = (EditText) findViewById(R.id.git_repository_name);
+				
 				Button button_submit_init_repository = (Button) findViewById(R.id.button_submit_init_repository);
 				button_submit_init_repository.setOnClickListener(new View.OnClickListener(){
 					public void onClick(View v) {
@@ -75,9 +75,13 @@ public class InitGitRepositoryActivity extends Activity {
 								GitRepository git = new GitRepository(context);
 								if (git.init(selectedPath)) {
 									GitRepositoryDatabase repositoryDatabase = GitRepositoryDatabase.getInstance(context);
-									repositoryDatabase.addRepository(selectedPath, "test");
+									if(repositoryDatabase.addRepository(selectedPath, gitRepositoryName.getText().toString())) {
 									ToastNotification.makeToast(context.getResources().getString(R.string.repository_created), Toast.LENGTH_LONG, context);
 									finish();
+									} else {
+										ToastNotification.makeToast("Repo added failed!", Toast.LENGTH_LONG, context);
+										git.resetRepository(path);
+									}
 								} else {
 									ToastNotification.makeToast(context.getResources().getString(R.string.init_git_repository_failed), Toast.LENGTH_LONG, context);
 								}

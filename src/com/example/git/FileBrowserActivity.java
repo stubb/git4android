@@ -94,7 +94,11 @@ public class FileBrowserActivity extends Activity {
 				origin = tempOrigin;
 			}
 			if(tempSelection != null) {
-				selectionType = Integer.getInteger(tempSelection, SELECTIONTYP_FILE_AND_FOLDER);
+				try {
+				selectionType = Integer.parseInt(tempSelection);
+				} catch (NumberFormatException e) {
+					Log.e(TAG, "selectiontype Failed");
+				}
 			}
 		}
 
@@ -211,7 +215,7 @@ public class FileBrowserActivity extends Activity {
 					currentPathTextView.setText("Current path: " + currentPath);
 					// else file is a file
 				} else {
-					if (selectionType == SELECTIONTYP_FILE_AND_FOLDER) {
+					if (selectionType == SELECTIONTYP_FOLDER) {
 						ToastNotification.makeToast("Please select a folder!", Toast.LENGTH_LONG, FileBrowserActivity.this);
 					} else{
 						Log.e(TAG, "File selected");

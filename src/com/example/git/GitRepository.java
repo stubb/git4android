@@ -11,6 +11,7 @@ import java.util.Locale;
 import java.util.Properties;
 
 import org.eclipse.jgit.api.AddCommand;
+import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.Git;
@@ -22,15 +23,18 @@ import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.StatusCommand;
 import org.eclipse.jgit.api.errors.CanceledException;
+import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
 import org.eclipse.jgit.api.errors.DetachedHeadException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidConfigurationException;
+import org.eclipse.jgit.api.errors.InvalidRefNameException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.api.errors.NoFilepatternException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.api.errors.NoMessageException;
+import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.api.errors.UnmergedPathsException;
@@ -640,7 +644,7 @@ public class GitRepository {
 	 * Resets the complete Repository, everything which was saved will be removed.
 	 * @param path	The path of the repository on the storage.
 	 */
-	private void resetRepository(File path) {
+	public void resetRepository(File path) {
 		File repositoryDirectory = new File(path.getAbsolutePath() + "/.git");
 		deleteFileOrDirectoryRecursive(repositoryDirectory);
 	}
@@ -655,5 +659,89 @@ public class GitRepository {
 				deleteFileOrDirectoryRecursive(child);
 		fileOrDirectory.delete();
 	}
+	
+	/**
+	 * Checks out a commit at the current branch
+	 * @param commit
+	 * @return
+	 */
+	public boolean checkoutCommit(String commitID){
+		boolean checkedOut = false;
+		RevCommit commit = getCommit(commitID);
+		if (commit != null) {
+		CheckoutCommand checkout = git.checkout().setName(".").setStartPoint(commit);
+		try {
+	    checkout.call();
+	    checkedOut = true;
+    } catch (RefAlreadyExistsException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+    } catch (RefNotFoundException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+    } catch (InvalidRefNameException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+    } catch (CheckoutConflictException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+    } catch (GitAPIException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+    }
+		} else {
+			Log.e(TAG, "Check out");
+		}
+		return checkedOut;
+	}
+	
+	/**
+	 * @return 
+	 */
+	private RevCommit getCommit(String commitID){
+		// has no public comstructor
+		RevCommit searchedCommit = null;
+		Iterable<RevCommit> loggedCommits;
+		try {
+			loggedCommits = git.log().call();
+			for (RevCommit commit : loggedCommits) {
+				if(commit.getId().toString().equalsIgnoreCase(commitID)) {
+					Log.e(TAG, "objectid" + commit.getId().toString());
+					Log.e(TAG, "commitid string" + commitID);
+					searchedCommit = commit;
+				}
+			}
+		} catch (NoHeadException e) {
+			Log.e(TAG, "Log creation failed, no HEAD reference available.");
+			e.printStackTrace();
+		} catch (GitAPIException e) {
+			Log.e(TAG, "Log creation failed, wasn't able to access the repository.");
+			e.printStackTrace();
+		}
+		return searchedCommit;
+	}
+	
+	/*
+	  	public ArrayList<List<String>> log() {
+		ArrayList<List<String>> resultList = new ArrayList<List<String>>();
+		Iterable<RevCommit> loggedCommits;
+		try {
+			loggedCommits = git.log().call();
+			for (RevCommit commit : loggedCommits) {
+				List<String> commitLog = new ArrayList<String>();
+				commitLog.add(commit.getName());
+				commitLog.add(commit.getFullMessage());
+				resultList.add(commitLog);
+			}
+		} catch (NoHeadException e) {
+			Log.e(TAG, "Log creation failed, no HEAD reference available.");
+			e.printStackTrace();
+		} catch (GitAPIException e) {
+			Log.e(TAG, "Log creation failed, wasn't able to access the repository.");
+			e.printStackTrace();
+		}
+		return resultList;
+	}
+	 */
 }
 

@@ -118,13 +118,14 @@ public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 		boolean added = false;
 		try {
 			SQLiteDatabase database = getWritableDatabase();
-/**			if (database.isOpen()) {
+			if (database.isOpen()) {
+				Log.e("database", "INSERT INTO " + TABLE_NAME + " ('repoPath', 'name', 'date') VALUES ('" +  path + "', '" +  name + "', '" +  dateFormat.format(date) + "');");
 				database.execSQL("INSERT INTO " + TABLE_NAME + " ('repoPath', 'name', 'date') VALUES ('" +  path + "', '" +  name + "', '" +  dateFormat.format(date) + "');");
 				database.close();
 				added = true;
 			} else {
 				Log.e("database", "Can't open database!");
-			}*/
+			}
 		} catch (SQLiteException exception) {
 			Log.e("database", "SQLITE");
 			exception.printStackTrace();
@@ -163,13 +164,14 @@ public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 	 * Loads all 
 	 * @return
 	 */
-	public List<String> loadRepositories() {
-		List<String> resultList = new ArrayList<String>();
+	public ArrayList<List<String>> loadRepositories() {
+		ArrayList<List<String>> resultList = new ArrayList<List<String>>();
 		try {
 			SQLiteDatabase database = getWritableDatabase();
 			if (database.isOpen()) {
-				final String[] columns = new String[]{"repoPath, name, date"};
-				resultList = loadStringsFromDataBaseTable(database, TABLE_NAME, columns, " ");
+				final String[] columns = new String[]{"repoPath", "name", "date"};
+				resultList = loadStringsFromDataBaseTable(database, TABLE_NAME, columns);
+				Log.e("database", "resultList size" + Integer.toString(resultList.size()));
 				database.close();
 			} else {
 				Log.d("database", "Can't open database!");
@@ -192,19 +194,17 @@ public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 	 * @param resultList The List where the queried data will be applied
 	 * @param columns The columns of the table where the data will be queried
 	 */
-	private List<String> loadStringsFromDataBaseTable(SQLiteDatabase database, String table, String[] columns, String spacer) {
-		List<String> resultList = new ArrayList<String>();
+	private ArrayList<List<String>> loadStringsFromDataBaseTable(SQLiteDatabase database, String table, String[] columns) {
+		ArrayList<List<String>> resultList = new ArrayList<List<String>>();
 		Cursor cursor = database.query(table, columns, null, null, null, null, null);
 		if (cursor != null) {
 			while(cursor.moveToNext()) {
-				String rowResult = "";
+				List<String> row = new ArrayList<String>();
 				for (int i = 0; i < columns.length; i++) {
-					rowResult += new String(cursor.getString(0));
-					if(i != (columns.length - 1)) {
-						rowResult += spacer;
-					}
+					row.add(new String(cursor.getString(i)));
 				}
-				resultList.add(rowResult);
+				Log.d("database", "rowResult" + row.toString());
+				resultList.add(row);
 			}
 			cursor.close();
 		}

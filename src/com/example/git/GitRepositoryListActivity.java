@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
@@ -30,12 +29,12 @@ public class GitRepositoryListActivity extends Activity {
 	/**
 	 * 
 	 */
-	private ArrayAdapter<String> tableRowAdapter;
+	private MyArrayAdapter tableRowAdapter;
 
 	/**
 	 * The list that holds all repository paths from the database.
 	 */
-	private List<String> gitRepositoryPathList = new ArrayList<String>();
+	private ArrayList<List<String>> gitRepositoryPathList = new ArrayList<List<String>>();
 
 
 	@Override
@@ -44,7 +43,7 @@ public class GitRepositoryListActivity extends Activity {
 		setContentView(R.layout.activity_repository_list);
 		final GitRepositoryDatabase gitRepositoryDatabase = GitRepositoryDatabase.getInstance(GitRepositoryListActivity.this);
 		final ListView gitRepositoryPathsListView = (ListView)findViewById(R.id.repo_list_view);
-		if (loadGitRepositoryList(gitRepositoryDatabase, gitRepositoryPathsListView, gitRepositoryPathList, tableRowAdapter)){
+		if (loadGitRepositoryList(gitRepositoryDatabase, gitRepositoryPathsListView)){
 			gitRepositoryPathsListView.setOnItemClickListener( new OnItemClickListener() {
 
 				@Override
@@ -56,32 +55,45 @@ public class GitRepositoryListActivity extends Activity {
 				 * @param id	The row id of the item that was clicked. 
 				 */
 				public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-
+					if (gitRepositoryPathList.size() > 0) {
 					AlertDialog.Builder builder = new AlertDialog.Builder(GitRepositoryListActivity.this);                 
 					builder.setTitle("Repository");
-					builder.setMessage(gitRepositoryPathList.get(position));               
-					builder.setPositiveButton("OPEN", new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int whichButton) {
-							File folder = new File(gitRepositoryPathList.get(position));
-							if (folder.exists()) {
-								Intent intent = new Intent(GitRepositoryListActivity.this, SingleGitRepositoryActivity.class);
-								intent.putExtra("repo", gitRepositoryPathList.get(position));
-								startActivity(intent);
-							} else {
-								ToastNotification.makeToast("The repository doesn't exist!", Toast.LENGTH_LONG, GitRepositoryListActivity.this);
-							}
-						}
-					});  
-					builder.setNegativeButton("DELETE", new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							Log.d(TAG, gitRepositoryPathList.get(position));
-							gitRepositoryDatabase.removeRepository(gitRepositoryPathList.get(position));
-							loadGitRepositoryList(gitRepositoryDatabase, gitRepositoryPathsListView,
-									gitRepositoryPathList, tableRowAdapter);
-						}
-					});
-					AlertDialog dialog = builder.create();
-					dialog.show(); 			
+					String itemName = "";
+					try {
+						Log.e(TAG, "list size" + Integer.toString(gitRepositoryPathList.size()));
+						Log.e(TAG, "position" + Integer.toString(position));
+
+							itemName = gitRepositoryPathList.get(position).get(0);
+							builder.setMessage(itemName);               
+							builder.setPositiveButton("OPEN", new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int whichButton) {
+									File folder = new File(gitRepositoryPathList.get(position).get(0));
+									if (folder.exists()) {
+										Intent intent = new Intent(GitRepositoryListActivity.this, SingleGitRepositoryActivity.class);
+										intent.putExtra("repo", gitRepositoryPathList.get(position).get(0));
+										startActivity(intent);
+									} else {
+										ToastNotification.makeToast("The repository doesn't exist!", Toast.LENGTH_LONG, GitRepositoryListActivity.this);
+									}
+								}
+							});
+							builder.setNegativeButton("DELETE", new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int which) {
+									Log.d(TAG, gitRepositoryPathList.get(position).get(0));
+									gitRepositoryDatabase.removeRepository(gitRepositoryPathList.get(position).get(0));
+									loadGitRepositoryList(gitRepositoryDatabase, gitRepositoryPathsListView);
+								}
+							});
+
+						AlertDialog dialog = builder.create();
+						dialog.show();
+					} catch (IndexOutOfBoundsException exception) {
+						Log.e(TAG, "Item not found");
+						exception.printStackTrace();
+						ToastNotification.makeToast("The repository cant be opened!", Toast.LENGTH_LONG, GitRepositoryListActivity.this);
+
+					}
+					}
 				}
 			});
 		} else {
@@ -97,16 +109,20 @@ public class GitRepositoryListActivity extends Activity {
 	 * @param tableRowAdapter
 	 * @return
 	 */
-	private boolean loadGitRepositoryList(GitRepositoryDatabase gitRepositoryDatabase, ListView gitRepositoryPathsListView,
-			List<String> gitRepositoryPathList, ArrayAdapter<String> tableRowAdapter) {
+	private boolean loadGitRepositoryList(GitRepositoryDatabase gitRepositoryDatabase, ListView gitRepositoryPathsListView) {
 		boolean loaded = false;
+		try {
 		gitRepositoryPathList = gitRepositoryDatabase.loadRepositories();
-		if(!gitRepositoryPathList.isEmpty()) {
-			tableRowAdapter = new ArrayAdapter<String>(GitRepositoryListActivity.this, android.R.layout.simple_list_item_1 , gitRepositoryPathList);
+			tableRowAdapter = new MyArrayAdapter(GitRepositoryListActivity.this, android.R.layout.simple_list_item_1 , gitRepositoryPathList);
 			gitRepositoryPathsListView.setAdapter(tableRowAdapter);
 			tableRowAdapter.notifyDataSetChanged();
 			loaded = true;
-		} 
+		} catch (IndexOutOfBoundsException exception) {
+			Log.e(TAG, "Item not found");
+			exception.printStackTrace();
+		}
+		Log.e(TAG, "list size in method" + Integer.toString(gitRepositoryPathList.size()));
+		Log.e(TAG, "list size in method global" + Integer.toString(gitRepositoryPathList.size()));
 		return loaded;
 	}
 }
