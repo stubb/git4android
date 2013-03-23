@@ -3,9 +3,12 @@ package com.example.git;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.MenuItem;
 
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 /**
@@ -37,9 +40,8 @@ public class TextActivity extends Activity {
 				text = tempText;
 			}
 		}
-	//	EditText pathEditText = (EditText) findViewById(R.id.path_to_save_repository);
-		TextView textView = (TextView) findViewById(R.id.text);
+		EditText textView = (EditText) findViewById(R.id.text);
+		textView.setKeyListener(null);
 		textView.setText(text);
-		
 	}
 }
