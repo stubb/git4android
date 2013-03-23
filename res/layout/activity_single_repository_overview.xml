@@ -79,6 +79,22 @@
             android:layout_below="@+id/button_show_remote"
             android:layout_gravity="bottom"
             android:text="@string/button_checkout_commit" />
+
+        <Button
+            android:id="@+id/button_current_branch"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/button_checkout_commit"
+            android:layout_gravity="bottom"
+            android:text="@string/button_current_branch" />
+
+        <Button
+            android:id="@+id/button_all_branches"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/button_current_branch"
+            android:layout_gravity="bottom"
+            android:text="@string/button_all_branches" />
     </RelativeLayout>
 
 </ScrollView>

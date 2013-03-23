@@ -35,5 +35,7 @@
     <string name="username_description">Username for http/https</string>
     <string name="git_repository_name_description">Name for the Git Repository</string>
     <string name="button_checkout_commit">Checkout by commit</string>
+    <string name="button_all_branches">Show all branches</string>
+    <string name="button_current_branch">Show current branch name</string>
 
 </resources>

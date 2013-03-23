@@ -56,6 +56,8 @@ public class SingleGitRepositoryActivity extends Activity {
 			Button buttonStatus = (Button) findViewById(R.id.button_status);
 			Button buttonShowRemote = (Button) findViewById(R.id.button_show_remote);
 			Button buttonCheckoutByCommit = (Button) findViewById(R.id.button_checkout_commit);
+			Button buttonCurrentBranch = (Button) findViewById(R.id.button_current_branch);
+			Button buttonShowAllBranches = (Button) findViewById(R.id.button_all_branches);
 
 			final int protocol = repository.checkUrlforProtokoll(repository.getRemoteOriginUrl(), SingleGitRepositoryActivity.this);
 
@@ -314,17 +316,18 @@ public class SingleGitRepositoryActivity extends Activity {
 					AlertDialog.Builder alert = new AlertDialog.Builder(SingleGitRepositoryActivity.this);                 
 					alert.setTitle("Enter Commit ID");                 
 
-					EditText input = new EditText(SingleGitRepositoryActivity.this); 
+					final EditText input = new EditText(SingleGitRepositoryActivity.this); 
 					input.setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
 					alert.setView(input);
-					final String commitID = input.getText().toString();
 
 					alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
 						public void onClick(DialogInterface dialog, int whichButton) {
+							//todo string empty
+							String commitID = input.getText().toString();
 							if(repository.checkoutCommit(commitID)) {
-								ToastNotification.makeToast("Check out failed", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+								ToastNotification.makeToast("Check out succesfull", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
 							} else {
-								ToastNotification.makeToast("Checked out succesfull", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+								ToastNotification.makeToast("Checked out failed", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
 							}
 						}
 					});
@@ -334,6 +337,22 @@ public class SingleGitRepositoryActivity extends Activity {
 						}
 					});
 					alert.show();
+				}
+			});
+			buttonShowAllBranches.setOnClickListener(new View.OnClickListener() {
+				public void onClick(View v) {
+					String branchnames = repository.getAllBranchNames();
+					Intent intent = new Intent(context, TextActivity.class);
+					intent.putExtra(TextActivity.INTENTNAME, branchnames);
+					startActivity(intent);
+				}
+			});
+			buttonCurrentBranch .setOnClickListener(new View.OnClickListener() {
+				public void onClick(View v) {
+					String branchname = repository.getCurrentBranch();
+					Intent intent = new Intent(context, TextActivity.class);
+					intent.putExtra(TextActivity.INTENTNAME, branchname);
+					startActivity(intent);
 				}
 			});
 		}

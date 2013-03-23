@@ -7,6 +7,7 @@ import com.jcraft.jsch.JSch;
 
 import java.io.File;
 import java.io.IOException;
+
 import java.util.Locale;
 import java.util.Properties;
 
@@ -16,6 +17,7 @@ import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.InitCommand;
+import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.MergeResult.MergeStatus;
 import org.eclipse.jgit.api.PullCommand;
 import org.eclipse.jgit.api.PullResult;
@@ -41,6 +43,7 @@ import org.eclipse.jgit.api.errors.UnmergedPathsException;
 import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
 import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.errors.UnsupportedCredentialItem;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -62,7 +65,7 @@ public class GitRepository {
 	 * The context from where this class is used.
 	 */
 	private Context context;
-	
+
 	/**
 	 * 
 	 */
@@ -659,7 +662,7 @@ public class GitRepository {
 				deleteFileOrDirectoryRecursive(child);
 		fileOrDirectory.delete();
 	}
-	
+
 	/**
 	 * Checks out a commit at the current branch
 	 * @param commit
@@ -669,45 +672,47 @@ public class GitRepository {
 		boolean checkedOut = false;
 		RevCommit commit = getCommit(commitID);
 		if (commit != null) {
-		CheckoutCommand checkout = git.checkout().setName(".").setStartPoint(commit);
-		try {
-	    checkout.call();
-	    checkedOut = true;
-    } catch (RefAlreadyExistsException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-    } catch (RefNotFoundException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-    } catch (InvalidRefNameException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-    } catch (CheckoutConflictException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-    } catch (GitAPIException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-    }
+			Log.e(TAG, getAllBranchNames());
+			CheckoutCommand checkout = git.checkout().setName(getCurrentBranch()).setStartPoint(commit.getId().getName());
+			try {
+				checkout.call();
+				checkedOut = true;
+			} catch (RefAlreadyExistsException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (RefNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvalidRefNameException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (CheckoutConflictException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (GitAPIException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		} else {
 			Log.e(TAG, "Check out");
 		}
 		return checkedOut;
 	}
-	
+
 	/**
 	 * @return 
 	 */
 	private RevCommit getCommit(String commitID){
-		// has no public comstructor
+		// has no public constructor
 		RevCommit searchedCommit = null;
 		Iterable<RevCommit> loggedCommits;
 		try {
 			loggedCommits = git.log().call();
 			for (RevCommit commit : loggedCommits) {
-				if(commit.getId().toString().equalsIgnoreCase(commitID)) {
-					Log.e(TAG, "objectid" + commit.getId().toString());
-					Log.e(TAG, "commitid string" + commitID);
+				Log.e(TAG, "objectid" + commit.getName());
+				Log.e(TAG, "commitid string" + commitID);
+				if(commit.getName().equalsIgnoreCase(commitID)) {
+					Log.e(TAG, "equal");
 					searchedCommit = commit;
 				}
 			}
@@ -720,7 +725,7 @@ public class GitRepository {
 		}
 		return searchedCommit;
 	}
-	
+
 	/*
 	  	public ArrayList<List<String>> log() {
 		ArrayList<List<String>> resultList = new ArrayList<List<String>>();
@@ -743,5 +748,40 @@ public class GitRepository {
 		return resultList;
 	}
 	 */
+
+	/**
+	 * Returns the name of the branch thats currently used. 
+	 * @return The branch name.
+	 */
+	public String getCurrentBranch() {
+		String currentBranch = "";
+		try {
+			currentBranch = git.getRepository().getFullBranch();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();	    
+		}
+		return currentBranch;
+	}
+
+	/**
+	 * Returns all branches of this repository.
+	 * @return The branch names.
+	 */
+	public String getAllBranchNames() {
+		String resultList = "";
+		ListBranchCommand branchList = git.branchList();
+		branchList.setListMode(ListBranchCommand.ListMode.ALL);
+		try {
+			for (Ref branch : branchList.call()) {
+				resultList += branch.getName() + "\n";
+				Log.e(TAG,"branch "+ branch.getName() );
+			}
+		} catch (GitAPIException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return resultList;
+	}
 }
 
