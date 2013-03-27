@@ -39,12 +39,12 @@ public class SingleGitRepositoryActivity extends Activity {
 	 * The tag is used to identify the class while logging.
 	 */
 	private final String LOGTAG = getClass().getName();
-	
+
 	/**
 	 * The path to the Git repository on the filesystem.
 	 */
 	private String filesystemPathToGitRepository = "";
-	
+
 	/**
 	 * The Git repository.
 	 */
@@ -54,11 +54,16 @@ public class SingleGitRepositoryActivity extends Activity {
 	 * The current context within the application.
 	 */
 	private final Context currentContext = SingleGitRepositoryActivity.this;
-	
+
 	/**
 	 * The name of the intent thats used to provide the path of the Git repository via the intent extras.
 	 */
 	public final static String GITREPOSITORYPATH = "gitrepositorypath";
+
+	/**
+	 * Constant to identify the origin of the request.
+	 */
+	private static final int GITADDFILEREQUEST = 0;
 
 	@Override
 	/**
@@ -178,9 +183,8 @@ public class SingleGitRepositoryActivity extends Activity {
 				public void onClick(View v) {
 					Intent intent = new Intent(SingleGitRepositoryActivity.this, FileBrowserActivity.class);
 					intent.putExtra("startPath", filesystemPathToGitRepository);
-					intent.putExtra("originOfRequestforResult", "buttonAddFiles");
 					intent.putExtra("selectionTyp", Integer.toString(FileBrowserActivity.SELECTIONTYP_FILE));
-					startActivityForResult(intent, 1);
+					startActivityForResult(intent, GITADDFILEREQUEST);
 				}
 			});
 
@@ -345,7 +349,7 @@ public class SingleGitRepositoryActivity extends Activity {
 				public void onClick(View v) {
 					AlertDialog.Builder alert = new AlertDialog.Builder(SingleGitRepositoryActivity.this);                 
 					alert.setTitle("Checkout new branch starting from commitid");
-					
+
 					LinearLayout linearLayout = new LinearLayout(SingleGitRepositoryActivity.this);
 					linearLayout.setOrientation(1);
 
@@ -353,7 +357,7 @@ public class SingleGitRepositoryActivity extends Activity {
 					branchNameView.setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
 					branchNameView.setHint("branch name");
 					linearLayout.addView(branchNameView);
-					
+
 					final EditText commitIdView = new EditText(SingleGitRepositoryActivity.this);
 					commitIdView.setHint("commit id");
 					commitIdView.setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
@@ -435,18 +439,14 @@ public class SingleGitRepositoryActivity extends Activity {
 	 * 
 	 */
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == 1) {
+		if (requestCode == GITADDFILEREQUEST) {
 			if(resultCode == RESULT_OK) {
 				String filePathToAdd = data.getStringExtra("currentPath");
-				String originOfRequestforResult = data.getStringExtra("originOfRequestforResult");
-				if (originOfRequestforResult.equalsIgnoreCase("buttonAddFiles")) {
-					Log.d(LOGTAG, filePathToAdd);
-					String filename = new File(filePathToAdd).getName();
-					if (gitRepository.add(filename)) {
-						ToastNotification.makeToast("Added " + filePathToAdd, Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
-					} else {
-						ToastNotification.makeToast("Adding " + filePathToAdd + "failed!", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
-					}
+				String filename = new File(filePathToAdd).getName();
+				if (gitRepository.add(filename)) {
+					ToastNotification.makeToast("Added " + filePathToAdd, Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+				} else {
+					ToastNotification.makeToast("Adding " + filePathToAdd + "failed!", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
 				}
 			}
 			if (resultCode == RESULT_CANCELED) {
