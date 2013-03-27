@@ -36,8 +36,12 @@ public class MainActivity extends Activity {
 		BouncyCastleProvider provider = new BouncyCastleProvider();
 		Security.insertProviderAt(provider, 1);
 	}
-	
+
 	@Override
+	/**
+	 * Called when the activity is starting. Attach actions to the layout.
+	 * @param savedInstanceState 	If the activity is being re-initialized after previously being shut down then this Bundle contains the data it most recently supplied in onSaveInstanceState(Bundle). Note: Otherwise it is null.
+	 */
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
@@ -68,22 +72,39 @@ public class MainActivity extends Activity {
 		});
 	}   
 
+	/**
+	 * Performs any final cleanup before an activity is destroyed.
+	 * The GitRepositoryDatabase will be closed here.
+	 */
 	protected void onDestroy(){
 		super.onDestroy();
 		GitRepositoryDatabase repositoryDatabase = GitRepositoryDatabase.getInstance(MainActivity.this);
 		repositoryDatabase.close();
 	}
-	
+
 	@Override
+	/** Initialize the contents of the Activity's standard options menu from the used layout.
+	 * @param menu	The options menu in which you place your items.
+	 * @return You must return true for the menu to be displayed; if you return false it will not be shown.
+	 */
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_main, menu);
 		return true;
 	}  
 
 	@Override
+	/**
+	 * This hook is called whenever an item in the options menu is selected. This calls the SettingsActivity.
+	 * @param item 	The menu item that was selected.
+	 * @return Return false to allow normal menu processing to proceed, true to consume it here.
+	 */
 	public boolean onOptionsItemSelected (MenuItem item) {
-		Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-		startActivity(intent);
-		return true;
+		boolean returnValue = false;
+		if(item.getItemId() == R.id.menu_settings) {
+			Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+			startActivity(intent);
+			returnValue = true;
+		}
+		return returnValue;
 	}
 }

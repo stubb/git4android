@@ -27,6 +27,10 @@ public class InitGitRepositoryActivity extends Activity {
 	private final Context context = InitGitRepositoryActivity.this;
 
 	@Override
+	/**
+	 * Called when the activity is starting.
+	 * @param savedInstanceState 	If the activity is being re-initialized after previously being shut down then this Bundle contains the data it most recently supplied in onSaveInstanceState(Bundle). Note: Otherwise it is null.
+	 */
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_init_repository);

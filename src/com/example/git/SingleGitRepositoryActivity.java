@@ -18,37 +18,66 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 /**
- * This activity 
+ * This activity provides a bunch of different actions which can be performed on a Git repository by a given path.
+ * These actions are:
+ *  - git pull
+ *  - git add
+ *  - git commit
+ *  - git push
+ *  - git log
+ *  - git status
+ *  - show git remote
+ *  - change git remote
+ *  - git checkout branch
+ *  - show current branch
+ *  - show all available branches
+ *  - git checkout by commit to a new branch
  */
 public class SingleGitRepositoryActivity extends Activity {
 
 	/**
-	 * The tag is used to identify the class while logging
+	 * The tag is used to identify the class while logging.
 	 */
-	private final String TAG = getClass().getName();
-	private String repoPath = "";
-	private GitRepository repository = new GitRepository(SingleGitRepositoryActivity.this);
-
-	private final Context context = SingleGitRepositoryActivity.this;
-
+	private final String LOGTAG = getClass().getName();
+	
+	/**
+	 * The path to the Git repository on the filesystem.
+	 */
+	private String filesystemPathToGitRepository = "";
+	
+	/**
+	 * The Git repository.
+	 */
+	private GitRepository gitRepository = new GitRepository(SingleGitRepositoryActivity.this);
 
 	/**
-	 * 
+	 * The current context within the application.
 	 */
+	private final Context currentContext = SingleGitRepositoryActivity.this;
+	
+	/**
+	 * The name of the intent thats used to provide the path of the Git repository via the intent extras.
+	 */
+	public final static String GITREPOSITORYPATH = "gitrepositorypath";
+
 	@Override
+	/**
+	 * Called when the activity is starting.
+	 * @param savedInstanceState 	If the activity is being re-initialized after previously being shut down then this Bundle contains the data it most recently supplied in onSaveInstanceState(Bundle). Note: Otherwise it is null.
+	 */
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_single_repository_overview);
 
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-			repoPath = extras.getString("repo");
-			Log.d(TAG, repoPath.toString());
+			filesystemPathToGitRepository = extras.getString(GITREPOSITORYPATH);
+			Log.d(LOGTAG, filesystemPathToGitRepository.toString());
 		}
 
-		if (repoPath != "" && repository.open(repoPath)) {
+		if (filesystemPathToGitRepository != "" && gitRepository.open(filesystemPathToGitRepository)) {
 			Button buttonPull = (Button) findViewById(R.id.button_pull);
-			Button buttonAddFiles = (Button) findViewById(R.id.button_add_files);
+			Button buttonAddFile = (Button) findViewById(R.id.button_add_files);
 			Button buttonCommit = (Button) findViewById(R.id.button_commit);
 			Button buttonPush = (Button) findViewById(R.id.button_push);
 			Button buttonAddRemote = (Button) findViewById(R.id.button_add_remote);
@@ -60,7 +89,7 @@ public class SingleGitRepositoryActivity extends Activity {
 			Button buttonShowAllBranches = (Button) findViewById(R.id.button_all_branches);
 			Button buttonCheckoutBranch = (Button) findViewById(R.id.button_checkout_branch);
 
-			final int protocol = repository.checkUrlforProtokoll(repository.getRemoteOriginUrl(), SingleGitRepositoryActivity.this);
+			final int remoteOriginProtocolUrl = gitRepository.checkUrlforProtokoll(gitRepository.getRemoteOriginUrl(), SingleGitRepositoryActivity.this);
 
 			SharedPreferences settings = getSharedPreferences(SingleGitRepositoryActivity.this.getResources().getString(R.string.APPSETTINGS), 0);
 			final String sshPrivateKeyPath = settings.getString(SingleGitRepositoryActivity.this.getResources().getString(R.string.SSHPRIVATEKEYPATHSETTING), "");
@@ -68,73 +97,73 @@ public class SingleGitRepositoryActivity extends Activity {
 
 			buttonPull.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
-					if(repository.getRemoteOriginUrl() == "") {
-						ToastNotification.makeToast("There is no Remote Origin Url configured", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+					if(gitRepository.getRemoteOriginUrl().equals("")) {
+						ToastNotification.makeToast(currentContext.getResources().getString(R.string.no_remote_origin_url_configured), Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
 					}
 					else {
-						if (protocol == SingleGitRepositoryActivity.this.getResources().getInteger(R.integer.GITPROTOCOL)) {
-							if(repository.pull()) {
-								ToastNotification.makeToast("Pull succesful!", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+						if (remoteOriginProtocolUrl == SingleGitRepositoryActivity.this.getResources().getInteger(R.integer.GITPROTOCOL)) {
+							if(gitRepository.pull()) {
+								ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_succesful), Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
 							} else{
-								ToastNotification.makeToast("Pull failed!", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+								ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_failed), Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
 							}
 						}
-						else if (protocol == SingleGitRepositoryActivity.this.getResources().getInteger(R.integer.SSHPROTOCOL)) {
+						else if (remoteOriginProtocolUrl == SingleGitRepositoryActivity.this.getResources().getInteger(R.integer.SSHPROTOCOL)) {
 							AlertDialog.Builder alert = new AlertDialog.Builder(SingleGitRepositoryActivity.this);                 
-							alert.setTitle("Enter password");           
+							alert.setTitle(currentContext.getResources().getString(R.string.enter_password));           
 
 							final EditText inputPassword = new EditText(SingleGitRepositoryActivity.this); 
 							inputPassword.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
 							alert.setView(inputPassword);
 
-							alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
+							alert.setPositiveButton(currentContext.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {  
 								public void onClick(DialogInterface dialog, int whichButton) {
-									if(repository.pull(inputPassword.getText().toString(), sshPrivateKeyPath, sshPublicKeyPath))  {
-										ToastNotification.makeToast("Pull succesful!", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+									if(gitRepository.pull(inputPassword.getText().toString(), sshPrivateKeyPath, sshPublicKeyPath))  {
+										ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_succesful), Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
 									} else{
-										ToastNotification.makeToast("Pull failed!", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+										ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_failed), Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
 									}
 								}
 							});
 
-							alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+							alert.setNegativeButton(currentContext.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
 								public void onClick(DialogInterface dialog, int which) {
 									return;   
 								}
 							});
 							alert.show();
 						}
-						else if (protocol == SingleGitRepositoryActivity.this.getResources().getInteger(R.integer.HTTPPROTOCOL) || 
-								protocol == SingleGitRepositoryActivity.this.getResources().getInteger(R.integer.HTTPSPROTOCOL)) {
+						else if (remoteOriginProtocolUrl == SingleGitRepositoryActivity.this.getResources().getInteger(R.integer.HTTPPROTOCOL) || 
+								remoteOriginProtocolUrl == SingleGitRepositoryActivity.this.getResources().getInteger(R.integer.HTTPSPROTOCOL)) {
 							AlertDialog.Builder alert = new AlertDialog.Builder(SingleGitRepositoryActivity.this);
-							alert.setTitle("Enter credentials");
+							alert.setTitle(currentContext.getResources().getString(R.string.enter_credentials));
 
 							LinearLayout linearLayout = new LinearLayout(SingleGitRepositoryActivity.this);
 							linearLayout.setOrientation(1);
 
 							final EditText inputUsername = new EditText(SingleGitRepositoryActivity.this); 
 							inputUsername.setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
-							inputUsername.setHint("username");
+							inputUsername.setHint(currentContext.getResources().getString(R.string.username));
 							linearLayout.addView(inputUsername);
 
 							final EditText inputPassword = new EditText(SingleGitRepositoryActivity.this); 
 							inputPassword.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
-							inputPassword.setHint("password");
+							inputPassword.setHint(currentContext.getResources().getString(R.string.password));
 							linearLayout.addView(inputPassword);
 
 							alert.setView(linearLayout);
 
-							alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
+							alert.setPositiveButton(currentContext.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {  
 								public void onClick(DialogInterface dialog, int whichButton) {
-									if(repository.pull(inputUsername.getText().toString(), inputPassword.getText().toString())) {
-										ToastNotification.makeToast("Pull succesful!", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+									if(gitRepository.pull(inputUsername.getText().toString(), inputPassword.getText().toString())) {
+										ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_succesful), Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
 									} else{
-										ToastNotification.makeToast("Pull failed!", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+										ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_failed), Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
 									}
 								}
 							});
 
-							alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+							alert.setNegativeButton(currentContext.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
 								public void onClick(DialogInterface dialog, int which) {
 									return;   
 								}
@@ -145,10 +174,10 @@ public class SingleGitRepositoryActivity extends Activity {
 				}
 			});
 
-			buttonAddFiles.setOnClickListener(new View.OnClickListener() {
+			buttonAddFile.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
 					Intent intent = new Intent(SingleGitRepositoryActivity.this, FileBrowserActivity.class);
-					intent.putExtra("startPath", repoPath);
+					intent.putExtra("startPath", filesystemPathToGitRepository);
 					intent.putExtra("originOfRequestforResult", "buttonAddFiles");
 					intent.putExtra("selectionTyp", Integer.toString(FileBrowserActivity.SELECTIONTYP_FILE));
 					startActivityForResult(intent, 1);
@@ -164,17 +193,17 @@ public class SingleGitRepositoryActivity extends Activity {
 					inputMessage.setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
 					alert.setView(inputMessage);
 
-					alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
+					alert.setPositiveButton(currentContext.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {  
 						public void onClick(DialogInterface dialog, int whichButton) {
-							if (repository.commit(inputMessage.getText().toString())) {
-								ToastNotification.makeToast("Commit succesful!", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+							if (gitRepository.commit(inputMessage.getText().toString())) {
+								ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_commit_succesful), Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
 							} else{
-								ToastNotification.makeToast("Commit failed!", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+								ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_commit_failed), Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
 							}
 						}
 					});
 
-					alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+					alert.setNegativeButton(currentContext.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
 							return;   
 						}
@@ -185,14 +214,14 @@ public class SingleGitRepositoryActivity extends Activity {
 
 			buttonPush.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
-					if(repository.getRemoteOriginUrl() == "") {
+					if(gitRepository.getRemoteOriginUrl().equals("")) {
 						ToastNotification.makeToast("There is no Remote Origin Url configured", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
 					}
 					else {
-						if (protocol == SingleGitRepositoryActivity.this.getResources().getInteger(R.integer.GITPROTOCOL)) {
+						if (remoteOriginProtocolUrl == SingleGitRepositoryActivity.this.getResources().getInteger(R.integer.GITPROTOCOL)) {
 							ToastNotification.makeToast("the git:// protocol is ready only, can't used to push", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
 						}
-						else if (protocol == SingleGitRepositoryActivity.this.getResources().getInteger(R.integer.SSHPROTOCOL)) {
+						else if (remoteOriginProtocolUrl == SingleGitRepositoryActivity.this.getResources().getInteger(R.integer.SSHPROTOCOL)) {
 							AlertDialog.Builder alert = new AlertDialog.Builder(SingleGitRepositoryActivity.this);                 
 							alert.setTitle("Enter password");             
 
@@ -203,7 +232,7 @@ public class SingleGitRepositoryActivity extends Activity {
 							alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
 								public void onClick(DialogInterface dialog, int whichButton) {
 									if (sshPublicKeyPath != "" && sshPrivateKeyPath != "") {
-										if (repository.push(inputPassword.getText().toString(), sshPrivateKeyPath, sshPublicKeyPath)) {
+										if (gitRepository.push(inputPassword.getText().toString(), sshPrivateKeyPath, sshPublicKeyPath)) {
 											ToastNotification.makeToast("Push succesfull!", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
 										} else {
 											ToastNotification.makeToast("Push failed!", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
@@ -219,8 +248,8 @@ public class SingleGitRepositoryActivity extends Activity {
 							});
 							alert.show();
 						}
-						else if (protocol == SingleGitRepositoryActivity.this.getResources().getInteger(R.integer.HTTPPROTOCOL) || 
-								protocol == SingleGitRepositoryActivity.this.getResources().getInteger(R.integer.HTTPSPROTOCOL)) {
+						else if (remoteOriginProtocolUrl == SingleGitRepositoryActivity.this.getResources().getInteger(R.integer.HTTPPROTOCOL) || 
+								remoteOriginProtocolUrl == SingleGitRepositoryActivity.this.getResources().getInteger(R.integer.HTTPSPROTOCOL)) {
 							AlertDialog.Builder alert = new AlertDialog.Builder(SingleGitRepositoryActivity.this);
 							alert.setTitle("Enter credentials");
 
@@ -241,7 +270,7 @@ public class SingleGitRepositoryActivity extends Activity {
 
 							alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
 								public void onClick(DialogInterface dialog, int whichButton) {
-									if (repository.push(inputUsername.getText().toString(), inputPassword.getText().toString())) {
+									if (gitRepository.push(inputUsername.getText().toString(), inputPassword.getText().toString())) {
 										ToastNotification.makeToast("Push succesfull!", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
 									} else {
 										ToastNotification.makeToast("Push failed!", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
@@ -262,9 +291,9 @@ public class SingleGitRepositoryActivity extends Activity {
 
 			buttonShowRemote.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
-					String urlOfRemoteRepository = repository.getRemoteOriginUrl();
-					Intent intent = new Intent(context, TextActivity.class);
-					intent.putExtra(TextActivity.INTENTNAME, urlOfRemoteRepository);
+					String urlOfRemoteRepository = gitRepository.getRemoteOriginUrl();
+					Intent intent = new Intent(currentContext, TextActivity.class);
+					intent.putExtra(TextActivity.TEXTTODISPLAY, urlOfRemoteRepository);
 					startActivity(intent);
 				}
 			});
@@ -281,7 +310,7 @@ public class SingleGitRepositoryActivity extends Activity {
 
 					alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
 						public void onClick(DialogInterface dialog, int whichButton) {
-							repository.setRemoteOriginUrl(url);
+							gitRepository.setRemoteOriginUrl(url);
 						}
 					});
 
@@ -296,18 +325,18 @@ public class SingleGitRepositoryActivity extends Activity {
 
 			buttonLog.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
-					String log = repository.log();
-					Intent intent = new Intent(context, TextActivity.class);
-					intent.putExtra(TextActivity.INTENTNAME, log);
+					String log = gitRepository.log();
+					Intent intent = new Intent(currentContext, TextActivity.class);
+					intent.putExtra(TextActivity.TEXTTODISPLAY, log);
 					startActivity(intent);
 				}
 			});
 
 			buttonStatus.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
-					String status = repository.status();
-					Intent intent = new Intent(context, TextActivity.class);
-					intent.putExtra(TextActivity.INTENTNAME, status);
+					String status = gitRepository.status();
+					Intent intent = new Intent(currentContext, TextActivity.class);
+					intent.putExtra(TextActivity.TEXTTODISPLAY, status);
 					startActivity(intent);
 				}
 			});
@@ -315,7 +344,7 @@ public class SingleGitRepositoryActivity extends Activity {
 			buttonCheckoutByCommit.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
 					AlertDialog.Builder alert = new AlertDialog.Builder(SingleGitRepositoryActivity.this);                 
-					alert.setTitle("Checkout commit to branch");
+					alert.setTitle("Checkout new branch starting from commitid");
 					
 					LinearLayout linearLayout = new LinearLayout(SingleGitRepositoryActivity.this);
 					linearLayout.setOrientation(1);
@@ -337,7 +366,7 @@ public class SingleGitRepositoryActivity extends Activity {
 							branchName = branchNameView.getText().toString();
 							String commitId = "";
 							commitId = commitIdView.getText().toString();
-							if(repository.checkoutCommitToNewBranch(commitId, branchName)) {
+							if(gitRepository.checkoutCommitToNewBranch(commitId, branchName)) {
 								ToastNotification.makeToast("Check out succesfull", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
 							} else {
 								ToastNotification.makeToast("Checked out failed", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
@@ -354,17 +383,17 @@ public class SingleGitRepositoryActivity extends Activity {
 			});
 			buttonShowAllBranches.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
-					String branchnames = repository.getAllBranchNames();
-					Intent intent = new Intent(context, TextActivity.class);
-					intent.putExtra(TextActivity.INTENTNAME, branchnames);
+					String branchnames = gitRepository.getAllBranchNames();
+					Intent intent = new Intent(currentContext, TextActivity.class);
+					intent.putExtra(TextActivity.TEXTTODISPLAY, branchnames);
 					startActivity(intent);
 				}
 			});
 			buttonCurrentBranch.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
-					String branchname = repository.getCurrentBranch();
-					Intent intent = new Intent(context, TextActivity.class);
-					intent.putExtra(TextActivity.INTENTNAME, branchname);
+					String branchname = gitRepository.getCurrentBranch();
+					Intent intent = new Intent(currentContext, TextActivity.class);
+					intent.putExtra(TextActivity.TEXTTODISPLAY, branchname);
 					startActivity(intent);
 				}
 			});
@@ -381,7 +410,7 @@ public class SingleGitRepositoryActivity extends Activity {
 						public void onClick(DialogInterface dialog, int whichButton) {
 							//todo string empty
 							String branchName = input.getText().toString();
-							if(repository.checkoutBranch(branchName)) {
+							if(gitRepository.checkoutBranch(branchName)) {
 								ToastNotification.makeToast("Check out succesfull", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
 							} else {
 								ToastNotification.makeToast("Checked out failed", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
@@ -411,9 +440,9 @@ public class SingleGitRepositoryActivity extends Activity {
 				String filePathToAdd = data.getStringExtra("currentPath");
 				String originOfRequestforResult = data.getStringExtra("originOfRequestforResult");
 				if (originOfRequestforResult.equalsIgnoreCase("buttonAddFiles")) {
-					Log.d(TAG, filePathToAdd);
+					Log.d(LOGTAG, filePathToAdd);
 					String filename = new File(filePathToAdd).getName();
-					if (repository.add(filename)) {
+					if (gitRepository.add(filename)) {
 						ToastNotification.makeToast("Added " + filePathToAdd, Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
 					} else {
 						ToastNotification.makeToast("Adding " + filePathToAdd + "failed!", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);

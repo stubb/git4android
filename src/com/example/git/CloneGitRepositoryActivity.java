@@ -14,19 +14,19 @@ import android.widget.Toast;
 
 
 /**
- * 
- *
+ * This Activity is used to handle the cloning process of a Git repository.
  */
 public class CloneGitRepositoryActivity extends Activity {
 
 	/**
-	 * The tag is used to identify the class while logging
+	 * The tag is used to identify the class while logging.
 	 */
-	private final String TAG = getClass().getName();
+	private final String LOGTAG = getClass().getName();
 
 	@Override
 	/**
-	 * 
+	 * Called when the activity is starting.
+	 * @param savedInstanceState 	If the activity is being re-initialized after previously being shut down then this Bundle contains the data it most recently supplied in onSaveInstanceState(Bundle). Note: Otherwise it is null.
 	 */
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -56,10 +56,7 @@ public class CloneGitRepositoryActivity extends Activity {
 	 * 
 	 */
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Log.d(TAG, "onActivityResult");
-
 		if (requestCode == 1) {
-
 			if(resultCode == RESULT_OK){
 				final String selectedPath = data.getStringExtra("currentPath");
 
@@ -77,7 +74,7 @@ public class CloneGitRepositoryActivity extends Activity {
 						GitRepository git = new GitRepository(CloneGitRepositoryActivity.this);
 						final String repositoryUrl = urlEditText.getText().toString();
 						int protocol = git.checkUrlforProtokoll(repositoryUrl, CloneGitRepositoryActivity.this);
-						Log.d(TAG, String.valueOf(protocol));
+						Log.d(LOGTAG, String.valueOf(protocol));
 						if (repositoryUrl != "" && selectedPath != "" && protocol != 0) {
 							File path = new File(selectedPath);
 							boolean cloneResult = false;
