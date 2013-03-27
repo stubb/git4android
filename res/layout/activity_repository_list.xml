@@ -1,28 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>     
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="fill_parent" 
-    android:layout_width="fill_parent" >
-    
-    <TextView 
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <TextView
         android:id="@+id/textview"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/repository_textview" />
-    
+
     <ListView
         android:id="@+id/repo_list_view"
-        android:layout_gravity="bottom"
-        android:layout_below="@+id/textview"
-        android:layout_width="fill_parent" 
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/textview"
+        android:layout_gravity="bottom"
         android:fillViewport="true" >
-   </ListView>
-   
-   <TextView
-        android:id="@+id/simple_list_item_1"
-         android:layout_height="wrap_content"
-         android:layout_width="wrap_content" 
- />
-   
+    </ListView>
+
 </RelativeLayout>

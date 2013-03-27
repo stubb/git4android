@@ -9,11 +9,11 @@
     <string name="button_new_directory">new dir</string>
     <string name="button_clone">Clone remote Repo</string>
     <string name="button_genKeys">Generate some keys</string>
-    <string name="button_add_files">Add some files</string>
+    <string name="button_add_files">Add a file</string>
     <string name="button_commit">Commit changes</string>
     <string name="button_push">Push changes</string>
     <string name="button_pull">Pull changes</string>
-    <string name="button_add_remote">Add remote repository</string>
+    <string name="button_add_remote">Change remote repository</string>
     <string name="button_show_remote">Show remote origin url</string>
     <string name="button_list_repos">List repositories</string>
     <string name="repository_textview">Select a repo:</string>
@@ -38,5 +38,13 @@
     <string name="button_all_branches">Show all branches</string>
     <string name="button_current_branch">Show current branch name</string>
     <string name="button_checkout_branch">Check out branch</string>
-
+	<string name="ok">Okay</string>
+	<string name="cancel">Cancel</string>
+	<string name="enter_password">Enter password</string>
+	<string name="enter_credentials">Enter credentials</string>
+	<string name="username">Username</string>
+	<string name="name">Name</string>
+	<string name="path">Path</string>
+	<string name="creation_date">Creation date</string>
+	<string name="optional">(optional)</string>
 </resources>

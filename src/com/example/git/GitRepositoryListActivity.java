@@ -38,6 +38,10 @@ public class GitRepositoryListActivity extends Activity {
 
 
 	@Override
+	/**
+	 * Called when the activity is starting.
+	 * @param savedInstanceState 	If the activity is being re-initialized after previously being shut down then this Bundle contains the data it most recently supplied in onSaveInstanceState(Bundle). Note: Otherwise it is null.
+	 */
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_repository_list);
@@ -70,7 +74,7 @@ public class GitRepositoryListActivity extends Activity {
 									File folder = new File(gitRepositoryPathList.get(position).get(0));
 									if (folder.exists()) {
 										Intent intent = new Intent(GitRepositoryListActivity.this, SingleGitRepositoryActivity.class);
-										intent.putExtra("repo", gitRepositoryPathList.get(position).get(0));
+										intent.putExtra(SingleGitRepositoryActivity.GITREPOSITORYPATH, gitRepositoryPathList.get(position).get(0));
 										startActivity(intent);
 									} else {
 										ToastNotification.makeToast("The repository doesn't exist!", Toast.LENGTH_LONG, GitRepositoryListActivity.this);
@@ -113,7 +117,7 @@ public class GitRepositoryListActivity extends Activity {
 		boolean loaded = false;
 		try {
 		gitRepositoryPathList = gitRepositoryDatabase.loadRepositories();
-			tableRowAdapter = new MyArrayAdapter(GitRepositoryListActivity.this, android.R.layout.simple_list_item_1 , gitRepositoryPathList);
+			tableRowAdapter = new MyArrayAdapter(GitRepositoryListActivity.this, gitRepositoryPathsListView.getId(), gitRepositoryPathList);
 			gitRepositoryPathsListView.setAdapter(tableRowAdapter);
 			tableRowAdapter.notifyDataSetChanged();
 			loaded = true;
