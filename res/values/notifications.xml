@@ -6,5 +6,14 @@
     <string name="init_git_repository_failed">Something went wrong during the init process of the Git repository</string>
     <string name="no_vaild_folder_selected">You havn\'t selected a valid folder</string>
     <string name="file_browser_selection_failed">"Something went wrong during the selection, please do it again!</string>
-  
+
+	<string name="no_remote_origin_url_configured">There is no remote origin URL configured</string>
+	<string name="git_pull_succesful">Git pull succesful!</string>
+	<string name="git_pull_failed">Git pull failed!</string>
+    <string name="git_commit_succesful">Git commit succesful!</string>
+	<string name="git_commit_failed">Git commit failed!</string>
+	<string name="keypair_generation_failed">Generation of keypair failed!</string>
+	<string name="keypair_location">The keypair can be found at: </string>
+	<string name="keypair_exists">There exists already a keypair! Nothing to do here.</string>
+	<string name="filebrowser_nothing_selected">No path was selected!</string>
 </resources>

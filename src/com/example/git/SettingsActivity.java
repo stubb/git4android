@@ -59,7 +59,22 @@ public class SettingsActivity extends Activity {
 	 */
 	private final static String defaultPublicKeyName = "id_rsa.pub";
 
+	/**
+	 * Constant to identify the origin of the request.
+	 */
+	private static final int PICKPRIVATEKEYPATHREQUEST = 0;
+
+	/**
+	 * Constant to identify the origin of the request.
+	 */
+	private static final int PICKPUBLICKEYPATHREQUEST = 1;
+
+
 	@Override
+	/**
+	 * Called when the activity is starting. Applies actions to each element of the layout.
+	 * @param savedInstanceState 	If the activity is being re-initialized after previously being shut down then this Bundle contains the data it most recently supplied in onSaveInstanceState(Bundle). Note: Otherwise it is null.
+	 */
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_settings);
@@ -70,7 +85,7 @@ public class SettingsActivity extends Activity {
 		sshPublicKeyPath = settings.getString(SettingsActivity.this.getResources().getString(R.string.SSHPUBLICKEYPATHSETTING), "");
 
 		EditText sshPrivateKeyPathEditText = (EditText) findViewById(R.id.ssh_private_key_path);
-		if (sshPrivateKeyPath != "") {
+		if (!sshPrivateKeyPath.equals("")) {
 			sshPrivateKeyPathEditText.setText(sshPrivateKeyPath);
 		}
 		sshPrivateKeyPathEditText.setEnabled(false);
@@ -80,13 +95,12 @@ public class SettingsActivity extends Activity {
 			public void onClick(View v) {
 				Intent intent = new Intent(SettingsActivity.this, FileBrowserActivity.class);
 				intent.putExtra("selectionTyp", Integer.toString(FileBrowserActivity.SELECTIONTYP_FILE));
-				intent.putExtra("originOfRequestforResult", "sshPrivateKeyPathButton");
-				startActivityForResult(intent, 1);
+				startActivityForResult(intent, PICKPRIVATEKEYPATHREQUEST);
 			}
 		});
 
 		EditText sshPublicKeyPathEditText = (EditText) findViewById(R.id.ssh_public_key_path);
-		if (sshPublicKeyPath != "") {
+		if (!sshPublicKeyPath.equals("")) {
 			sshPublicKeyPathEditText.setText(sshPublicKeyPath);
 		}
 		sshPublicKeyPathEditText.setEnabled(false);
@@ -96,44 +110,14 @@ public class SettingsActivity extends Activity {
 			public void onClick(View v) {
 				Intent intent = new Intent(SettingsActivity.this, FileBrowserActivity.class);
 				intent.putExtra("selectionTyp", Integer.toString(FileBrowserActivity.SELECTIONTYP_FILE));
-				intent.putExtra("originOfRequestforResult", "sshPublicKeyPathButton");
-				startActivityForResult(intent, 1);
+				startActivityForResult(intent, PICKPUBLICKEYPATHREQUEST);
 			}
 		});
 
 		Button button_genKeys = (Button) findViewById(R.id.button_genKeys);
 		button_genKeys.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				if (sshPrivateKeyPath == "" && sshPrivateKeyPath == "") {
-					AlertDialog.Builder alert = new AlertDialog.Builder(SettingsActivity.this);                 
-					alert.setTitle("Enter password (optional)");  
-					alert.setMessage("pw");                
-
-					final EditText input = new EditText(SettingsActivity.this); 
-					input.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
-					alert.setView(input);
-
-					alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
-						public void onClick(DialogInterface dialog, int whichButton) {
-							Log.d(TAG,"generate Keys");				
-							if (generateKeyPair(KeyPair.RSA, defaultAbsoluteKeyPath, defaultPrivateKeyName, defaultPublicKeyName, "", input.getText().toString())) {
-								ToastNotification.makeToast("Generated the keys in the folder " + defaultAbsoluteKeyPath + "!", Toast.LENGTH_LONG, SettingsActivity.this);
-							} else {
-								ToastNotification.makeToast("Wasn't able to gen keys : (", Toast.LENGTH_LONG, SettingsActivity.this);
-							}									
-						}
-					});
-
-					alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							return;   
-						}
-					});
-					alert.show();
-				}
-				else {
-					ToastNotification.makeToast("There are keys already. Nothing to do here.", Toast.LENGTH_LONG, SettingsActivity.this);
-				}
+				buttonKeyPairGenerationAction();
 			}
 		});
 
@@ -146,7 +130,42 @@ public class SettingsActivity extends Activity {
 			}
 		});
 	}
-	
+
+	/**
+	 * Executes the actions to generate the SSH key pair.
+	 */
+	private void buttonKeyPairGenerationAction() {
+		if (sshPrivateKeyPath.equals("") && sshPrivateKeyPath.equals("")) {
+			AlertDialog.Builder alert = new AlertDialog.Builder(SettingsActivity.this);                 
+			alert.setTitle(SettingsActivity.this.getResources().getString(R.string.enter_password) + SettingsActivity.this.getResources().getString(R.string.optional));  
+			alert.setMessage(SettingsActivity.this.getResources().getString(R.string.password));                
+
+			final EditText input = new EditText(SettingsActivity.this); 
+			input.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+			alert.setView(input);
+
+			alert.setPositiveButton(SettingsActivity.this.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {  
+				public void onClick(DialogInterface dialog, int whichButton) {			
+					if (generateKeyPair(KeyPair.RSA, defaultAbsoluteKeyPath, defaultPrivateKeyName, defaultPublicKeyName, "", input.getText().toString())) {
+						ToastNotification.makeToast(SettingsActivity.this.getResources().getString(R.string.keypair_location) + defaultAbsoluteKeyPath, Toast.LENGTH_LONG, SettingsActivity.this);
+					} else {
+						ToastNotification.makeToast(SettingsActivity.this.getResources().getString(R.string.keypair_generation_failed), Toast.LENGTH_LONG, SettingsActivity.this);
+					}									
+				}
+			});
+
+			alert.setNegativeButton(SettingsActivity.this.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
+					return;   
+				}
+			});
+			alert.show();
+		}
+		else {
+			ToastNotification.makeToast(SettingsActivity.this.getResources().getString(R.string.keypair_exists), Toast.LENGTH_LONG, SettingsActivity.this);
+		}
+	}
+
 	/**
 	 * Save a setting for the application.
 	 * @param key	The key of the setting.
@@ -158,29 +177,36 @@ public class SettingsActivity extends Activity {
 		editor.putString(key, value);
 		editor.commit();
 	}
-	
+
 	/**
-	 * 
+	 * Called when the FileBrowserActivity which was launched in onCreate() via the pathButtons exits, giving you the requestCode you started it with, the resultCode it returned, and any additional data from it.
+	 * The resultCode will be RESULT_CANCELED if the activity explicitly returned that, didn't return any result, or crashed during its operation.
+	 * You will receive this call immediately before onResume() when your activity is re-starting.
+	 * @param	requestCode 	The integer request code originally supplied to startActivityForResult(), allowing you to identify who this result came from.
+	 * @param	resultCode 	The integer result code returned by the child activity through its setResult().
+	 * @param	data 	An Intent, which can return result data to the caller (various data can be attached to Intent "extras").
 	 */
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == 1) {
+		if (requestCode == PICKPUBLICKEYPATHREQUEST) {
 			if (resultCode == RESULT_OK) {
-				if (data.getStringExtra("originOfRequestforResult").equals("sshPrivateKeyPathButton")) {
-					sshPrivateKeyPath = data.getStringExtra("currentPath");
-				}
-				if (data.getStringExtra("originOfRequestforResult").equals("sshPublicKeyPathButton")) {
-					sshPublicKeyPath = data.getStringExtra("currentPath");
-				}
-				EditText sshPrivateKeyPathEditText = (EditText) findViewById(R.id.ssh_private_key_path);
-				sshPrivateKeyPathEditText.setText(sshPrivateKeyPath);
-				sshPrivateKeyPathEditText.setEnabled(false);
-
+				sshPublicKeyPath = data.getStringExtra("currentPath");
 				EditText sshPublicKeyPathEditText = (EditText) findViewById(R.id.ssh_public_key_path);
 				sshPublicKeyPathEditText.setText(sshPublicKeyPath);
 				sshPublicKeyPathEditText.setEnabled(false);					      
-			}
+			}	
 			if (resultCode == RESULT_CANCELED) {
-				ToastNotification.makeToast("No valid choice!", Toast.LENGTH_LONG, SettingsActivity.this);
+				ToastNotification.makeToast(SettingsActivity.this.getResources().getString(R.string.filebrowser_nothing_selected), Toast.LENGTH_LONG, SettingsActivity.this);
+			}
+		}
+		if (requestCode == PICKPRIVATEKEYPATHREQUEST) {
+			if (resultCode == RESULT_OK) {
+				sshPrivateKeyPath = data.getStringExtra("currentPath");
+				EditText sshPrivateKeyPathEditText = (EditText) findViewById(R.id.ssh_private_key_path);
+				sshPrivateKeyPathEditText.setText(sshPrivateKeyPath);
+				sshPrivateKeyPathEditText.setEnabled(false);
+			}		
+			if (resultCode == RESULT_CANCELED) {
+				ToastNotification.makeToast(SettingsActivity.this.getResources().getString(R.string.filebrowser_nothing_selected), Toast.LENGTH_LONG, SettingsActivity.this);
 			}
 		}
 	}
@@ -210,24 +236,23 @@ public class SettingsActivity extends Activity {
 					kpair.setPassphrase(password);
 					kpair.writePrivateKey(absoluteKeyPath + privateKeyFilename);
 					kpair.writePublicKey(absoluteKeyPath + publicKeyFilename, comment);
-					Log.d(TAG,"Finger print: " + kpair.getFingerPrint());
 					kpair.dispose();
 					success = true;
-				} catch (JSchException e) {
-					Log.e(TAG, "JSchException gen keys");
-					e.printStackTrace();
-				} catch (FileNotFoundException e) {
-					Log.e(TAG, "FileNotFoundException gen keys");
-					e.printStackTrace();
-				} catch (IOException e) {
-					Log.e(TAG, "IOException gen key");
-					e.printStackTrace();
+				} catch (JSchException exception) {
+					Log.e(TAG, SettingsActivity.this.getResources().getString(R.string.keypair_creation_failed));
+					exception.printStackTrace();
+				} catch (FileNotFoundException exception) {
+					Log.e(TAG, SettingsActivity.this.getResources().getString(R.string.keypair_creation_failed));
+					exception.printStackTrace();
+				} catch (IOException exception) {
+					Log.e(TAG, SettingsActivity.this.getResources().getString(R.string.keypair_creation_failed));
+					exception.printStackTrace();
 				}
 			} else {
-				Log.e(TAG, "Invalid Key type");
+				Log.e(TAG, SettingsActivity.this.getResources().getString(R.string.invalid_ssh_keytype));
 			}
 		} else {
-			Log.e(TAG, "Wasn't able to create folder for ssh keys");
+			Log.e(TAG, SettingsActivity.this.getResources().getString(R.string.keypair_folder_creation_failed));
 		}
 		return success;
 	}

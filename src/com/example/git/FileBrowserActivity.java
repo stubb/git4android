@@ -66,9 +66,13 @@ public class FileBrowserActivity extends Activity {
 	private ArrayAdapter<String> listItemArrayAdapter;
 	List<String> fileList = new ArrayList<String>();
 
-	private String origin = "";
+//	private String origin = "";
 
 	@Override
+	/**
+	 * Called when the activity is starting.
+	 * @param savedInstanceState 	If the activity is being re-initialized after previously being shut down then this Bundle contains the data it most recently supplied in onSaveInstanceState(Bundle). Note: Otherwise it is null.
+	 */
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
@@ -85,14 +89,14 @@ public class FileBrowserActivity extends Activity {
 		if (extras != null) {
 			//TODO intentnamen global
 			String tempExtras = extras.getString("startPath");
-			String tempOrigin = extras.getString("originOfRequestforResult");
+//			String tempOrigin = extras.getString("originOfRequestforResult");
 			String tempSelection = extras.getString("selectionTyp");
 			if (tempExtras != null) {
 				startPath = tempExtras;
 			}
-			if(tempOrigin != null) {
+/*			if(tempOrigin != null) {
 				origin = tempOrigin;
-			}
+			} */
 			if(tempSelection != null) {
 				try {
 				selectionType = Integer.parseInt(tempSelection);
@@ -141,7 +145,7 @@ public class FileBrowserActivity extends Activity {
 					Log.d(TAG, currentPath);			
 					Intent returnIntent = new Intent();
 					returnIntent.putExtra("currentPath", currentPath);
-					returnIntent.putExtra("originOfRequestforResult", origin);
+			//		returnIntent.putExtra("originOfRequestforResult", origin);
 					setResult(RESULT_OK, returnIntent);     
 					finish();
 				}
@@ -221,7 +225,7 @@ public class FileBrowserActivity extends Activity {
 						Log.e(TAG, "File selected");
 						Intent returnIntent = new Intent();
 						returnIntent.putExtra("currentPath", chosenFile.getAbsolutePath());
-						returnIntent.putExtra("originOfRequestforResult", origin);
+			//			returnIntent.putExtra("originOfRequestforResult", origin);
 						setResult(RESULT_OK, returnIntent);     
 						finish();
 					}
