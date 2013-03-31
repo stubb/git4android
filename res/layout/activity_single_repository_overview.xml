@@ -17,7 +17,7 @@
             android:text="@string/button_pull" />
 
         <Button
-            android:id="@+id/button_add_files"
+            android:id="@+id/button_add_file"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/button_pull"

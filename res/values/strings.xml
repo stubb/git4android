@@ -47,4 +47,7 @@
 	<string name="path">Path</string>
 	<string name="creation_date">Creation date</string>
 	<string name="optional">(optional)</string>
+	<string name="open">Open</string>
+  	<string name="delete">Delete</string>
+   	<string name="repository">Repository</string>
 </resources>
