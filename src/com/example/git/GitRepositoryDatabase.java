@@ -32,7 +32,7 @@ public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 	/**
 	 * This is the single instance that is created of this class.
 	 */
-	private static GitRepositoryDatabase mInstance;
+	private static GitRepositoryDatabase gitRepositoryDatabaseInstance;
 
 	/** 
 	 * The Context to access Android related resources.
@@ -60,8 +60,8 @@ public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 	private static final String TABLE_CREATE = "CREATE TABLE " + TABLE_NAME + " (repoPath VARCHAR UNIQUE NOT NULL, name VARCHAR, date VARCHAR);";
 
 	/**
-	 * 
-	 * @param context
+	 * Creates a new GitRepositoryDatabase
+	 * @param context The android context that should be used within this class.
 	 */
 	private GitRepositoryDatabase(Context newContext) {
 		super(newContext, DATABASE_NAME, null, DATABASE_VERSION);
@@ -69,21 +69,22 @@ public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 	}
 
 	/**
-	 * 
-	 * @param context
-	 * @return
+	 * Returns a new or an already available instance of the GitRepositoryDatabase class.
+	 * @param context The android context that should be used within this class.
+	 * @return The instance.
 	 */
 	public synchronized static GitRepositoryDatabase getInstance(Context context) {
-		if (mInstance == null) {
-			mInstance = new GitRepositoryDatabase(context.getApplicationContext());
+		if (gitRepositoryDatabaseInstance == null) {
+			gitRepositoryDatabaseInstance = new GitRepositoryDatabase(context.getApplicationContext());
 		}
-		return mInstance;
+		return gitRepositoryDatabaseInstance;
 	}
 
 	@Override
-	/**
-	 * 
-	 */
+	/** 
+	 * Called when the database is created for the first time. This is where the creation of tables happens.
+	 * @param database	The database.
+	 */ 
 	public void onCreate(SQLiteDatabase database) {
 		if(database.isOpen()){
 			try {
@@ -100,7 +101,7 @@ public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 	@Override
 	/**
 	 * Called when the database needs to be upgraded.
-	 * @param db 	The database.
+	 * @param database 	The database.
 	 * @param oldVersion 	The old database version.
 	 * @param newVersion 	The new database version. 
 	 */
@@ -109,20 +110,24 @@ public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 	}
 
 	/**
-	 * 
-	 * @param path
-	 * @param name
+	 * Adds an link to a Git repository to the database.
+	 * @param path	The path to the Git repository.
+	 * @param name	The name for this Git repository.
+	 * @return True if the action went successfully, otherwise false. 
 	 */
-	public boolean addRepository(String path, String name) {
+	public boolean addGitRepositoryLink(String path, String name) {
 		Date date = new Date();
-		return addRepository(path, name, date);
+		return addGitRepositoryLink(path, name, date);
 	}
 
 	/**
-	 * Inserts a given path to a Git repository into the database.
-	 * @param path The path to a Git repository that will be inserted.
+	 * Adds an link to a Git repository to the database.
+	 * @param path	The path to the Git repository.
+	 * @param name	The name for this Git repository.
+	 * @param date	The date that should be stored.
+	 * @return True if the action went successfully, otherwise false. 
 	 */
-	public boolean addRepository(String path, String name, Date date) {
+	public boolean addGitRepositoryLink(String path, String name, Date date) {
 		boolean added = false;
 		try {
 			SQLiteDatabase database = getWritableDatabase();
@@ -143,8 +148,9 @@ public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 	/**
 	 * Removes a given path of a Git repository from the database. 
 	 * @param path The path to a Git repository that will be removed.
+	 * @return True if the remove action went successfully, otherwise false. 
 	 */
-	public boolean removeRepository(String path) {
+	public boolean removeGitRepositoryLink(String path) {
 		boolean removed = false;
 		try {
 			SQLiteDatabase database = getWritableDatabase();
@@ -163,10 +169,10 @@ public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 	}
 
 	/**
-	 * Loads all 
-	 * @return
+	 * Loads all links to Git repositories and there additional data.
+	 * @return	The data of the Git repositories path, name and date per ArrayList entry.
 	 */
-	public ArrayList<List<String>> loadRepositories() {
+	public ArrayList<List<String>> loadGitRepositoriyLinks() {
 		ArrayList<List<String>> resultList = new ArrayList<List<String>>();
 		try {
 			SQLiteDatabase database = getWritableDatabase();

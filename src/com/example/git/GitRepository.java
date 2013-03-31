@@ -56,6 +56,7 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
  */  
 public class GitRepository {
 
+	
 	/**
 	 * The tag is used to identify the class while logging
 	 */
@@ -64,7 +65,7 @@ public class GitRepository {
 	/**
 	 * The context from where this class is used.
 	 */
-	private Context context;
+	private Context currentContext = null;
 
 	/**
 	 * 
@@ -92,39 +93,40 @@ public class GitRepository {
 	private Git git = null;
 
 	/**
-	 * Creates a new git repository.
+	 * Creates a new Git repository.
 	 */
 	GitRepository(Context newContext) {
-		context = newContext;
+		currentContext = newContext;
 	}
 
+	//TODO inited überall
+
 	/**
-	 * The current status of the git repository, shows new added and changed files.
+	 * The current status of the Git repository, shows added and changed files.
 	 * @return The current status of this repository.
 	 */
 	public String status(){
-		String actualStatus = new String("");
+		StringBuffer statusBuffer = new StringBuffer("");
 		if (inited()) {
 			StatusCommand status = git.status();
 			try {
 				Status statusObject = status.call();
-				actualStatus += "Added: ";
-				actualStatus += statusObject.getAdded();
-				actualStatus += "\n";
-				actualStatus += "Changed: ";
-				actualStatus += statusObject.getChanged();
-				
+				statusBuffer.append("Added files:\n");
+				statusBuffer.append(statusObject.getAdded());
+				statusBuffer.append("\n");
+				statusBuffer.append("Changed files:\n");
+				statusBuffer.append(statusObject.getChanged());			
 			} catch (NoWorkTreeException e) {
-				// TODO Auto-generated catch block
-				Log.e(LOGTAG, "Status failed");
+				Log.e(LOGTAG, "Fetching status failed, no work tree!");
 				e.printStackTrace();
 			} catch (GitAPIException e) {
-				Log.e(LOGTAG, "Status failed");
-				// TODO Auto-generated catch block
+				Log.e(LOGTAG, "Fetching status failed");
 				e.printStackTrace();
 			}
+		} else {
+			Log.e(LOGTAG, "Repository not initialized");
 		}
-		return actualStatus;
+		return statusBuffer.toString();
 	}
 
 	/**
@@ -133,31 +135,35 @@ public class GitRepository {
 	 * @return The log.
 	 */
 	public String log(){
-		String log = "";
-		Iterable<RevCommit> loggedCommits;
-		try {
-			loggedCommits = git.log().call();
-			for (RevCommit commit : loggedCommits) {
-				String entry = "";
-				entry += commit.getName() + "\n";		
-				entry += commit.getFullMessage() + "\n\n";
-				log += entry;
+		StringBuffer logBuffer = new StringBuffer("");
+		if (inited()) {
+			Iterable<RevCommit> loggedCommits;
+			try {
+				loggedCommits = git.log().call();
+
+				for (RevCommit commit : loggedCommits) {
+					logBuffer.append(commit.getName() + "\n");
+					logBuffer.append(commit.getFullMessage());
+					logBuffer.append("=========================\n");
+				}
+			} catch (NoHeadException e) {
+				Log.e(LOGTAG, "Log creation failed, no HEAD reference available.");
+				e.printStackTrace();
+			} catch (GitAPIException e) {
+				Log.e(LOGTAG, "Log creation failed, wasn't able to access the repository.");
+				e.printStackTrace();
 			}
-		} catch (NoHeadException e) {
-			Log.e(LOGTAG, "Log creation failed, no HEAD reference available.");
-			e.printStackTrace();
-		} catch (GitAPIException e) {
-			Log.e(LOGTAG, "Log creation failed, wasn't able to access the repository.");
-			e.printStackTrace();
+		} else {
+			Log.e(LOGTAG, "Repository not initialized");
 		}
-		return log;
+		return logBuffer.toString();
 	}
 
 	/**
-	 * Inits a new GIT repo within a given folder and set a default config.
-	 * A .git folder is created where all the stuff is inside
+	 * Initializes a new GIT repository within a given folder and set a default config.
+	 * A .git folder for the Git repository is created the given folder. 
 	 * @param	String targetDirectory
-	 * @return	
+	 * @return	True if the Git repository is initialized successfully, otherwise false.
 	 */
 	public boolean init(String targetDirectory){
 		boolean buildRepoSuccessfully = false;
@@ -184,6 +190,8 @@ public class GitRepository {
 	}
 
 	/**
+	 * Opens this Git repository.
+	 * @return	True if the Git repository ws open successfully, otherwise false.
 	 */
 	public boolean open(String targetDirectory){
 		boolean buildRepoSuccessfully = false;
@@ -197,7 +205,7 @@ public class GitRepository {
 			git = new Git(repository);
 			buildRepoSuccessfully = true;
 		} catch (IOException e1) {
-			Log.e(LOGTAG, "Wasn't able to init Repo : /");
+			Log.e(LOGTAG, "Wasn't able to open this Git repository!");
 			e1.printStackTrace();
 		} 
 		return buildRepoSuccessfully;
@@ -205,16 +213,16 @@ public class GitRepository {
 
 	/**
 	 * 
-	 * @return
+	 * @return	True if the Git repository is initialized, otherwise false.
 	 */
 	public boolean inited(){
 		return git != null;
 	}
 
 	/**
-	 * 
-	 * @param file The file name, not the path!
-	 * @return
+	 * Adds a file to the Git Repositories staged area (pre commited).
+	 * @param file The file name of the file to add (not the path!).
+	 * @return	True if the was added successfully, otherwise false.
 	 */
 	public boolean add(String file) {
 		boolean addedFileSuccesfully = false;
@@ -234,6 +242,11 @@ public class GitRepository {
 		return addedFileSuccesfully;
 	}
 
+	/**
+	 * Sets a new URl for the remote origin setting of the configuration of this Git repository.
+	 * @param url The new URL for the remote origin setting.
+	 * @return	True if the new URL for the remote origin setting was set successfully, otherwise false.
+	 */
 	public boolean setRemoteOriginUrl(String url) {
 		boolean setSuccesfully = false;
 		StoredConfig config = git.getRepository().getConfig();
@@ -357,7 +370,7 @@ public class GitRepository {
 			config.put("StrictHostKeyChecking", "no");
 			JSch.setConfig(config);
 			JSch.setLogger(new JschAndroidLogger());
-			CustomJschConfigSessionFactory factory = new CustomJschConfigSessionFactory(context, "git4android", password, privateKeyPath, publicKeyPath);
+			CustomJschConfigSessionFactory factory = new CustomJschConfigSessionFactory(currentContext, "git4android", password, privateKeyPath, publicKeyPath);
 			SshSessionFactory.setInstance(factory); 	    
 			clone.setCloneAllBranches(true);
 			clone.setDirectory(directory);
@@ -380,9 +393,9 @@ public class GitRepository {
 			Log.e(LOGTAG, "Wasn't able to store repository!");
 			e.printStackTrace();
 		} catch (OutOfMemoryError e) {
-				Log.e(LOGTAG, "Out of memory");
-				e.printStackTrace();
-			}
+			Log.e(LOGTAG, "Out of memory");
+			e.printStackTrace();
+		}
 		if(cloneSuccesfull == false) {
 			resetRepository(directory);
 		}
@@ -450,7 +463,7 @@ public class GitRepository {
 			JSch.setConfig(config);
 			JSch.setLogger(new JschAndroidLogger());
 
-			CustomJschConfigSessionFactory factory = new CustomJschConfigSessionFactory(context, "git4android", password, privateKeyPath, publicKeyPath);
+			CustomJschConfigSessionFactory factory = new CustomJschConfigSessionFactory(currentContext, "git4android", password, privateKeyPath, publicKeyPath);
 			SshSessionFactory.setInstance(factory); 	 
 
 			PullCommand pullCommand = git.pull();
@@ -588,7 +601,7 @@ public class GitRepository {
 			config.put("StrictHostKeyChecking", "no");
 			JSch.setConfig(config);
 			JSch.setLogger(new JschAndroidLogger());
-			CustomJschConfigSessionFactory factory = new CustomJschConfigSessionFactory(context, "git4android", password, privateKeyPath, publicKeyPath);
+			CustomJschConfigSessionFactory factory = new CustomJschConfigSessionFactory(currentContext, "git4android", password, privateKeyPath, publicKeyPath);
 			SshSessionFactory.setInstance(factory); 	 
 			PushCommand pushCommand = git.push();
 			pushCommand.call();
@@ -686,14 +699,14 @@ public class GitRepository {
 		RevCommit commit = getCommit(commitID);
 		if (commit != null) {
 			Log.e(LOGTAG, getAllBranchNames());
-			
+
 			CheckoutCommand checkout = git.checkout();
 			try {
-	//			git.branchCreate().setName("test").call();
+				//			git.branchCreate().setName("test").call();
 				checkout.setCreateBranch(true);
 				checkout.setName(newBranchName);
 				checkout.setStartPoint(commit.getId().getName()); 
-	//			checkout.setCreateBranch(true).setName("stable").setStartPoint(getCurrentBranch()).call();
+				//			checkout.setCreateBranch(true).setName("stable").setStartPoint(getCurrentBranch()).call();
 
 				checkout.call();
 				checkedOut = true;
@@ -719,7 +732,7 @@ public class GitRepository {
 		}
 		return checkedOut;
 	}
-	
+
 	/**
 	 * Checks out a branch
 	 * @param name Name of the branch e.g. master
@@ -729,21 +742,21 @@ public class GitRepository {
 		boolean checkedOut = false;
 		try {
 			git.checkout().setName(name).call();
-	    //git.branchCreate().setName(name).call();
-	    checkedOut = true;
-    } catch (RefAlreadyExistsException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-    } catch (RefNotFoundException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-    } catch (InvalidRefNameException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-    } catch (GitAPIException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-    }
+			//git.branchCreate().setName(name).call();
+			checkedOut = true;
+		} catch (RefAlreadyExistsException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (RefNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidRefNameException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (GitAPIException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return checkedOut;
 	}
 
@@ -775,7 +788,7 @@ public class GitRepository {
 	}
 
 	/*
-	  	public ArrayList<List<String>> log() {
+	  public ArrayList<List<String>> log() {
 		ArrayList<List<String>> resultList = new ArrayList<List<String>>();
 		Iterable<RevCommit> loggedCommits;
 		try {
@@ -817,19 +830,19 @@ public class GitRepository {
 	 * @return The branch names.
 	 */
 	public String getAllBranchNames() {
-		String resultList = "";
+		StringBuffer branchBuffer = new StringBuffer("");
 		ListBranchCommand branchList = git.branchList();
 		branchList.setListMode(ListBranchCommand.ListMode.ALL);
 		try {
 			for (Ref branch : branchList.call()) {
-				resultList += branch.getName() + "\n";
+				branchBuffer.append(branch.getName() + "\n");
 				Log.e(LOGTAG,"branch "+ branch.getName() );
 			}
 		} catch (GitAPIException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return resultList;
+		return branchBuffer.toString();
 	}
 }
 

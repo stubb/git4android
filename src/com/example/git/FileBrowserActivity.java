@@ -27,36 +27,46 @@ import android.widget.Toast;
 
 
 /**
- * 
- *
+ * This Activity provides file browser functionality. 
+ * Its possible to navigate through the folders of the filesystem, create new
+ * folders or select a folder or file.
  */
 public class FileBrowserActivity extends Activity {
 
+	/**
+	 * The tag is used to identify the class while logging.
+	 */
+	private final String LOGTAG = getClass().getName();
+
+	/**
+	 * The current used android context within this class.
+	 */
+	private final Context currentContext = FileBrowserActivity.this;
+	
 	/**
 	 * The name of the intent thats used to that is used to set the path thats displayed after starting this activity.
 	 */
 	public static final String STARTPATH = "startPath";
 
-
 	/**
 	 * The name of the intent thats used to handle the type of the selection, that can be done with this activity (file, folder or both).
 	 */
-	public static final String SELECTIONTYP = "selectionTyp";
+	public static final String SELECTIONTYPE = "selectionTyp";
 
 	/**
-	 * 
+	 * The Constant which represents a file as selectiontype.
 	 */
-	public static final Integer SELECTIONTYP_FILE = 0;
+	public static final Integer SELECTIONTYPE_FILE = 0;
 
 	/**
-	 * 
+	 * The Constant which represents a folder as selectiontype.
 	 */
-	public static final Integer SELECTIONTYP_FOLDER = 1;
+	public static final Integer SELECTIONTYPE_FOLDER = 1;
 
 	/**
-	 * 
+	 * The Constant which represents a file  and folder as selectiontype.
 	 */
-	public static final Integer SELECTIONTYP_FILE_AND_FOLDER = 2;
+	public static final Integer SELECTIONTYPE_FILE_AND_FOLDER = 2;
 
 	/**
 	 * The name of the intent that returns the selected file or folder.
@@ -69,14 +79,9 @@ public class FileBrowserActivity extends Activity {
 	private static final String PARENT_DIR = "..";
 
 	/**
-	 *
+	 * The currently used selection type, describes if its possible to select a file, folder or both.
 	 */
-	private Integer selectionType = SELECTIONTYP_FILE_AND_FOLDER;
-
-	/**
-	 * The tag is used to identify the class while logging
-	 */
-	private final String LOGTAG = getClass().getName();
+	private Integer selectionType = SELECTIONTYPE_FILE_AND_FOLDER;
 
 	/**
 	 * The current path within the filesystem, thats displayed by the activity.
@@ -93,11 +98,6 @@ public class FileBrowserActivity extends Activity {
 	 */
 	private ArrayAdapter<String> listItemArrayAdapter;
 
-	/**
-	 * The Context thats used within this class.
-	 */
-	private final Context currentContext = FileBrowserActivity.this;
-
 	@Override
 	/**
 	 * Called when the activity is starting.
@@ -113,20 +113,20 @@ public class FileBrowserActivity extends Activity {
 
 		setContentView(R.layout.activity_browser);
 		final ListView fileListView = (ListView)findViewById(R.id.file_list_view);
-		Log.d(LOGTAG, "Browser Activity onCreate");
 
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			String tempExtras = extras.getString(STARTPATH);
-			String tempSelection = extras.getString(SELECTIONTYP);
+			String tempSelection = extras.getString(SELECTIONTYPE);
 			if (tempExtras != null) {
 				currentPath = tempExtras;
 			}
 			if(tempSelection != null) {
 				try {
 					selectionType = Integer.parseInt(tempSelection);
-				} catch (NumberFormatException e) {
-					Log.e(LOGTAG, "selectiontype Failed");
+				} catch (NumberFormatException exception) {
+					Log.e(LOGTAG, currentContext.getResources().getString(R.string.file_browser_invalid_selection_type));
+					exception.printStackTrace();
 				}
 			}
 		}
@@ -143,18 +143,19 @@ public class FileBrowserActivity extends Activity {
 		}
 
 		final TextView currentPathTextView = (TextView)findViewById(R.id.current_path);  
-		currentPathTextView.setText("Current path: " + currentPath);
+		currentPathTextView.setText(currentContext.getResources().getString(R.string.current_path) + ": " + currentPath);
 
-		Button button_select_directory = (Button) findViewById(R.id.button_select_directory);
-		if (selectionType == SELECTIONTYP_FILE) {
-			button_select_directory.setEnabled(false);
+		Button selectDirectoryButton = (Button) findViewById(R.id.button_select_directory);
+		if (selectionType == SELECTIONTYPE_FILE) {
+			selectDirectoryButton.setEnabled(false);
 		} else {
-			button_select_directory.setOnClickListener(new View.OnClickListener() {
+			selectDirectoryButton.setOnClickListener(new View.OnClickListener() {
 				/**
-				 * 
+				 * Called when the selectDirectoryButton button has been clicked.
+				 * Closes this activity and return an intent with the currently selected path.
+				 * @param view The view that was clicked.
 				 */
-				public void onClick(View v) {
-					Log.d(LOGTAG, currentPath);			
+				public void onClick(View view) {  
 					Intent returnIntent = new Intent();
 					returnIntent.putExtra(SELECTION, currentPath);
 					setResult(RESULT_OK, returnIntent);     
@@ -166,14 +167,16 @@ public class FileBrowserActivity extends Activity {
 		Button button_new_directory = (Button) findViewById(R.id.button_new_directory);
 		button_new_directory.setOnClickListener(new View.OnClickListener() {
 			/**
-			 * 
+			 * Called when the selectFoldertoStoreButton button has been clicked.
+			 * Launches the action to create a new directory.
+			 * @param view The view that was clicked.
 			 */
-			public void onClick(View v) {
+			public void onClick(View view) {  
 				createNewDirectoryAction(fileListView);
 			}
 		});
 
-		if (!currentPath.equals("")){
+		if (!"".equals(currentPath)){
 			File path = new File(currentPath);
 			if (path != null && path.isDirectory()) {
 				fileList = createFileList(path);
@@ -206,27 +209,26 @@ public class FileBrowserActivity extends Activity {
 	}
 
 	/**
-	 * 
-	 * @param fileView
-	 * @param currentPathView
-	 * @param itemPosition
+	 * Process the selection of an file list entry. If its a directory, the directory will displayed, if the selection is the file the activity finishes
+	 * and returns the absolute path of the selected file via an intent.
+	 * @param fileView The View which acts a container.
+	 * @param currentPathView The view within the fileView.
+	 * @param itemPosition The position of the view in the adapter.
 	 */
 	private void processItemSelection(final ListView fileView, final TextView currentPathView, int itemPosition) {
 		String fileChosen = fileList.get(itemPosition);
 		File chosenFile = getChosenFile(fileChosen);
 		if (chosenFile != null) {
 			if (chosenFile.isDirectory()) {
-				Log.e(LOGTAG, "Directory selected");
 				fileList = createFileList(chosenFile);
 				listItemArrayAdapter = new ArrayAdapter<String>(currentContext, android.R.layout.simple_list_item_1, fileList);
 				fileView.setAdapter(listItemArrayAdapter);
 				listItemArrayAdapter.notifyDataSetChanged();
-				currentPathView.setText("Current path: " + currentPath);
+				currentPathView.setText(currentContext.getResources().getString(R.string.current_path) + ": " + currentPath);
 			} else {
-				if (selectionType == SELECTIONTYP_FOLDER) {
-					ToastNotification.makeToast("Please select a folder!", Toast.LENGTH_LONG, currentContext);
+				if (selectionType == SELECTIONTYPE_FOLDER) {
+					ToastNotification.makeToast(currentContext.getResources().getString(R.string.select_a_folder), Toast.LENGTH_LONG, currentContext);
 				} else{
-					Log.e(LOGTAG, "File selected");
 					Intent returnIntent = new Intent();
 					returnIntent.putExtra(SELECTION, chosenFile.getAbsolutePath());
 					setResult(RESULT_OK, returnIntent);     
@@ -237,31 +239,34 @@ public class FileBrowserActivity extends Activity {
 	}
 
 	/**
-	 * 
-	 * @param ListView
+	 * Provides the functionality interact with the user to create a new directory.
+	 * @param ListView The ListView from where this method is called.
 	 */
 	private void createNewDirectoryAction(final ListView ListView){
 		AlertDialog.Builder builder = new AlertDialog.Builder(currentContext);                 
-		builder.setTitle("New Dir");
-		builder.setMessage("Name");               
+		builder.setTitle(currentContext.getResources().getString(R.string.create_new_directory));
+		builder.setMessage(currentContext.getResources().getString(R.string.name));               
 
 		final EditText input = new EditText(currentContext);
 		builder.setView(input);
 
-		builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+		builder.setPositiveButton(currentContext.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
 			/**
-			 * 
+			 * This method will be invoked when the PositiveButton button in the dialog is clicked.
+			 * It launches the action to generate a new SSH key pair.
+			 * @param dialog 	The dialog that received the click.
+			 * @param which 	The button that was clicked. 
 			 */
 			public void onClick(DialogInterface dialog, int whichButton) {  
 				String newDirectoyName = "";
 				newDirectoyName = input.getText().toString();
-				if (!newDirectoyName.equals("")) {
+				if (!"".equals(newDirectoyName)) {
 					File file = new File(currentPath, newDirectoyName);
 					if (!file.mkdirs()) {
-						ToastNotification.makeToast("Directory NOT created", Toast.LENGTH_LONG, currentContext);
+						ToastNotification.makeToast(currentContext.getResources().getString(R.string.directory_not_created), Toast.LENGTH_LONG, currentContext);
 					}
 					else {
-						ToastNotification.makeToast("Directory created", Toast.LENGTH_LONG, currentContext);
+						ToastNotification.makeToast(currentContext.getResources().getString(R.string.directory_created), Toast.LENGTH_LONG, currentContext);
 						fileList = createFileList(new File(currentPath));
 						listItemArrayAdapter = new ArrayAdapter<String>(currentContext, android.R.layout.simple_list_item_1, fileList);
 						ListView.setAdapter(listItemArrayAdapter);
@@ -271,9 +276,12 @@ public class FileBrowserActivity extends Activity {
 			}  
 		});  
 
-		builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+		builder.setNegativeButton(currentContext.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
 			/**
-			 * 
+			 * This method will be invoked when the NegativeButton button in the dialog is clicked.
+			 * It does nothing except a return to cancel the dialog.
+			 * @param dialog 	The dialog that received the click.
+			 * @param which 	The button that was clicked. 
 			 */
 			public void onClick(DialogInterface dialog, int which) {
 				return;   
@@ -282,6 +290,7 @@ public class FileBrowserActivity extends Activity {
 		AlertDialog dialog = builder.create();
 		dialog.show();
 	}
+	
 	/**
 	 * Creates a list of all files and folders from the given path with an entry for the parent directory.
 	 * @param path The path which is used to look up the files and folders. 
@@ -315,7 +324,7 @@ public class FileBrowserActivity extends Activity {
 	 * @param fileChosen The selected file entry.
 	 * @return The selected File or null if no file could be found for the given selected file.
 	 */
-	public File getChosenFile(String fileChosen) {
+	private File getChosenFile(String fileChosen) {
 		File theChosenOne = null;
 		try {
 			if (fileChosen.equals(PARENT_DIR)) {
@@ -324,8 +333,8 @@ public class FileBrowserActivity extends Activity {
 				theChosenOne = new File(currentPath, fileChosen);
 			}
 		} catch (NullPointerException exception) {
-			Log.e(LOGTAG, "Wasn't able to select the file/folder");
-			ToastNotification.makeToast("Wasn't able to select the file/folder", Toast.LENGTH_LONG, currentContext);
+			Log.e(LOGTAG, currentContext.getResources().getString(R.string.directory_or_file_selection_fail));
+			ToastNotification.makeToast(currentContext.getResources().getString(R.string.directory_or_file_selection_fail), Toast.LENGTH_LONG, currentContext);
 		}
 		return theChosenOne;
 	}

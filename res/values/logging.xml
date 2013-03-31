@@ -16,5 +16,5 @@
     <string name="database_cannot_opened_for_writing">The database cannot opened for writing!</string>
 	<string name="sql_insert_git_repo_link_entry_invalid">Cannot  add Git repository link entry, statement invalid</string>
     <string name="open_database_failed">Can not open database!</string>
-
+ <string name="file_browser_invalid_selection_type">Invalid selection type</string>
 </resources>

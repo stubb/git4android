@@ -25,14 +25,14 @@ import com.jcraft.jsch.Session;
 public class CustomJschConfigSessionFactory extends JschConfigSessionFactory {
 
 	/**
-	 * This TAG identifies the class and is used for logging purposes.
+	 * The tag is used to identify the class while logging.
 	 */
-	private final String TAG = getClass().getName();
+	private final String LOGTAG = getClass().getName();
 
 	/**
-	 * The context from where this class is used.
+	 * The current used android context within this class.
 	 */
-	private Context context;
+	private Context currentContext = null;
 	
 	/**
 	 * The path to the private key.
@@ -61,7 +61,7 @@ public class CustomJschConfigSessionFactory extends JschConfigSessionFactory {
 	 * @param publicKeyPath The path to the public key.
 	 */
 	CustomJschConfigSessionFactory(final Context newContext, final String newName, final String password, final String newPrivateKeyPath, final String newPublicKeyPath) {
-		context = newContext;
+		currentContext = newContext;
 		name = newName;
 		privateKeyPassword = password;
 		privateKeyPath = newPrivateKeyPath;
@@ -97,16 +97,16 @@ public class CustomJschConfigSessionFactory extends JschConfigSessionFactory {
 			final JSch jsch = getJSch(hc, FS.DETECTED);
 			jsch.addIdentity(name, privateKey, publicKey, privateKeyPassword.getBytes());
 		} catch (JSchException e) {
-			Log.e(TAG, context.getResources().getString(R.string.jsch_authetifiaction_failed));
+			Log.e(LOGTAG, currentContext.getResources().getString(R.string.jsch_authetifiaction_failed));
 			e.printStackTrace();     
 		} catch (FileNotFoundException e) {
-			Log.e(TAG, context.getResources().getString(R.string.keys_not_found));
+			Log.e(LOGTAG, currentContext.getResources().getString(R.string.keys_not_found));
 			e.printStackTrace();
 		} catch (IOException e) {
-			Log.e(TAG, context.getResources().getString(R.string.keys_not_readable));
+			Log.e(LOGTAG, currentContext.getResources().getString(R.string.keys_not_readable));
 			e.printStackTrace(); 												
 		} catch (JGitInternalException e) {
-			Log.e(TAG, context.getResources().getString(R.string.jgit_session_configuration_failed));
+			Log.e(LOGTAG, currentContext.getResources().getString(R.string.jgit_session_configuration_failed));
 			e.printStackTrace();
 		}
 	}

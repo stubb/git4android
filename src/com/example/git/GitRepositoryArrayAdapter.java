@@ -57,14 +57,14 @@ public class GitRepositoryArrayAdapter extends ArrayAdapter<String> {
 		TextView rowTextView = (TextView) rowView.findViewById(R.id.textview);
 		List<String> rowData = repositoryList.get(position);
 		if (rowData != null) {
-			String rowText = "";
-			rowText += currentContext.getResources().getString(R.string.name) + ": ";
-			rowText += rowData.get(1) + "\n";
-			rowText += currentContext.getResources().getString(R.string.path) + ": ";
-			rowText += rowData.get(0) + "\n";
-			rowText += currentContext.getResources().getString(R.string.creation_date) + ": ";
-			rowText += rowData.get(2);
-			rowTextView.setText(rowText);
+			StringBuffer rowBuffer = new StringBuffer("");
+			rowBuffer.append(currentContext.getResources().getString(R.string.name) + ": ");
+			rowBuffer.append(rowData.get(1) + "\n");
+			rowBuffer.append(currentContext.getResources().getString(R.string.path) + ": ");
+			rowBuffer.append(rowData.get(0) + "\n");
+			rowBuffer.append(currentContext.getResources().getString(R.string.creation_date) + ": ");
+			rowBuffer.append(rowData.get(2));
+			rowTextView.setText(rowBuffer.toString());
 		}
 		return rowView;
 	}

@@ -19,5 +19,28 @@
 	<string name="repository_can_not_be_opened">The repository cant be opened!</string>
 	<string name="no_repository_known_so_far">No repositories known so far</string>
 	<string name="item_not_found">Item not found</string>
-
+	<string name="url_and_path_missing">Enter URL and select a path</string>
+	<string name="git_clone_succes">Git repository cloned!</string>
+	<string name="git_clone_fail">Something went wrong during the git clone process</string>
+	<string name="no_path_and_url">Empty or unsupported URL or no path is selected</string>
+	<string name="settings_no_key_pair_available">No SSH key pair available, add some in the settings menu of the MainActivity</string>
+	<string name="selection_canceled">Something went wrong during the selection, please do it again!</string>
+	<string name="select_a_folder">Please select a folder!</string>
+	<string name="directory_created">Directory created!</string>
+	<string name="directory_not_created">Directory NOT created!</string>
+	<string name="directory_or_file_selection_fail">Directory or file selection failed!</string>
+	<string name="add_git_repository_link_to_database_fail">Failed to add Git repository link to the database!</string>
+	<string name="git_repository_with_given_path_doesnt_exists">The Git repository with the given path does not exists!</string>
+    <string name="add_success">Added!</string>
+	<string name="add_fail">Adding file failed!</string>
+ <string name="enter_commit_message">Enter commit message</string>
+ <string name="no_remote_origin_url_set">There is not setting for the remote origin URL, please add one!</string>
+ <string name="git_protocol_read_only_no_push">Can not push via read only protocoll git://</string>
+  <string name="git_push_success">Pushed succesfully!</string>
+   <string name="git_push_fail">Push failed!</string>
+    <string name="enter_url">Enter URL</string>
+	<string name="git_checkout_success">Checkout succesfully!</string>
+	<string name="git_checkout_fail">Checkout failed!</string>
+	<string name="enter_branch_name">Enter branch name e.g. master</string>
+	 <string name="git_checkout_to_new_branch_from_commitid">Checkout new branch starting from commitid</string>
 </resources>

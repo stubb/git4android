@@ -80,12 +80,12 @@ public class SingleGitRepositoryActivity extends Activity {
 			Log.d(LOGTAG, filesystemPathToGitRepository.toString());
 		}
 
-		if (filesystemPathToGitRepository != "" && gitRepository.open(filesystemPathToGitRepository)) {
-			final int remoteOriginProtocolUrl = gitRepository.checkUrlforProtokoll(gitRepository.getRemoteOriginUrl(), SingleGitRepositoryActivity.this);
+		if (!"".equals(filesystemPathToGitRepository) && gitRepository.open(filesystemPathToGitRepository)) {
+			final int remoteOriginProtocolUrlType = gitRepository.checkUrlforProtokoll(gitRepository.getRemoteOriginUrl(), currentContext);
 
-			SharedPreferences settings = getSharedPreferences(SingleGitRepositoryActivity.this.getResources().getString(R.string.APPSETTINGS), 0);
-			final String sshPrivateKeyPath = settings.getString(SingleGitRepositoryActivity.this.getResources().getString(R.string.SSHPRIVATEKEYPATHSETTING), "");
-			final String sshPublicKeyPath = settings.getString(SingleGitRepositoryActivity.this.getResources().getString(R.string.SSHPUBLICKEYPATHSETTING), "");
+			SharedPreferences settings = getSharedPreferences(currentContext.getResources().getString(R.string.APPSETTINGS), 0);
+			final String sshPrivateKeyPath = settings.getString(currentContext.getResources().getString(R.string.SSHPRIVATEKEYPATHSETTING), "");
+			final String sshPublicKeyPath = settings.getString(currentContext.getResources().getString(R.string.SSHPUBLICKEYPATHSETTING), "");
 
 			Button gitPullButton = (Button) findViewById(R.id.button_pull);
 			gitPullButton.setOnClickListener(new View.OnClickListener() {
@@ -95,7 +95,7 @@ public class SingleGitRepositoryActivity extends Activity {
 				 * @param view The view that was clicked.
 				 */
 				public void onClick(View view) {
-					gitPullAction(remoteOriginProtocolUrl, sshPrivateKeyPath, sshPublicKeyPath);
+					gitPullAction(remoteOriginProtocolUrlType, sshPrivateKeyPath, sshPublicKeyPath);
 				}
 			});
 
@@ -107,9 +107,9 @@ public class SingleGitRepositoryActivity extends Activity {
 				 * @param view The view that was clicked.
 				 */
 				public void onClick(View view) {
-					Intent intent = new Intent(SingleGitRepositoryActivity.this, FileBrowserActivity.class);
+					Intent intent = new Intent(currentContext, FileBrowserActivity.class);
 					intent.putExtra(FileBrowserActivity.STARTPATH, filesystemPathToGitRepository);
-					intent.putExtra(FileBrowserActivity.SELECTIONTYP, Integer.toString(FileBrowserActivity.SELECTIONTYP_FILE));
+					intent.putExtra(FileBrowserActivity.SELECTIONTYPE, Integer.toString(FileBrowserActivity.SELECTIONTYPE_FILE));
 					startActivityForResult(intent, GITADDFILEREQUEST);
 				}
 			});
@@ -134,7 +134,7 @@ public class SingleGitRepositoryActivity extends Activity {
 				 * @param view The view that was clicked.
 				 */
 				public void onClick(View view) {
-					gitPushAction(remoteOriginProtocolUrl, sshPrivateKeyPath, sshPublicKeyPath);
+					gitPushAction(remoteOriginProtocolUrlType, sshPrivateKeyPath, sshPublicKeyPath);
 				}
 			});
 
@@ -180,11 +180,11 @@ public class SingleGitRepositoryActivity extends Activity {
 				}
 			});
 
-			Button buttonStatus = (Button) findViewById(R.id.button_status);
-			buttonStatus.setOnClickListener(new View.OnClickListener() {
+			Button gitStatusButton = (Button) findViewById(R.id.button_status);
+			gitStatusButton.setOnClickListener(new View.OnClickListener() {
 				/**
-				 * Called when the sshPrivateKeyPathButton button has been clicked.
-				 * Starts the FileBrowserActivity, so the user can select the path to the SSH private key.
+				 * Called when the sgitStatusButton button has been clicked.
+				 * Starts the TextActivity to display the git status.
 				 * @param view The view that was clicked.
 				 */
 				public void onClick(View view) {
@@ -195,11 +195,11 @@ public class SingleGitRepositoryActivity extends Activity {
 				}
 			});
 
-			Button buttonCheckoutByCommit = (Button) findViewById(R.id.button_checkout_commit);
-			buttonCheckoutByCommit.setOnClickListener(new View.OnClickListener() {
+			Button gitCheckoutByCommitButton = (Button) findViewById(R.id.button_checkout_commit);
+			gitCheckoutByCommitButton.setOnClickListener(new View.OnClickListener() {
 				/**
-				 * Called when the sshPrivateKeyPathButton button has been clicked.
-				 * Starts the FileBrowserActivity, so the user can select the path to the SSH private key.
+				 * Called when the gitCheckoutByCommitButton button has been clicked.
+				 * It launches the action to checkout a commit to a new branch.
 				 * @param view The view that was clicked.
 				 */
 				public void onClick(View view) {
@@ -207,11 +207,11 @@ public class SingleGitRepositoryActivity extends Activity {
 				}
 			});
 
-			Button buttonShowAllBranches = (Button) findViewById(R.id.button_all_branches);
-			buttonShowAllBranches.setOnClickListener(new View.OnClickListener() {
+			Button gitBranchButton = (Button) findViewById(R.id.button_all_branches);
+			gitBranchButton.setOnClickListener(new View.OnClickListener() {
 				/**
-				 * Called when the sshPrivateKeyPathButton button has been clicked.
-				 * Starts the FileBrowserActivity, so the user can select the path to the SSH private key.
+				 * Called when the gitBranchButton button has been clicked.
+				 * Starts the TextActivity to display the all known branches.
 				 * @param view The view that was clicked.
 				 */
 				public void onClick(View view) {
@@ -222,11 +222,11 @@ public class SingleGitRepositoryActivity extends Activity {
 				}
 			});
 
-			Button buttonCurrentBranch = (Button) findViewById(R.id.button_current_branch);
-			buttonCurrentBranch.setOnClickListener(new View.OnClickListener() {
+			Button gitShowCurrentBranchButton = (Button) findViewById(R.id.button_current_branch);
+			gitShowCurrentBranchButton.setOnClickListener(new View.OnClickListener() {
 				/**
-				 * Called when the sshPrivateKeyPathButton button has been clicked.
-				 * Starts the FileBrowserActivity, so the user can select the path to the SSH private key.
+				 * Called when the gitShowCurrentBranchButton button has been clicked.
+				 * Starts the TextActivity to display the current used branch.
 				 * @param view The view that was clicked.
 				 */
 				public void onClick(View view) {
@@ -237,11 +237,11 @@ public class SingleGitRepositoryActivity extends Activity {
 				}
 			});
 
-			Button buttonCheckoutBranch = (Button) findViewById(R.id.button_checkout_branch);
-			buttonCheckoutBranch.setOnClickListener(new View.OnClickListener() {
+			Button gitCheckoutBranchButton = (Button) findViewById(R.id.button_checkout_branch);
+			gitCheckoutBranchButton.setOnClickListener(new View.OnClickListener() {
 				/**
-				 * Called when the sshPrivateKeyPathButton button has been clicked.
-				 * Starts the FileBrowserActivity, so the user can select the path to the SSH private key.
+				 * Called when the gitCheckoutBranchButton button has been clicked.
+				 * It launches the action to checkout to checkout a branch.
 				 * @param view The view that was clicked.
 				 */
 				public void onClick(View view) {
@@ -250,7 +250,7 @@ public class SingleGitRepositoryActivity extends Activity {
 			});
 		}
 		else {
-			ToastNotification.makeToast("Wasn't able to find this repository", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+			ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_repository_with_given_path_doesnt_exists) + filesystemPathToGitRepository, Toast.LENGTH_LONG, currentContext);
 		}
 	}
 
@@ -266,9 +266,9 @@ public class SingleGitRepositoryActivity extends Activity {
 				String filePathToAdd = data.getStringExtra(FileBrowserActivity.SELECTION);
 				String filename = new File(filePathToAdd).getName();
 				if (gitRepository.add(filename)) {
-					ToastNotification.makeToast("Added " + filePathToAdd, Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+					ToastNotification.makeToast(currentContext.getResources().getString(R.string.add_success) + ":"  + filePathToAdd, Toast.LENGTH_LONG, currentContext);
 				} else {
-					ToastNotification.makeToast("Adding " + filePathToAdd + "failed!", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+					ToastNotification.makeToast(currentContext.getResources().getString(R.string.add_fail) + ":" + filePathToAdd, Toast.LENGTH_LONG, currentContext);
 				}
 			}
 			if (resultCode == RESULT_CANCELED) {
@@ -276,74 +276,104 @@ public class SingleGitRepositoryActivity extends Activity {
 		}
 	}
 
+	/**
+	 * This method handles the user interaction to get the required data to perform a pull from a remote Git repository.
+	 * @param remoteOriginProtocolUrlType The type of the URL.
+	 * @param sshPrivateKeyPath	The path to the private SSH key.
+	 * @param sshPublicKeyPath The path to the public SSH key.
+	 */
 	protected void gitPullAction(final Integer remoteOriginProtocolUrl, final String sshPrivateKeyPath, final String sshPublicKeyPath) {
 		if(gitRepository.getRemoteOriginUrl().equals("")) {
-			ToastNotification.makeToast(currentContext.getResources().getString(R.string.no_remote_origin_url_configured), Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+			ToastNotification.makeToast(currentContext.getResources().getString(R.string.no_remote_origin_url_configured), Toast.LENGTH_LONG, currentContext);
 		}
 		else {
-			if (remoteOriginProtocolUrl == SingleGitRepositoryActivity.this.getResources().getInteger(R.integer.GITPROTOCOL)) {
+			if (remoteOriginProtocolUrl == currentContext.getResources().getInteger(R.integer.GITPROTOCOL)) {
 				if(gitRepository.pull()) {
-					ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_succesful), Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+					ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_succesful), Toast.LENGTH_LONG, currentContext);
 				} else{
-					ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_failed), Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+					ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_failed), Toast.LENGTH_LONG, currentContext);
 				}
 			}
-			else if (remoteOriginProtocolUrl == SingleGitRepositoryActivity.this.getResources().getInteger(R.integer.SSHPROTOCOL)) {
-				AlertDialog.Builder alert = new AlertDialog.Builder(SingleGitRepositoryActivity.this);                 
+			else if (remoteOriginProtocolUrl == currentContext.getResources().getInteger(R.integer.SSHPROTOCOL)) {
+				AlertDialog.Builder alert = new AlertDialog.Builder(currentContext);                 
 				alert.setTitle(currentContext.getResources().getString(R.string.enter_password));           
 
-				final EditText inputPassword = new EditText(SingleGitRepositoryActivity.this); 
+				final EditText inputPassword = new EditText(currentContext); 
 				inputPassword.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
 				alert.setView(inputPassword);
 
-				alert.setPositiveButton(currentContext.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {  
+				alert.setPositiveButton(currentContext.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+					/**
+					 * This method will be invoked when the PositiveButton button in the dialog is clicked.
+					 * It executes the Git pull action.
+					 * @param dialog 	The dialog that received the click.
+					 * @param which 	The button that was clicked. 
+					 */
 					public void onClick(DialogInterface dialog, int whichButton) {
 						if(gitRepository.pull(inputPassword.getText().toString(), sshPrivateKeyPath, sshPublicKeyPath))  {
-							ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_succesful), Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+							ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_succesful), Toast.LENGTH_LONG, currentContext);
 						} else{
-							ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_failed), Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+							ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_failed), Toast.LENGTH_LONG, currentContext);
 						}
 					}
 				});
 
 				alert.setNegativeButton(currentContext.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+					/**
+					 * This method will be invoked when the NegativeButton button in the dialog is clicked.
+					 * It does nothing except a return to cancel the dialog.
+					 * @param dialog 	The dialog that received the click.
+					 * @param which 	The button that was clicked. 
+					 */
 					public void onClick(DialogInterface dialog, int which) {
 						return;   
 					}
 				});
 				alert.show();
 			}
-			else if (remoteOriginProtocolUrl == SingleGitRepositoryActivity.this.getResources().getInteger(R.integer.HTTPPROTOCOL) || 
-					remoteOriginProtocolUrl == SingleGitRepositoryActivity.this.getResources().getInteger(R.integer.HTTPSPROTOCOL)) {
-				AlertDialog.Builder alert = new AlertDialog.Builder(SingleGitRepositoryActivity.this);
+			else if (remoteOriginProtocolUrl == currentContext.getResources().getInteger(R.integer.HTTPPROTOCOL) || 
+					remoteOriginProtocolUrl == currentContext.getResources().getInteger(R.integer.HTTPSPROTOCOL)) {
+				AlertDialog.Builder alert = new AlertDialog.Builder(currentContext);
 				alert.setTitle(currentContext.getResources().getString(R.string.enter_credentials));
 
-				LinearLayout linearLayout = new LinearLayout(SingleGitRepositoryActivity.this);
+				LinearLayout linearLayout = new LinearLayout(currentContext);
 				linearLayout.setOrientation(1);
 
-				final EditText inputUsername = new EditText(SingleGitRepositoryActivity.this); 
+				final EditText inputUsername = new EditText(currentContext); 
 				inputUsername.setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
 				inputUsername.setHint(currentContext.getResources().getString(R.string.username));
 				linearLayout.addView(inputUsername);
 
-				final EditText inputPassword = new EditText(SingleGitRepositoryActivity.this); 
+				final EditText inputPassword = new EditText(currentContext); 
 				inputPassword.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
 				inputPassword.setHint(currentContext.getResources().getString(R.string.password));
 				linearLayout.addView(inputPassword);
 
 				alert.setView(linearLayout);
 
-				alert.setPositiveButton(currentContext.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {  
+				alert.setPositiveButton(currentContext.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+					/**
+					 * This method will be invoked when the PositiveButton button in the dialog is clicked.
+					 * It executes the Git pull action.
+					 * @param dialog 	The dialog that received the click.
+					 * @param which 	The button that was clicked. 
+					 */
 					public void onClick(DialogInterface dialog, int whichButton) {
 						if(gitRepository.pull(inputUsername.getText().toString(), inputPassword.getText().toString())) {
-							ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_succesful), Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+							ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_succesful), Toast.LENGTH_LONG, currentContext);
 						} else{
-							ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_failed), Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+							ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_failed), Toast.LENGTH_LONG, currentContext);
 						}
 					}
 				});
 
 				alert.setNegativeButton(currentContext.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+					/**
+					 * This method will be invoked when the NegativeButton button in the dialog is clicked.
+					 * It does nothing except a return to cancel the dialog.
+					 * @param dialog 	The dialog that received the click.
+					 * @param which 	The button that was clicked. 
+					 */
 					public void onClick(DialogInterface dialog, int which) {
 						return;   
 					}
@@ -353,25 +383,40 @@ public class SingleGitRepositoryActivity extends Activity {
 		}
 	}
 
+	/**
+	 * This method handles the user interaction to get a commit message to perform a git commit to the currently checked out branch.
+	 */
 	private void gitCommitAction(){
-		AlertDialog.Builder alert = new AlertDialog.Builder(SingleGitRepositoryActivity.this);                 
-		alert.setTitle("Enter commit message");                
+		AlertDialog.Builder alert = new AlertDialog.Builder(currentContext);                 
+		alert.setTitle(currentContext.getResources().getString(R.string.enter_commit_message));                
 
-		final EditText inputMessage = new EditText(SingleGitRepositoryActivity.this); 
+		final EditText inputMessage = new EditText(currentContext); 
 		inputMessage.setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
 		alert.setView(inputMessage);
 
-		alert.setPositiveButton(currentContext.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {  
+		alert.setPositiveButton(currentContext.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+			/**
+			 * This method will be invoked when the PositiveButton button in the dialog is clicked.
+			 * It executes the Git commit action.
+			 * @param dialog 	The dialog that received the click.
+			 * @param which 	The button that was clicked. 
+			 */
 			public void onClick(DialogInterface dialog, int whichButton) {
 				if (gitRepository.commit(inputMessage.getText().toString())) {
-					ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_commit_succesful), Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+					ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_commit_succesful), Toast.LENGTH_LONG, currentContext);
 				} else{
-					ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_commit_failed), Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+					ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_commit_failed), Toast.LENGTH_LONG, currentContext);
 				}
 			}
 		});
 
 		alert.setNegativeButton(currentContext.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+			/**
+			 * This method will be invoked when the NegativeButton button in the dialog is clicked.
+			 * It does nothing except a return to cancel the dialog.
+			 * @param dialog 	The dialog that received the click.
+			 * @param which 	The button that was clicked. 
+			 */
 			public void onClick(DialogInterface dialog, int which) {
 				return;   
 			}
@@ -379,72 +424,102 @@ public class SingleGitRepositoryActivity extends Activity {
 		alert.show();
 	}
 
-	private void gitPushAction(final Integer remoteOriginProtocolUrl, final String sshPrivateKeyPath, final String sshPublicKeyPath){
-		if(gitRepository.getRemoteOriginUrl().equals("")) {
-			ToastNotification.makeToast("There is no Remote Origin Url configured", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+	/**
+	 * This method handles the user interaction to get the required data to perform a push to a remote Git repository.
+	 * @param remoteOriginProtocolUrlType The type of the URL.
+	 * @param sshPrivateKeyPath	The path to the private SSH key.
+	 * @param sshPublicKeyPath The path to the public SSH key.
+	 */
+	private void gitPushAction(final Integer remoteOriginProtocolUrlType, final String sshPrivateKeyPath, final String sshPublicKeyPath){
+		if("".equals(gitRepository.getRemoteOriginUrl())) {
+			ToastNotification.makeToast(currentContext.getResources().getString(R.string.no_remote_origin_url_set), Toast.LENGTH_LONG, currentContext);
 		}
 		else {
-			if (remoteOriginProtocolUrl == SingleGitRepositoryActivity.this.getResources().getInteger(R.integer.GITPROTOCOL)) {
-				ToastNotification.makeToast("the git:// protocol is ready only, can't used to push", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+			if (remoteOriginProtocolUrlType == currentContext.getResources().getInteger(R.integer.GITPROTOCOL)) {
+				ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_protocol_read_only_no_push), Toast.LENGTH_LONG, currentContext);
 			}
-			else if (remoteOriginProtocolUrl == SingleGitRepositoryActivity.this.getResources().getInteger(R.integer.SSHPROTOCOL)) {
-				AlertDialog.Builder alert = new AlertDialog.Builder(SingleGitRepositoryActivity.this);                 
-				alert.setTitle("Enter password");             
+			else if (remoteOriginProtocolUrlType == currentContext.getResources().getInteger(R.integer.SSHPROTOCOL)) {
+				AlertDialog.Builder alert = new AlertDialog.Builder(currentContext);                 
+				alert.setTitle(currentContext.getResources().getString(R.string.enter_password));             
 
-				final EditText inputPassword = new EditText(SingleGitRepositoryActivity.this); 
+				final EditText inputPassword = new EditText(currentContext); 
 				inputPassword.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
 				alert.setView(inputPassword);
 
-				alert.setPositiveButton(currentContext.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {  
+				alert.setPositiveButton(currentContext.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+					/**
+					 * This method will be invoked when the PositiveButton button in the dialog is clicked.
+					 * It executes the Git push action.
+					 * @param dialog 	The dialog that received the click.
+					 * @param which 	The button that was clicked. 
+					 */
 					public void onClick(DialogInterface dialog, int whichButton) {
-						if (sshPublicKeyPath != "" && sshPrivateKeyPath != "") {
+						if (!"".equals(sshPublicKeyPath) && !"".equals(sshPrivateKeyPath)) {
 							if (gitRepository.push(inputPassword.getText().toString(), sshPrivateKeyPath, sshPublicKeyPath)) {
-								ToastNotification.makeToast("Push succesfull!", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+								ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_push_success), Toast.LENGTH_LONG, currentContext);
 							} else {
-								ToastNotification.makeToast("Push failed!", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+								ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_push_fail), Toast.LENGTH_LONG, currentContext);
 							}
 						}
 					}
 				});
 
 				alert.setNegativeButton(currentContext.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+					/**
+					 * This method will be invoked when the NegativeButton button in the dialog is clicked.
+					 * It does nothing except a return to cancel the dialog.
+					 * @param dialog 	The dialog that received the click.
+					 * @param which 	The button that was clicked. 
+					 */
 					public void onClick(DialogInterface dialog, int which) {
 						return;   
 					}
 				});
 				alert.show();
 			}
-			else if (remoteOriginProtocolUrl == SingleGitRepositoryActivity.this.getResources().getInteger(R.integer.HTTPPROTOCOL) || 
-					remoteOriginProtocolUrl == SingleGitRepositoryActivity.this.getResources().getInteger(R.integer.HTTPSPROTOCOL)) {
-				AlertDialog.Builder alert = new AlertDialog.Builder(SingleGitRepositoryActivity.this);
-				alert.setTitle("Enter credentials");
+			else if (remoteOriginProtocolUrlType == currentContext.getResources().getInteger(R.integer.HTTPPROTOCOL) || 
+					remoteOriginProtocolUrlType == currentContext.getResources().getInteger(R.integer.HTTPSPROTOCOL)) {
+				AlertDialog.Builder alert = new AlertDialog.Builder(currentContext);
+				alert.setTitle(currentContext.getResources().getString(R.string.enter_credentials));
 
-				LinearLayout linearLayout = new LinearLayout(SingleGitRepositoryActivity.this);
+				LinearLayout linearLayout = new LinearLayout(currentContext);
 				linearLayout.setOrientation(1);
 
-				final EditText inputUsername = new EditText(SingleGitRepositoryActivity.this); 
+				final EditText inputUsername = new EditText(currentContext); 
 				inputUsername.setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
 				inputUsername.setHint(currentContext.getResources().getString(R.string.username));
 				linearLayout.addView(inputUsername);
 
-				final EditText inputPassword = new EditText(SingleGitRepositoryActivity.this); 
+				final EditText inputPassword = new EditText(currentContext); 
 				inputPassword.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
 				inputPassword.setHint(currentContext.getResources().getString(R.string.password));
 				linearLayout.addView(inputPassword);
 
 				alert.setView(linearLayout);
 
-				alert.setPositiveButton(currentContext.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {  
+				alert.setPositiveButton(currentContext.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+					/**
+					 * This method will be invoked when the PositiveButton button in the dialog is clicked.
+					 * It executes the Git push action.
+					 * @param dialog 	The dialog that received the click.
+					 * @param which 	The button that was clicked. 
+					 */
 					public void onClick(DialogInterface dialog, int whichButton) {
 						if (gitRepository.push(inputUsername.getText().toString(), inputPassword.getText().toString())) {
-							ToastNotification.makeToast("Push succesfull!", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+							ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_push_success), Toast.LENGTH_LONG, currentContext);
 						} else {
-							ToastNotification.makeToast("Push failed!", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+							ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_push_fail), Toast.LENGTH_LONG, currentContext);
 						}
 					}
 				});
 
 				alert.setNegativeButton(currentContext.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+					/**
+					 * This method will be invoked when the NegativeButton button in the dialog is clicked.
+					 * It does nothing except a return to cancel the dialog.
+					 * @param dialog 	The dialog that received the click.
+					 * @param which 	The button that was clicked. 
+					 */
 					public void onClick(DialogInterface dialog, int which) {
 						return;   
 					}
@@ -454,38 +529,54 @@ public class SingleGitRepositoryActivity extends Activity {
 		}
 	}
 
+	/**
+	 * This method handles the user interaction to get an commit ID and a name for a new branch, afterwards it does a check out from the given
+	 * commit into a new branch with the given name.
+	 */
 	private void gitCheckoutByCommitToNewBranchAction() {
-		AlertDialog.Builder alert = new AlertDialog.Builder(SingleGitRepositoryActivity.this);                 
-		alert.setTitle("Checkout new branch starting from commitid");
+		AlertDialog.Builder alert = new AlertDialog.Builder(currentContext);                 
+		alert.setTitle(currentContext.getResources().getString(R.string.git_checkout_to_new_branch_from_commitid));
 
-		LinearLayout linearLayout = new LinearLayout(SingleGitRepositoryActivity.this);
+		LinearLayout linearLayout = new LinearLayout(currentContext);
 		linearLayout.setOrientation(1);
 
-		final EditText branchNameView = new EditText(SingleGitRepositoryActivity.this); 
+		final EditText branchNameView = new EditText(currentContext); 
 		branchNameView.setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
-		branchNameView.setHint("branch name");
+		branchNameView.setHint(currentContext.getResources().getString(R.string.branch_name));
 		linearLayout.addView(branchNameView);
 
-		final EditText commitIdView = new EditText(SingleGitRepositoryActivity.this);
-		commitIdView.setHint("commit id");
+		final EditText commitIdView = new EditText(currentContext);
+		commitIdView.setHint(currentContext.getResources().getString(R.string.commit_id));
 		commitIdView.setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
 		linearLayout.addView(commitIdView);
 
 		alert.setView(linearLayout);
-		alert.setPositiveButton(currentContext.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {  
+		alert.setPositiveButton(currentContext.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+			/**
+			 * This method will be invoked when the PositiveButton button in the dialog is clicked.
+			 * It executes the Git checkout by commit to a new branch action.
+			 * @param dialog 	The dialog that received the click.
+			 * @param which 	The button that was clicked. 
+			 */
 			public void onClick(DialogInterface dialog, int whichButton) {
 				String branchName = "";
 				branchName = branchNameView.getText().toString();
 				String commitId = "";
 				commitId = commitIdView.getText().toString();
 				if(gitRepository.checkoutCommitToNewBranch(commitId, branchName)) {
-					ToastNotification.makeToast("Check out succesfull", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+					ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_checkout_success), Toast.LENGTH_LONG, currentContext);
 				} else {
-					ToastNotification.makeToast("Checked out failed", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+					ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_checkout_fail), Toast.LENGTH_LONG, currentContext);
 				}
 			}
 		});
 		alert.setNegativeButton(currentContext.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+			/**
+			 * This method will be invoked when the NegativeButton button in the dialog is clicked.
+			 * It does nothing except a return to cancel the dialog.
+			 * @param dialog 	The dialog that received the click.
+			 * @param which 	The button that was clicked. 
+			 */
 			public void onClick(DialogInterface dialog, int which) {
 				return;   
 			}
@@ -493,27 +584,42 @@ public class SingleGitRepositoryActivity extends Activity {
 		alert.show();
 	}
 
+	/**
+	 * This method handles the user interaction to get a branch name that will be checked out afterwards.
+	 */
 	private void gitCheckoutBranchAction() {
-		AlertDialog.Builder alert = new AlertDialog.Builder(SingleGitRepositoryActivity.this);                 
-		alert.setTitle("Enter branch name e.g. master");                 
+		AlertDialog.Builder alert = new AlertDialog.Builder(currentContext);                 
+		alert.setTitle(currentContext.getResources().getString(R.string.enter_branch_name));                 
 
-		final EditText input = new EditText(SingleGitRepositoryActivity.this); 
+		final EditText input = new EditText(currentContext); 
 		input.setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
 		alert.setView(input);
 
-		alert.setPositiveButton(currentContext.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {  
+		alert.setPositiveButton(currentContext.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+			/**
+			 * This method will be invoked when the PositiveButton button in the dialog is clicked.
+			 * It executes the Git checkout branch action.
+			 * @param dialog 	The dialog that received the click.
+			 * @param which 	The button that was clicked. 
+			 */
 			public void onClick(DialogInterface dialog, int whichButton) {
 				String branchName = input.getText().toString();
-				if(branchName != null && !branchName.equals("")) {
+				if(branchName != null && !"".equals(branchName)) {
 					if(gitRepository.checkoutBranch(branchName)) {
-						ToastNotification.makeToast("Check out succesfull", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+						ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_checkout_success), Toast.LENGTH_LONG, currentContext);
 					}
 				} else {
-					ToastNotification.makeToast("Check out failed", Toast.LENGTH_LONG, SingleGitRepositoryActivity.this);
+					ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_checkout_fail), Toast.LENGTH_LONG, currentContext);
 				}
 			}
 		});
 		alert.setNegativeButton(currentContext.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+			/**
+			 * This method will be invoked when the NegativeButton button in the dialog is clicked.
+			 * It does nothing except a return to cancel the dialog.
+			 * @param dialog 	The dialog that received the click.
+			 * @param which 	The button that was clicked. 
+			 */
 			public void onClick(DialogInterface dialog, int which) {
 				return;   
 			}
@@ -521,22 +627,37 @@ public class SingleGitRepositoryActivity extends Activity {
 		alert.show();
 	}
 
-	private void gitConfigAddRemoteAsOriginAction(){
-		AlertDialog.Builder alert = new AlertDialog.Builder(SingleGitRepositoryActivity.this);                 
-		alert.setTitle("Enter URL");                 
+	/**
+	 * This method handles the user interaction to get the required data to get an URL which will be afterwards set as the URL for the remote origin Git repository.
+	 */
+	private void gitConfigAddRemoteAsOriginAction() {
+		AlertDialog.Builder alert = new AlertDialog.Builder(currentContext);                 
+		alert.setTitle(currentContext.getResources().getString(R.string.enter_url));                 
 
 		EditText input = new EditText(SingleGitRepositoryActivity.this); 
 		input.setInputType(InputType.TYPE_TEXT_VARIATION_URI);
 		alert.setView(input);
 		final String url = input.getText().toString();
 
-		alert.setPositiveButton(currentContext.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {  
+		alert.setPositiveButton(currentContext.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+			/**
+			 * This method will be invoked when the PositiveButton button in the dialog is clicked.
+			 * It executes the action to set the URL of the remote origin repository.
+			 * @param dialog 	The dialog that received the click.
+			 * @param which 	The button that was clicked. 
+			 */
 			public void onClick(DialogInterface dialog, int whichButton) {
 				gitRepository.setRemoteOriginUrl(url);
 			}
 		});
 
 		alert.setNegativeButton(currentContext.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+			/**
+			 * This method will be invoked when the NegativeButton button in the dialog is clicked.
+			 * It does nothing except a return to cancel the dialog.
+			 * @param dialog 	The dialog that received the click.
+			 * @param which 	The button that was clicked. 
+			 */
 			public void onClick(DialogInterface dialog, int which) {
 				return;   
 			}

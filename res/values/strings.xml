@@ -49,5 +49,9 @@
 	<string name="optional">(optional)</string>
 	<string name="open">Open</string>
   	<string name="delete">Delete</string>
-   	<string name="repository">Repository</string>
+	<string name="repository">Repository</string>
+	<string name="current_path">Current path</string>
+	<string name="create_new_directory">Create new directory</string>
+	 <string name="branch_name">Branch name</string>
+	  <string name="commit_id">Commit id</string>
 </resources>

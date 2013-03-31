@@ -18,7 +18,7 @@ import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
 /**
- * This activity lists all Git repositories that are known by the application.
+ * This activity lists all Git repositoriy links that are stored in the database.
  */
 public class GitRepositoryListActivity extends Activity {
 
@@ -45,8 +45,10 @@ public class GitRepositoryListActivity extends Activity {
 
 	@Override
 	/**
-	 * Called when the activity is starting.
-	 * @param savedInstanceState 	If the activity is being re-initialized after previously being shut down then this Bundle contains the data it most recently supplied in onSaveInstanceState(Bundle). Note: Otherwise it is null.
+	 * Called when the activity is starting. Attach actions to the layout.
+	 * @param savedInstanceState 	If the activity is being re-initialized after previously being shut down
+	 *  then this Bundle contains the data it most recently supplied in onSaveInstanceState(Bundle).
+	 *  Note: Otherwise it is null.
 	 */
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -59,13 +61,14 @@ public class GitRepositoryListActivity extends Activity {
 				@Override
 				/**
 				 * Callback method to be invoked when an item in this AdapterView has been clicked.
+				 * Launches the action to open a Git repository or delete its link from the database.
 				 * @param parent	The AdapterView where the click happened.
 				 * @param view	The view within the AdapterView that was clicked (this will be a view provided by the adapter)
 				 * @param position	The position of the view in the adapter.
 				 * @param id	The row id of the item that was clicked. 
 				 */
 				public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-					openOrDeleteRepositoryAction(position, gitRepositoryPathsListView, gitRepositoryDatabase);
+					openOrDeleteRepositoryAction(gitRepositoryPathList, position, gitRepositoryPathsListView, gitRepositoryDatabase);
 				}
 			});
 		} else {
@@ -74,47 +77,46 @@ public class GitRepositoryListActivity extends Activity {
 	}
 
 	/**
-	 * 
-	 * @param itemPosition
-	 * @param gitRepositoryPaths
-	 * @param database
+	 * Creates the dialog to open a Git Repository or delete the link to it from the database.
+	 * @param gitRepositoryLinks The list of Git repository links and their data.
+	 * @param itemPosition The position of th item in the list of the Git repositories.
+	 * @param gitRepositoryPaths The view where the dialog should be created on top.
+	 * @param database The database where removement will be done.
 	 */
-	private void openOrDeleteRepositoryAction(final Integer itemPosition, final ListView gitRepositoryPaths, final GitRepositoryDatabase database) {
-		if (gitRepositoryPathList.size() > 0) {
+	private void openOrDeleteRepositoryAction(final ArrayList<List<String>> gitRepositoryLinks, final Integer itemPosition, final ListView gitRepositoryPaths, final GitRepositoryDatabase database) {
+		if (gitRepositoryLinks.size() > 0) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(currentContext);                 
 			builder.setTitle(currentContext.getResources().getString(R.string.repository));
 			String itemName = "";
 			try {
-				itemName = gitRepositoryPathList.get(itemPosition).get(0);
+				itemName = gitRepositoryLinks.get(itemPosition).get(0);
 				builder.setMessage(itemName);               
-				builder.setPositiveButton(currentContext.getResources().getString(R.string.open), new DialogInterface.OnClickListener() {
-					
+				builder.setPositiveButton(currentContext.getResources().getString(R.string.open), new DialogInterface.OnClickListener() {				
 					/**
-					 * This method will be invoked when a button in the dialog is clicked.
+					 * This method will be invoked when the PositiveButton button in the dialog is clicked.
 					 * @param dialog 	The dialog that received the click.
 					 * @param which 	The button that was clicked (e.g. BUTTON1) or the position of the item clicked. 
 					 */
 					public void onClick(DialogInterface dialog, int whichButton) {
-						File folder = new File(gitRepositoryPathList.get(itemPosition).get(0));
+						File folder = new File(gitRepositoryLinks.get(itemPosition).get(0));
 						if (folder.exists()) {
 							Intent intent = new Intent(currentContext, SingleGitRepositoryActivity.class);
-							intent.putExtra(SingleGitRepositoryActivity.GITREPOSITORYPATH, gitRepositoryPathList.get(itemPosition).get(0));
+							intent.putExtra(SingleGitRepositoryActivity.GITREPOSITORYPATH, gitRepositoryLinks.get(itemPosition).get(0));
 							startActivity(intent);
 						} else {
 							ToastNotification.makeToast(currentContext.getResources().getString(R.string.repository_doesnt_exist), Toast.LENGTH_LONG, currentContext);
 						}
 					}
 				});
-				builder.setNegativeButton(currentContext.getResources().getString(R.string.delete), new DialogInterface.OnClickListener() {
-					
+				builder.setNegativeButton(currentContext.getResources().getString(R.string.delete), new DialogInterface.OnClickListener() {			
 					/**
-					 * This method will be invoked when a button in the dialog is clicked.
+					 * This method will be invoked when the NegativeButton button in the dialog is clicked.
 					 * @param dialog 	The dialog that received the click.
 					 * @param which 	The button that was clicked (e.g. BUTTON1) or the position of the item clicked. 
 					 */
 					public void onClick(DialogInterface dialog, int which) {
 						Log.d(LOGTAG, gitRepositoryPathList.get(itemPosition).get(0));
-						database.removeRepository(gitRepositoryPathList.get(itemPosition).get(0));
+						database.removeGitRepositoryLink(gitRepositoryPathList.get(itemPosition).get(0));
 						loadGitRepositoryList(database, gitRepositoryPaths);
 					}
 				});
@@ -128,17 +130,16 @@ public class GitRepositoryListActivity extends Activity {
 		}
 	}
 	/**
-	 * 
-	 * @param gitRepositoryDatabase
-	 * @param gitRepositoryPathsListView
-	 * @param gitRepositoryPathList
-	 * @param tableRowAdapter
-	 * @return
+	 * Loads a list of Git repository links and their data from the given database and attach them to the given view via the adapter.
+	 * @param gitRepositoryDatabase	The database.
+	 * @param gitRepositoryPathsListView	The view.
+	 * @param tableRowAdapter The adapter.
+	 * @return True if the action went successfully, otherwise false. 
 	 */
 	private boolean loadGitRepositoryList(GitRepositoryDatabase gitRepositoryDatabase, ListView gitRepositoryPathsListView) {
 		boolean loaded = false;
 		try {
-			gitRepositoryPathList = gitRepositoryDatabase.loadRepositories();
+			gitRepositoryPathList = gitRepositoryDatabase.loadGitRepositoriyLinks();
 			tableRowAdapter = new GitRepositoryArrayAdapter(currentContext, gitRepositoryPathsListView.getId(), gitRepositoryPathList);
 			gitRepositoryPathsListView.setAdapter(tableRowAdapter);
 			tableRowAdapter.notifyDataSetChanged();

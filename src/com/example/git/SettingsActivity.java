@@ -106,7 +106,7 @@ public class SettingsActivity extends Activity {
 			 */
 			public void onClick(View view) {
 				Intent intent = new Intent(currentContext, FileBrowserActivity.class);
-				intent.putExtra(FileBrowserActivity.SELECTIONTYP, Integer.toString(FileBrowserActivity.SELECTIONTYP_FILE));
+				intent.putExtra(FileBrowserActivity.SELECTIONTYPE, Integer.toString(FileBrowserActivity.SELECTIONTYPE_FILE));
 				startActivityForResult(intent, PICKPRIVATEKEYPATHREQUEST);
 			}
 		});
@@ -126,7 +126,7 @@ public class SettingsActivity extends Activity {
 			 */
 			public void onClick(View view) {
 				Intent intent = new Intent(currentContext, FileBrowserActivity.class);
-				intent.putExtra(FileBrowserActivity.SELECTIONTYP, Integer.toString(FileBrowserActivity.SELECTIONTYP_FILE));
+				intent.putExtra(FileBrowserActivity.SELECTIONTYPE, Integer.toString(FileBrowserActivity.SELECTIONTYPE_FILE));
 				startActivityForResult(intent, PICKPUBLICKEYPATHREQUEST);
 			}
 		});
@@ -163,15 +163,15 @@ public class SettingsActivity extends Activity {
 	 */
 	private void buttonKeyPairGenerationAction() {
 		if ("".equals(sshPrivateKeyPath) && "".equals(sshPrivateKeyPath)) {
-			AlertDialog.Builder alert = new AlertDialog.Builder(SettingsActivity.this);                 
-			alert.setTitle(SettingsActivity.this.getResources().getString(R.string.enter_password) + SettingsActivity.this.getResources().getString(R.string.optional));  
-			alert.setMessage(SettingsActivity.this.getResources().getString(R.string.password));                
+			AlertDialog.Builder alert = new AlertDialog.Builder(currentContext);                 
+			alert.setTitle(currentContext.getResources().getString(R.string.enter_password) + currentContext.getResources().getString(R.string.optional));  
+			alert.setMessage(currentContext.getResources().getString(R.string.password));                
 
-			final EditText input = new EditText(SettingsActivity.this); 
+			final EditText input = new EditText(currentContext); 
 			input.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
 			alert.setView(input);
 
-			alert.setPositiveButton(SettingsActivity.this.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+			alert.setPositiveButton(currentContext.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
 				/**
 				 * This method will be invoked when the PositiveButton button in the dialog is clicked.
 				 * It launches the action to generate a new SSH key pair.
@@ -180,14 +180,14 @@ public class SettingsActivity extends Activity {
 				 */
 				public void onClick(DialogInterface dialog, int whichButton) {			
 					if (generateKeyPair(KeyPair.RSA, defaultAbsoluteKeyPath, defaultPrivateKeyName, defaultPublicKeyName, "", input.getText().toString())) {
-						ToastNotification.makeToast(SettingsActivity.this.getResources().getString(R.string.keypair_location) + defaultAbsoluteKeyPath, Toast.LENGTH_LONG, SettingsActivity.this);
+						ToastNotification.makeToast(currentContext.getResources().getString(R.string.keypair_location) + defaultAbsoluteKeyPath, Toast.LENGTH_LONG, currentContext);
 					} else {
-						ToastNotification.makeToast(SettingsActivity.this.getResources().getString(R.string.keypair_generation_failed), Toast.LENGTH_LONG, SettingsActivity.this);
+						ToastNotification.makeToast(currentContext.getResources().getString(R.string.keypair_generation_failed), Toast.LENGTH_LONG, currentContext);
 					}									
 				}
 			});
 
-			alert.setNegativeButton(SettingsActivity.this.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+			alert.setNegativeButton(currentContext.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
 				/**
 				 * This method will be invoked when the NegativeButton button in the dialog is clicked.
 				 * It does nothing except a return to cancel the dialog.
@@ -201,7 +201,7 @@ public class SettingsActivity extends Activity {
 			alert.show();
 		}
 		else {
-			ToastNotification.makeToast(SettingsActivity.this.getResources().getString(R.string.keypair_exists), Toast.LENGTH_LONG, SettingsActivity.this);
+			ToastNotification.makeToast(currentContext.getResources().getString(R.string.keypair_exists), Toast.LENGTH_LONG, currentContext);
 		}
 	}
 
@@ -211,14 +211,15 @@ public class SettingsActivity extends Activity {
 	 * @param value The value of the setting.
 	 */
 	private void saveSetting(String key, String value) {
-		SharedPreferences settings = getSharedPreferences(SettingsActivity.this.getResources().getString(R.string.APPSETTINGS), 0);
+		SharedPreferences settings = getSharedPreferences(currentContext.getResources().getString(R.string.APPSETTINGS), 0);
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putString(key, value);
 		editor.commit();
 	}
 
 	/**
-	 * Called when the FileBrowserActivity which was launched in onCreate() via the pathButtons exits, gives the requestCode you started it with, the resultCode it returned, and any additional data from it.
+	 * Called when the FileBrowserActivity which was launched in onCreate() via the pathButtons exits, gives the requestCode you started it with,
+	 * the resultCode it returned, and any additional data from it.
 	 * @param	requestCode 	The integer request code originally supplied to startActivityForResult(), allows to identify who this result came from.
 	 * @param	resultCode 	The integer result code returned by the child activity through its setResult().
 	 * @param	data 	An Intent, which can return result data to the caller (various data can be attached to Intent "extras").
@@ -232,7 +233,7 @@ public class SettingsActivity extends Activity {
 				sshPublicKeyPathEditText.setEnabled(false);					      
 			}	
 			if (resultCode == RESULT_CANCELED) {
-				ToastNotification.makeToast(SettingsActivity.this.getResources().getString(R.string.filebrowser_nothing_selected), Toast.LENGTH_LONG, SettingsActivity.this);
+				ToastNotification.makeToast(currentContext.getResources().getString(R.string.filebrowser_nothing_selected), Toast.LENGTH_LONG, currentContext);
 			}
 		}
 		if (requestCode == PICKPRIVATEKEYPATHREQUEST) {
@@ -243,7 +244,7 @@ public class SettingsActivity extends Activity {
 				sshPrivateKeyPathEditText.setEnabled(false);
 			}		
 			if (resultCode == RESULT_CANCELED) {
-				ToastNotification.makeToast(SettingsActivity.this.getResources().getString(R.string.filebrowser_nothing_selected), Toast.LENGTH_LONG, SettingsActivity.this);
+				ToastNotification.makeToast(currentContext.getResources().getString(R.string.filebrowser_nothing_selected), Toast.LENGTH_LONG, currentContext);
 			}
 		}
 	}
@@ -276,20 +277,20 @@ public class SettingsActivity extends Activity {
 					kpair.dispose();
 					success = true;
 				} catch (JSchException exception) {
-					Log.e(TAG, SettingsActivity.this.getResources().getString(R.string.keypair_creation_failed));
+					Log.e(TAG, currentContext.getResources().getString(R.string.keypair_creation_failed));
 					exception.printStackTrace();
 				} catch (FileNotFoundException exception) {
-					Log.e(TAG, SettingsActivity.this.getResources().getString(R.string.keypair_creation_failed));
+					Log.e(TAG, currentContext.getResources().getString(R.string.keypair_creation_failed));
 					exception.printStackTrace();
 				} catch (IOException exception) {
-					Log.e(TAG, SettingsActivity.this.getResources().getString(R.string.keypair_creation_failed));
+					Log.e(TAG, currentContext.getResources().getString(R.string.keypair_creation_failed));
 					exception.printStackTrace();
 				}
 			} else {
-				Log.e(TAG, SettingsActivity.this.getResources().getString(R.string.invalid_ssh_keytype));
+				Log.e(TAG, currentContext.getResources().getString(R.string.invalid_ssh_keytype));
 			}
 		} else {
-			Log.e(TAG, SettingsActivity.this.getResources().getString(R.string.keypair_folder_creation_failed));
+			Log.e(TAG, currentContext.getResources().getString(R.string.keypair_folder_creation_failed));
 		}
 		return success;
 	}
