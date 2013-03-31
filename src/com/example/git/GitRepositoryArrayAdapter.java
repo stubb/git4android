@@ -14,7 +14,7 @@ import android.widget.TextView;
  * This adapter is used to fill a given view with single views generated for
  * each entry of the Git repository list.
  */
-public class MyArrayAdapter extends ArrayAdapter<String> {
+public class GitRepositoryArrayAdapter extends ArrayAdapter<String> {
 
 	/**
 	 * The list of repositories to represent in the ListView.
@@ -32,7 +32,7 @@ public class MyArrayAdapter extends ArrayAdapter<String> {
 	 * @param textViewResourceId	The resource ID for a layout file containing a TextView to use when instantiating views.
 	 * @param repositories 	The list of repositories to represent in the ListView. 
 	 */
-	public MyArrayAdapter(Context context, int textViewResourceId, ArrayList<List<String>> repositories) {
+	public GitRepositoryArrayAdapter(Context context, int textViewResourceId, ArrayList<List<String>> repositories) {
 		super(context, textViewResourceId);
 		currentContext = context;
 		if(repositories != null) { 
