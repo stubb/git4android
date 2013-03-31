@@ -2,6 +2,7 @@ package com.example.git;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -24,8 +25,10 @@ import java.io.IOException;
 
 /**
  * This activity handles the settings of the application.
- * It is possible to generate new SSH keys and select key files
- * which should be used with this application.
+ * These settings are:
+ * - a private SSH key
+ * - a public SSH key
+ * It is possible to generate a new SSH key pair or use some different keys, by selecting there location.
  */
 public class SettingsActivity extends Activity {
 
@@ -43,6 +46,11 @@ public class SettingsActivity extends Activity {
 	 * The path to the public key.
 	 */
 	private String sshPublicKeyPath = "";
+	
+	/**
+	 * The current context within the application.
+	 */
+	private final Context currentContext = SettingsActivity.this;
 
 	/**
 	 * The absolute path to the default folder where the SSH keys are stored.
@@ -79,63 +87,82 @@ public class SettingsActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_settings);
 
-		Log.d(TAG, SettingsActivity.this.getResources().getString(R.string.APPSETTINGS));
-		SharedPreferences settings = getSharedPreferences(SettingsActivity.this.getResources().getString(R.string.APPSETTINGS), 0);
-		sshPrivateKeyPath = settings.getString(SettingsActivity.this.getResources().getString(R.string.SSHPRIVATEKEYPATHSETTING), "");
-		sshPublicKeyPath = settings.getString(SettingsActivity.this.getResources().getString(R.string.SSHPUBLICKEYPATHSETTING), "");
+		SharedPreferences settings = getSharedPreferences(currentContext.getResources().getString(R.string.APPSETTINGS), 0);
+		sshPrivateKeyPath = settings.getString(currentContext.getResources().getString(R.string.SSHPRIVATEKEYPATHSETTING), "");
+		sshPublicKeyPath = settings.getString(currentContext.getResources().getString(R.string.SSHPUBLICKEYPATHSETTING), "");
 
 		EditText sshPrivateKeyPathEditText = (EditText) findViewById(R.id.ssh_private_key_path);
-		if (!sshPrivateKeyPath.equals("")) {
+		if (!"".equals(sshPrivateKeyPath)) {
 			sshPrivateKeyPathEditText.setText(sshPrivateKeyPath);
 		}
 		sshPrivateKeyPathEditText.setEnabled(false);
 
 		Button sshPrivateKeyPathButton = (Button) findViewById(R.id.button_select_folder_ssh_private_key_path);
 		sshPrivateKeyPathButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				Intent intent = new Intent(SettingsActivity.this, FileBrowserActivity.class);
-				intent.putExtra("selectionTyp", Integer.toString(FileBrowserActivity.SELECTIONTYP_FILE));
+			/**
+			 * Called when the sshPrivateKeyPathButton button has been clicked.
+			 * Starts the FileBrowserActivity, so the user can select the path to the SSH private key.
+			 * @param view The view that was clicked.
+			 */
+			public void onClick(View view) {
+				Intent intent = new Intent(currentContext, FileBrowserActivity.class);
+				intent.putExtra(FileBrowserActivity.SELECTIONTYP, Integer.toString(FileBrowserActivity.SELECTIONTYP_FILE));
 				startActivityForResult(intent, PICKPRIVATEKEYPATHREQUEST);
 			}
 		});
 
 		EditText sshPublicKeyPathEditText = (EditText) findViewById(R.id.ssh_public_key_path);
-		if (!sshPublicKeyPath.equals("")) {
+		if (!"".equals(sshPublicKeyPath)) {
 			sshPublicKeyPathEditText.setText(sshPublicKeyPath);
 		}
 		sshPublicKeyPathEditText.setEnabled(false);
 
 		Button sshPublicKeyPathButton = (Button) findViewById(R.id.button_select_folder_ssh_public_key_path);
 		sshPublicKeyPathButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				Intent intent = new Intent(SettingsActivity.this, FileBrowserActivity.class);
-				intent.putExtra("selectionTyp", Integer.toString(FileBrowserActivity.SELECTIONTYP_FILE));
+			/**
+			 * Called when the sshPublicKeyPathButton button has been clicked.
+			 * Starts the FileBrowserActivity, so the user can select the path to the SSH public key.
+			 * @param view The view that was clicked.
+			 */
+			public void onClick(View view) {
+				Intent intent = new Intent(currentContext, FileBrowserActivity.class);
+				intent.putExtra(FileBrowserActivity.SELECTIONTYP, Integer.toString(FileBrowserActivity.SELECTIONTYP_FILE));
 				startActivityForResult(intent, PICKPUBLICKEYPATHREQUEST);
 			}
 		});
 
-		Button button_genKeys = (Button) findViewById(R.id.button_genKeys);
-		button_genKeys.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
+		Button generateKeyPairButton = (Button) findViewById(R.id.button_genKeys);
+		generateKeyPairButton.setOnClickListener(new View.OnClickListener() {
+			/**
+			 * Called when the generateKeyPairButton button has been clicked.
+			 * Generates a SSH key pair and saves them to the filesystem.
+			 * @param view The view that was clicked.
+			 */
+			public void onClick(View view) {
 				buttonKeyPairGenerationAction();
 			}
 		});
 
-		Button saveButton = (Button) findViewById(R.id.button_save);
-		saveButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				saveSetting(SettingsActivity.this.getResources().getString(R.string.SSHPRIVATEKEYPATHSETTING), sshPrivateKeyPath);
-				saveSetting(SettingsActivity.this.getResources().getString(R.string.SSHPUBLICKEYPATHSETTING), sshPublicKeyPath);
+		Button saveSettingsButton = (Button) findViewById(R.id.button_save);
+		saveSettingsButton.setOnClickListener(new View.OnClickListener() {
+			/**
+			 * Called when the saveSettingsButton button has been clicked.
+			 * Saves the settings for the SSH key pair.
+			 * @param view The view that was clicked.
+			 */
+			public void onClick(View view) {
+				saveSetting(currentContext.getResources().getString(R.string.SSHPRIVATEKEYPATHSETTING), sshPrivateKeyPath);
+				saveSetting(currentContext.getResources().getString(R.string.SSHPUBLICKEYPATHSETTING), sshPublicKeyPath);
 				finish();
 			}
 		});
 	}
 
 	/**
-	 * Executes the actions to generate the SSH key pair.
+	 * Executes the actions to generate the SSH key pair and requests the required user input.
 	 */
 	private void buttonKeyPairGenerationAction() {
-		if (sshPrivateKeyPath.equals("") && sshPrivateKeyPath.equals("")) {
+		if ("".equals(sshPrivateKeyPath) && "".equals(sshPrivateKeyPath)) {
 			AlertDialog.Builder alert = new AlertDialog.Builder(SettingsActivity.this);                 
 			alert.setTitle(SettingsActivity.this.getResources().getString(R.string.enter_password) + SettingsActivity.this.getResources().getString(R.string.optional));  
 			alert.setMessage(SettingsActivity.this.getResources().getString(R.string.password));                
@@ -144,7 +171,13 @@ public class SettingsActivity extends Activity {
 			input.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
 			alert.setView(input);
 
-			alert.setPositiveButton(SettingsActivity.this.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {  
+			alert.setPositiveButton(SettingsActivity.this.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+				/**
+				 * This method will be invoked when the PositiveButton button in the dialog is clicked.
+				 * It launchs the action to generate a new SSH key pair.
+				 * @param dialog 	The dialog that received the click.
+				 * @param which 	The button that was clicked. 
+				 */
 				public void onClick(DialogInterface dialog, int whichButton) {			
 					if (generateKeyPair(KeyPair.RSA, defaultAbsoluteKeyPath, defaultPrivateKeyName, defaultPublicKeyName, "", input.getText().toString())) {
 						ToastNotification.makeToast(SettingsActivity.this.getResources().getString(R.string.keypair_location) + defaultAbsoluteKeyPath, Toast.LENGTH_LONG, SettingsActivity.this);
@@ -155,6 +188,12 @@ public class SettingsActivity extends Activity {
 			});
 
 			alert.setNegativeButton(SettingsActivity.this.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+				/**
+				 * This method will be invoked when the NegativeButton button in the dialog is clicked.
+				 * It does nothing except a return to cancel the dialog.
+				 * @param dialog 	The dialog that received the click.
+				 * @param which 	The button that was clicked. 
+				 */
 				public void onClick(DialogInterface dialog, int which) {
 					return;   
 				}
@@ -179,17 +218,15 @@ public class SettingsActivity extends Activity {
 	}
 
 	/**
-	 * Called when the FileBrowserActivity which was launched in onCreate() via the pathButtons exits, giving you the requestCode you started it with, the resultCode it returned, and any additional data from it.
-	 * The resultCode will be RESULT_CANCELED if the activity explicitly returned that, didn't return any result, or crashed during its operation.
-	 * You will receive this call immediately before onResume() when your activity is re-starting.
-	 * @param	requestCode 	The integer request code originally supplied to startActivityForResult(), allowing you to identify who this result came from.
+	 * Called when the FileBrowserActivity which was launched in onCreate() via the pathButtons exits, gives the requestCode you started it with, the resultCode it returned, and any additional data from it.
+	 * @param	requestCode 	The integer request code originally supplied to startActivityForResult(), allows to identify who this result came from.
 	 * @param	resultCode 	The integer result code returned by the child activity through its setResult().
 	 * @param	data 	An Intent, which can return result data to the caller (various data can be attached to Intent "extras").
 	 */
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == PICKPUBLICKEYPATHREQUEST) {
 			if (resultCode == RESULT_OK) {
-				sshPublicKeyPath = data.getStringExtra("currentPath");
+				sshPublicKeyPath = data.getStringExtra(FileBrowserActivity.SELECTION);
 				EditText sshPublicKeyPathEditText = (EditText) findViewById(R.id.ssh_public_key_path);
 				sshPublicKeyPathEditText.setText(sshPublicKeyPath);
 				sshPublicKeyPathEditText.setEnabled(false);					      
@@ -200,7 +237,7 @@ public class SettingsActivity extends Activity {
 		}
 		if (requestCode == PICKPRIVATEKEYPATHREQUEST) {
 			if (resultCode == RESULT_OK) {
-				sshPrivateKeyPath = data.getStringExtra("currentPath");
+				sshPrivateKeyPath = data.getStringExtra(FileBrowserActivity.SELECTION);
 				EditText sshPrivateKeyPathEditText = (EditText) findViewById(R.id.ssh_private_key_path);
 				sshPrivateKeyPathEditText.setText(sshPrivateKeyPath);
 				sshPrivateKeyPathEditText.setEnabled(false);

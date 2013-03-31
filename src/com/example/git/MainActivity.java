@@ -46,26 +46,40 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		Button button_list_repos = (Button) findViewById(R.id.button_list_repos);
-		Button button_init_repo = (Button) findViewById(R.id.button_init_repo);
-		Button button_clone = (Button) findViewById(R.id.button_clone);
-
-		button_list_repos.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
+		Button button_list_git_repositories = (Button) findViewById(R.id.button_list_repos);
+		button_list_git_repositories.setOnClickListener(new View.OnClickListener() {
+			/**
+			 * Called when the button_list_git_repositories button has been clicked.
+			 * Starts the GitRepositoryListActivity.
+			 * @param view The view that was clicked.
+			 */
+			public void onClick(View view) {
 				Intent intent = new Intent(MainActivity.this, GitRepositoryListActivity.class);
 				startActivity(intent);
 			}
 		});
 
-		button_clone.setOnClickListener(new View.OnClickListener(){
-			public void onClick(View v) {
+		Button button_git_clone = (Button) findViewById(R.id.button_clone);
+		button_git_clone.setOnClickListener(new View.OnClickListener(){
+			/**
+			 * Called when the button_git_clone button has been clicked.
+			 * Starts the CloneGitRepositoryActivity.
+			 * @param view The view that was clicked.
+			 */
+			public void onClick(View view) {
 				Intent intent = new Intent(MainActivity.this, CloneGitRepositoryActivity.class);
 				startActivity(intent);
 			}
 		});
 
-		button_init_repo.setOnClickListener(new View.OnClickListener(){
-			public void onClick(View v) {
+		Button button_git_init = (Button) findViewById(R.id.button_init_repo);
+		button_git_init.setOnClickListener(new View.OnClickListener(){
+			/**
+			 * Called when the button_git_init button has been clicked.
+			 * Starts the InitGitRepositoryActivity.
+			 * @param view The view that was clicked.
+			 */
+			public void onClick(View view) {
 				Intent intent = new Intent(MainActivity.this, InitGitRepositoryActivity.class);
 				startActivity(intent);
 			}
