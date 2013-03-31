@@ -37,16 +37,26 @@ public class CloneGitRepositoryActivity extends Activity {
 
 		Button button_select_folder = (Button) findViewById(R.id.button_select_folder);
 		button_select_folder.setOnClickListener(new View.OnClickListener(){
-			public void onClick(View v) {     			
+			/**
+			 * Called when a view has been clicked.
+			 * Starts the FileBrowserActivity.
+			 * @param view The view that was clicked.
+			 */
+			public void onClick(View view) {     			
 				Intent intent = new Intent(CloneGitRepositoryActivity.this, FileBrowserActivity.class);
-				intent.putExtra("selectionTyp", Integer.toString(FileBrowserActivity.SELECTIONTYP_FOLDER));
+				intent.putExtra(FileBrowserActivity.SELECTIONTYP, Integer.toString(FileBrowserActivity.SELECTIONTYP_FOLDER));
 				startActivityForResult(intent, 1);
 			}
 		});
 
 		Button button_submit_clone_repository = (Button) findViewById(R.id.button_submit_clone_repository);
 		button_submit_clone_repository.setOnClickListener(new View.OnClickListener(){
-			public void onClick(View v) {
+			/**
+			 * Called when a view has been clicked.
+			 * Shows a toast notification, because user input is required.
+			 * @param view The view that was clicked.
+			 */
+			public void onClick(View view) {
 				ToastNotification.makeToast("Enter URL and select a path", Toast.LENGTH_LONG, CloneGitRepositoryActivity.this);
 			}
 		});
@@ -58,7 +68,7 @@ public class CloneGitRepositoryActivity extends Activity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == 1) {
 			if(resultCode == RESULT_OK){
-				final String selectedPath = data.getStringExtra("currentPath");
+				final String selectedPath = data.getStringExtra(FileBrowserActivity.SELECTION);
 
 				final EditText urlEditText = (EditText) findViewById(R.id.clone_repository_url);
 
@@ -70,7 +80,11 @@ public class CloneGitRepositoryActivity extends Activity {
 				
 				Button button_submit_clone_repository = (Button) findViewById(R.id.button_submit_clone_repository);
 				button_submit_clone_repository.setOnClickListener(new View.OnClickListener(){
-					public void onClick(View v) {
+					/**
+					 * Called when a view has been clicked.
+					 * @param view The view that was clicked.
+					 */
+					public void onClick(View view) {
 						GitRepository git = new GitRepository(CloneGitRepositoryActivity.this);
 						final String repositoryUrl = urlEditText.getText().toString();
 						int protocol = git.checkUrlforProtokoll(repositoryUrl, CloneGitRepositoryActivity.this);

@@ -59,7 +59,7 @@ public class GitRepository {
 	/**
 	 * The tag is used to identify the class while logging
 	 */
-	private final String TAG = getClass().getName();
+	private final String LOGTAG = getClass().getName();
 
 	/**
 	 * The context from where this class is used.
@@ -116,10 +116,10 @@ public class GitRepository {
 				
 			} catch (NoWorkTreeException e) {
 				// TODO Auto-generated catch block
-				Log.e(TAG, "Status failed");
+				Log.e(LOGTAG, "Status failed");
 				e.printStackTrace();
 			} catch (GitAPIException e) {
-				Log.e(TAG, "Status failed");
+				Log.e(LOGTAG, "Status failed");
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -144,10 +144,10 @@ public class GitRepository {
 				log += entry;
 			}
 		} catch (NoHeadException e) {
-			Log.e(TAG, "Log creation failed, no HEAD reference available.");
+			Log.e(LOGTAG, "Log creation failed, no HEAD reference available.");
 			e.printStackTrace();
 		} catch (GitAPIException e) {
-			Log.e(TAG, "Log creation failed, wasn't able to access the repository.");
+			Log.e(LOGTAG, "Log creation failed, wasn't able to access the repository.");
 			e.printStackTrace();
 		}
 		return log;
@@ -171,10 +171,10 @@ public class GitRepository {
 			}
 			buildRepoSuccessfully = true;
 		} catch (GitAPIException e) {
-			Log.e(TAG, "Wasn't able to init Repo : /");
+			Log.e(LOGTAG, "Wasn't able to init Repo : /");
 			e.printStackTrace();
 		} catch (JGitInternalException e) {
-			Log.e(TAG, "Wasn't able to init Repo : /");
+			Log.e(LOGTAG, "Wasn't able to init Repo : /");
 			e.printStackTrace();
 		}
 		if(buildRepoSuccessfully == false) {
@@ -197,7 +197,7 @@ public class GitRepository {
 			git = new Git(repository);
 			buildRepoSuccessfully = true;
 		} catch (IOException e1) {
-			Log.e(TAG, "Wasn't able to init Repo : /");
+			Log.e(LOGTAG, "Wasn't able to init Repo : /");
 			e1.printStackTrace();
 		} 
 		return buildRepoSuccessfully;
@@ -224,11 +224,11 @@ public class GitRepository {
 			addedFileSuccesfully = true;
 		} catch (NoFilepatternException e) {
 			// TODO Auto-generated catch block
-			Log.e(TAG, "Add failed");
+			Log.e(LOGTAG, "Add failed");
 			e.printStackTrace();
 		} catch (GitAPIException e) {
 			// TODO Auto-generated catch block
-			Log.e(TAG, "Add failed");
+			Log.e(LOGTAG, "Add failed");
 			e.printStackTrace();
 		} 
 		return addedFileSuccesfully;
@@ -261,7 +261,7 @@ public class GitRepository {
 			if (tempRemoteUrl != null) {
 				remoteUrl = tempRemoteUrl;
 			}
-			Log.d(TAG, "remoteurl " + remoteUrl);
+			Log.d(LOGTAG, "remoteurl " + remoteUrl);
 		}
 		return remoteUrl;
 	}
@@ -321,7 +321,7 @@ public class GitRepository {
 			clone.call();
 			cloneSuccesfull = true;
 		} catch (InvalidRemoteException e) {
-			Log.e(TAG, "The remote repository doesn't exist!");
+			Log.e(LOGTAG, "The remote repository doesn't exist!");
 			e.printStackTrace();
 		} catch (TransportException e) {
 			// TODO Auto-generated catch block
@@ -330,7 +330,10 @@ public class GitRepository {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}	catch (JGitInternalException e) {
-			Log.e(TAG, "Wasn't able to store repository!");
+			Log.e(LOGTAG, "Wasn't able to store repository!");
+			e.printStackTrace();
+		} catch (OutOfMemoryError e) {
+			Log.e(LOGTAG, "Out of memory");
 			e.printStackTrace();
 		}
 		if(cloneSuccesfull == false) {
@@ -362,7 +365,7 @@ public class GitRepository {
 			clone.call();
 			cloneSuccesfull = true;
 		} catch (InvalidRemoteException e) {
-			Log.e(TAG, "The remote repository doesn't exist!");
+			Log.e(LOGTAG, "The remote repository doesn't exist!");
 			e.printStackTrace();
 		} catch (TransportException e) {
 			// TODO Auto-generated catch block
@@ -374,9 +377,12 @@ public class GitRepository {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}	catch (JGitInternalException e) {
-			Log.e(TAG, "Wasn't able to store repository!");
+			Log.e(LOGTAG, "Wasn't able to store repository!");
 			e.printStackTrace();
-		}
+		} catch (OutOfMemoryError e) {
+				Log.e(LOGTAG, "Out of memory");
+				e.printStackTrace();
+			}
 		if(cloneSuccesfull == false) {
 			resetRepository(directory);
 		}
@@ -400,7 +406,7 @@ public class GitRepository {
 			clone.call();
 			cloneSuccesfull = true;
 		} catch (InvalidRemoteException e) {
-			Log.e(TAG, "The remote repository doesn't exist!");
+			Log.e(LOGTAG, "The remote repository doesn't exist!");
 			e.printStackTrace();
 		} catch (GitAPIException e) {
 			// TODO Auto-generated catch block
@@ -409,7 +415,10 @@ public class GitRepository {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (JGitInternalException e) {
-			Log.e(TAG, "Wasn't able to store repository!");
+			Log.e(LOGTAG, "Wasn't able to store repository!");
+			e.printStackTrace();
+		} catch (OutOfMemoryError e) {
+			Log.e(LOGTAG, "Out of memory");
 			e.printStackTrace();
 		}
 		if(cloneSuccesfull == false) {
@@ -420,14 +429,14 @@ public class GitRepository {
 
 	public void setDefaultConfig() {
 		if (inited()) {
-			Log.d(TAG, "Inited");
+			Log.d(LOGTAG, "Inited");
 			StoredConfig config = git.getRepository().getConfig();
 			config.setString("branch", "master", "remote", "origin");
 			config.setString("branch", "master", "merge", "refs/heads/master");
 			try {
 				config.save();
 			} catch (IOException e) {
-				Log.e(TAG, "Wasn't able to set default config");
+				Log.e(LOGTAG, "Wasn't able to set default config");
 				e.printStackTrace();
 			}
 		}
@@ -447,7 +456,7 @@ public class GitRepository {
 			PullCommand pullCommand = git.pull();
 			PullResult res = pullCommand.call();
 			org.eclipse.jgit.api.MergeResult mergeResult = res.getMergeResult();
-			Log.d(TAG, mergeResult.getMergeStatus().toString());
+			Log.d(LOGTAG, mergeResult.getMergeStatus().toString());
 			if (!res.getFetchResult().getTrackingRefUpdates().isEmpty() &&
 					!res.getMergeResult().getMergeStatus().equals(MergeStatus.ALREADY_UP_TO_DATE)) {
 				successful = true;
@@ -479,7 +488,10 @@ public class GitRepository {
 		} catch (GitAPIException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} 
+		}   catch (OutOfMemoryError e) {
+			Log.e(LOGTAG, "Out of memory");
+			e.printStackTrace();
+		}
 		return successful;
 	}
 
@@ -491,7 +503,7 @@ public class GitRepository {
 			pullCommand.setCredentialsProvider(user);
 			PullResult res = pullCommand.call();
 			org.eclipse.jgit.api.MergeResult mergeResult = res.getMergeResult();
-			Log.d(TAG, mergeResult.getMergeStatus().toString());
+			Log.d(LOGTAG, mergeResult.getMergeStatus().toString());
 			if (!res.getFetchResult().getTrackingRefUpdates().isEmpty() &&
 					!res.getMergeResult().getMergeStatus().equals(MergeStatus.ALREADY_UP_TO_DATE)) {
 				successful = true;
@@ -533,7 +545,7 @@ public class GitRepository {
 			PullCommand pullCommand = git.pull();
 			PullResult res = pullCommand.call();
 			org.eclipse.jgit.api.MergeResult mergeResult = res.getMergeResult();
-			Log.d(TAG, mergeResult.getMergeStatus().toString());
+			Log.d(LOGTAG, mergeResult.getMergeStatus().toString());
 			if (!res.getFetchResult().getTrackingRefUpdates().isEmpty() &&
 					!res.getMergeResult().getMergeStatus().equals(MergeStatus.ALREADY_UP_TO_DATE)) {
 				successful = true;
@@ -639,7 +651,7 @@ public class GitRepository {
 			result = context.getResources().getInteger(R.integer.HTTPSPROTOCOL);
 		}
 		else {
-			Log.e(TAG, "The URL " + url + " is not supported!");
+			Log.e(LOGTAG, "The URL " + url + " is not supported!");
 		}
 		return result;
 	}
@@ -673,7 +685,7 @@ public class GitRepository {
 		boolean checkedOut = false;
 		RevCommit commit = getCommit(commitID);
 		if (commit != null) {
-			Log.e(TAG, getAllBranchNames());
+			Log.e(LOGTAG, getAllBranchNames());
 			
 			CheckoutCommand checkout = git.checkout();
 			try {
@@ -685,7 +697,7 @@ public class GitRepository {
 
 				checkout.call();
 				checkedOut = true;
-				Log.e(TAG, "checked out");
+				Log.e(LOGTAG, "checked out");
 			} catch (RefAlreadyExistsException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -703,7 +715,7 @@ public class GitRepository {
 				e.printStackTrace();
 			}
 		} else {
-			Log.e(TAG, "Check out");
+			Log.e(LOGTAG, "Check out");
 		}
 		return checkedOut;
 	}
@@ -745,18 +757,18 @@ public class GitRepository {
 		try {
 			loggedCommits = git.log().call();
 			for (RevCommit commit : loggedCommits) {
-				Log.e(TAG, "objectid" + commit.getName());
-				Log.e(TAG, "commitid string" + commitID);
+				Log.e(LOGTAG, "objectid" + commit.getName());
+				Log.e(LOGTAG, "commitid string" + commitID);
 				if(commit.getName().equalsIgnoreCase(commitID)) {
-					Log.e(TAG, "equal");
+					Log.e(LOGTAG, "equal");
 					searchedCommit = commit;
 				}
 			}
 		} catch (NoHeadException e) {
-			Log.e(TAG, "Log creation failed, no HEAD reference available.");
+			Log.e(LOGTAG, "Log creation failed, no HEAD reference available.");
 			e.printStackTrace();
 		} catch (GitAPIException e) {
-			Log.e(TAG, "Log creation failed, wasn't able to access the repository.");
+			Log.e(LOGTAG, "Log creation failed, wasn't able to access the repository.");
 			e.printStackTrace();
 		}
 		return searchedCommit;
@@ -811,7 +823,7 @@ public class GitRepository {
 		try {
 			for (Ref branch : branchList.call()) {
 				resultList += branch.getName() + "\n";
-				Log.e(TAG,"branch "+ branch.getName() );
+				Log.e(LOGTAG,"branch "+ branch.getName() );
 			}
 		} catch (GitAPIException e) {
 			// TODO Auto-generated catch block

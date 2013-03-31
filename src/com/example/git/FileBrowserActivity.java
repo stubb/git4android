@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Environment;
@@ -32,25 +33,41 @@ import android.widget.Toast;
 public class FileBrowserActivity extends Activity {
 
 	/**
+	 * The name of the intent thats used to that is used to set the path thats displayed after starting this activity.
+	 */
+	public static final String STARTPATH = "startPath";
+
+
+	/**
+	 * The name of the intent thats used to handle the type of the selection, that can be done with this activity (file, folder or both).
+	 */
+	public static final String SELECTIONTYP = "selectionTyp";
+
+	/**
 	 * 
 	 */
 	public static final Integer SELECTIONTYP_FILE = 0;
-	
+
 	/**
 	 * 
 	 */
 	public static final Integer SELECTIONTYP_FOLDER = 1;
-	
+
 	/**
 	 * 
 	 */
 	public static final Integer SELECTIONTYP_FILE_AND_FOLDER = 2;
 
 	/**
-	 * 
+	 * The name of the intent that returns the selected file or folder.
+	 */
+	public static final String SELECTION = "selection";
+
+	/**
+	 * The constant that describes the parent directory.
 	 */
 	private static final String PARENT_DIR = "..";
-	
+
 	/**
 	 *
 	 */
@@ -59,19 +76,34 @@ public class FileBrowserActivity extends Activity {
 	/**
 	 * The tag is used to identify the class while logging
 	 */
-	private final String TAG = getClass().getName();
+	private final String LOGTAG = getClass().getName();
 
-
+	/**
+	 * The current path within the filesystem, thats displayed by the activity.
+	 */
 	private String currentPath = ""; 
-	private ArrayAdapter<String> listItemArrayAdapter;
-	List<String> fileList = new ArrayList<String>();
 
-//	private String origin = "";
+	/**
+	 * The list of files and folders that resident in the current path.
+	 */
+	private List<String> fileList = new ArrayList<String>();
+
+	/**
+	 * The ArrayAdater that handles the single items of the fileList.
+	 */
+	private ArrayAdapter<String> listItemArrayAdapter;
+
+	/**
+	 * The Context thats used within this class.
+	 */
+	private final Context currentContext = FileBrowserActivity.this;
 
 	@Override
 	/**
 	 * Called when the activity is starting.
-	 * @param savedInstanceState 	If the activity is being re-initialized after previously being shut down then this Bundle contains the data it most recently supplied in onSaveInstanceState(Bundle). Note: Otherwise it is null.
+	 * @param savedInstanceState 	If the activity is being re-initialized after
+	 *  previously being shut down then this Bundle contains the data it most
+	 *   recently supplied in onSaveInstanceState(Bundle). Note: Otherwise it is null.
 	 */
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -81,27 +113,20 @@ public class FileBrowserActivity extends Activity {
 
 		setContentView(R.layout.activity_browser);
 		final ListView fileListView = (ListView)findViewById(R.id.file_list_view);
-		Log.d(TAG, "Browser Activity onCreate");
-
-		String startPath = "";
+		Log.d(LOGTAG, "Browser Activity onCreate");
 
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-			//TODO intentnamen global
-			String tempExtras = extras.getString("startPath");
-//			String tempOrigin = extras.getString("originOfRequestforResult");
-			String tempSelection = extras.getString("selectionTyp");
+			String tempExtras = extras.getString(STARTPATH);
+			String tempSelection = extras.getString(SELECTIONTYP);
 			if (tempExtras != null) {
-				startPath = tempExtras;
+				currentPath = tempExtras;
 			}
-/*			if(tempOrigin != null) {
-				origin = tempOrigin;
-			} */
 			if(tempSelection != null) {
 				try {
-				selectionType = Integer.parseInt(tempSelection);
+					selectionType = Integer.parseInt(tempSelection);
 				} catch (NumberFormatException e) {
-					Log.e(TAG, "selectiontype Failed");
+					Log.e(LOGTAG, "selectiontype Failed");
 				}
 			}
 		}
@@ -117,22 +142,6 @@ public class FileBrowserActivity extends Activity {
 			mExternalStorageAvailable = mExternalStorageWriteable = false;
 		}
 
-		// select start path
-		Log.e(TAG, startPath);
-		if (startPath != "") {
-			File fileOfStartPath = new File(startPath);
-			if(fileOfStartPath.exists()) {
-				loadFileList(fileOfStartPath);
-			}
-		}
-		else {		
-			if (mExternalStorageAvailable && mExternalStorageWriteable) {
-				loadFileList(Environment.getExternalStorageDirectory());
-			} else {
-				loadFileList(Environment.getRootDirectory());
-			}
-		}
-
 		final TextView currentPathTextView = (TextView)findViewById(R.id.current_path);  
 		currentPathTextView.setText("Current path: " + currentPath);
 
@@ -141,138 +150,182 @@ public class FileBrowserActivity extends Activity {
 			button_select_directory.setEnabled(false);
 		} else {
 			button_select_directory.setOnClickListener(new View.OnClickListener() {
+				/**
+				 * 
+				 */
 				public void onClick(View v) {
-					Log.d(TAG, currentPath);			
+					Log.d(LOGTAG, currentPath);			
 					Intent returnIntent = new Intent();
-					returnIntent.putExtra("currentPath", currentPath);
-			//		returnIntent.putExtra("originOfRequestforResult", origin);
+					returnIntent.putExtra(SELECTION, currentPath);
 					setResult(RESULT_OK, returnIntent);     
 					finish();
 				}
 			});
 		}
-		// new dir dialouge
+
 		Button button_new_directory = (Button) findViewById(R.id.button_new_directory);
 		button_new_directory.setOnClickListener(new View.OnClickListener() {
+			/**
+			 * 
+			 */
 			public void onClick(View v) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(FileBrowserActivity.this);                 
-				builder.setTitle("New Dir");
-				builder.setMessage("Name");               
-
-				final EditText input = new EditText(FileBrowserActivity.this);
-				builder.setView(input);
-
-				builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {  
-					public void onClick(DialogInterface dialog, int whichButton) {  
-						String value = input.getText().toString();
-						Log.d(TAG, "Name " + value);
-						Log.d(TAG, currentPath);
-						//TODO check permissions correctlyk
-						File file = new File(currentPath, value);
-
-						if (!file.mkdirs()) {
-							ToastNotification.makeToast("Directory NOT created", Toast.LENGTH_LONG, FileBrowserActivity.this);
-						}
-						else {
-							ToastNotification.makeToast("Directory created", Toast.LENGTH_LONG, FileBrowserActivity.this);
-							// update fileListView
-							loadFileList(new File(currentPath));
-							listItemArrayAdapter = new ArrayAdapter<String>(FileBrowserActivity.this, android.R.layout.simple_list_item_1, fileList);
-							fileListView.setAdapter(listItemArrayAdapter);
-							listItemArrayAdapter.notifyDataSetChanged();
-
-						}
-					}  
-				});  
-
-				builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-
-					public void onClick(DialogInterface dialog, int which) {
-						// TODO Auto-generated method stub
-						return;   
-					}
-				});
-				AlertDialog dialog = builder.create();
-				dialog.show();
-				Log.e(TAG, "SHOW");
+				createNewDirectoryAction(fileListView);
 			}
 		});
 
+		if (!currentPath.equals("")){
+			File path = new File(currentPath);
+			if (path != null && path.isDirectory()) {
+				fileList = createFileList(path);
+			}}
+		else {
+			if (mExternalStorageAvailable && mExternalStorageWriteable) {
+				fileList = createFileList(Environment.getExternalStorageDirectory());
+			} else {
+				fileList = createFileList(Environment.getRootDirectory());
+			}
+		}
 
-		// By using setAdpater method in listview we an add string array in list.
-		listItemArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, fileList);
+		listItemArrayAdapter = new ArrayAdapter<String>(currentContext, android.R.layout.simple_list_item_1, fileList);
 		fileListView.setAdapter(listItemArrayAdapter);
+		listItemArrayAdapter.notifyDataSetChanged();
 		fileListView.setOnItemClickListener( new OnItemClickListener() {
 			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				Log.e(TAG, "onclickitem");
-				Log.e(TAG, Integer.toString(arg2));
-				String fileChosen = fileList.get(arg2);
-				File chosenFile = getChosenFile(fileChosen);
-				// if file is dir
-				if (chosenFile.isDirectory()) {
-					Log.e(TAG, "Directory selected");
-					loadFileList(chosenFile);
-					listItemArrayAdapter = new ArrayAdapter<String>(FileBrowserActivity.this, android.R.layout.simple_list_item_1, fileList);
-					fileListView.setAdapter(listItemArrayAdapter);
-					listItemArrayAdapter.notifyDataSetChanged();
-					currentPathTextView.setText("Current path: " + currentPath);
-					// else file is a file
-				} else {
-					if (selectionType == SELECTIONTYP_FOLDER) {
-						ToastNotification.makeToast("Please select a folder!", Toast.LENGTH_LONG, FileBrowserActivity.this);
-					} else{
-						Log.e(TAG, "File selected");
-						Intent returnIntent = new Intent();
-						returnIntent.putExtra("currentPath", chosenFile.getAbsolutePath());
-			//			returnIntent.putExtra("originOfRequestforResult", origin);
-						setResult(RESULT_OK, returnIntent);     
-						finish();
-					}
-				}
+			/**
+			 * Callback method to be invoked when an item in this AdapterView has been clicked.
+			 * Implementers can call getItemAtPosition(position) if they need to access the data associated with the selected item.
+			 * @param parent 	The AdapterView where the click happened.
+			 * @param view 	The view within the AdapterView that was clicked (this will be a view provided by the adapter)
+			 * @param position 	The position of the view in the adapter.
+			 * @param id 	The row id of the item that was clicked. 
+			 */
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				processItemSelection(fileListView, currentPathTextView, position);
 			}
 		});
-	}
-
-	private void loadFileList(File path) {
-		currentPath = path.getAbsolutePath();
-		List<String> r = new ArrayList<String>();
-		if (path.exists()) {
-			Log.e(TAG, "Here be dragons");
-			if (path.getParentFile() != null) r.add(PARENT_DIR);
-			//TODO check if folder is empty and avoid Nullpointeexception
-			String[] fileList1 = path.list(null);
-			//   Log.v(TAG, Integer.toString(fileList1.length));
-			try {
-				for (String file : fileList1) {
-					r.add(file);
-				}
-			} catch (NullPointerException e1) {
-				e1.printStackTrace();
-			}
-		}
-		Collections.sort(r);
-		//TODO debug
-		for (int i = 0; i < r.size(); i++) {
-			Log.e(TAG, r.get(i).toString());
-		}
-		fileList = r;
-
 	}
 
 	/**
 	 * 
-	 * @param fileChosen The selected file entry
-	 * @return
+	 * @param fileView
+	 * @param currentPathView
+	 * @param itemPosition
+	 */
+	private void processItemSelection(final ListView fileView, final TextView currentPathView, int itemPosition) {
+		String fileChosen = fileList.get(itemPosition);
+		File chosenFile = getChosenFile(fileChosen);
+		if (chosenFile != null) {
+			if (chosenFile.isDirectory()) {
+				Log.e(LOGTAG, "Directory selected");
+				fileList = createFileList(chosenFile);
+				listItemArrayAdapter = new ArrayAdapter<String>(currentContext, android.R.layout.simple_list_item_1, fileList);
+				fileView.setAdapter(listItemArrayAdapter);
+				listItemArrayAdapter.notifyDataSetChanged();
+				currentPathView.setText("Current path: " + currentPath);
+			} else {
+				if (selectionType == SELECTIONTYP_FOLDER) {
+					ToastNotification.makeToast("Please select a folder!", Toast.LENGTH_LONG, currentContext);
+				} else{
+					Log.e(LOGTAG, "File selected");
+					Intent returnIntent = new Intent();
+					returnIntent.putExtra(SELECTION, chosenFile.getAbsolutePath());
+					setResult(RESULT_OK, returnIntent);     
+					finish();
+				}
+			}
+		}
+	}
+
+	/**
+	 * 
+	 * @param ListView
+	 */
+	private void createNewDirectoryAction(final ListView ListView){
+		AlertDialog.Builder builder = new AlertDialog.Builder(currentContext);                 
+		builder.setTitle("New Dir");
+		builder.setMessage("Name");               
+
+		final EditText input = new EditText(currentContext);
+		builder.setView(input);
+
+		builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+			/**
+			 * 
+			 */
+			public void onClick(DialogInterface dialog, int whichButton) {  
+				String newDirectoyName = "";
+				newDirectoyName = input.getText().toString();
+				if (!newDirectoyName.equals("")) {
+					File file = new File(currentPath, newDirectoyName);
+					if (!file.mkdirs()) {
+						ToastNotification.makeToast("Directory NOT created", Toast.LENGTH_LONG, currentContext);
+					}
+					else {
+						ToastNotification.makeToast("Directory created", Toast.LENGTH_LONG, currentContext);
+						fileList = createFileList(new File(currentPath));
+						listItemArrayAdapter = new ArrayAdapter<String>(currentContext, android.R.layout.simple_list_item_1, fileList);
+						ListView.setAdapter(listItemArrayAdapter);
+						listItemArrayAdapter.notifyDataSetChanged();
+					}
+				}
+			}  
+		});  
+
+		builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+			/**
+			 * 
+			 */
+			public void onClick(DialogInterface dialog, int which) {
+				return;   
+			}
+		});
+		AlertDialog dialog = builder.create();
+		dialog.show();
+	}
+	/**
+	 * Creates a list of all files and folders from the given path with an entry for the parent directory.
+	 * @param path The path which is used to look up the files and folders. 
+	 * @return	The sorted list of files and folders.
+	 */
+	private List<String> createFileList(File path) {
+		currentPath = path.getAbsolutePath();
+		List<String> fileAndFolderList = new ArrayList<String>();
+		if (path.exists()) {
+			if (path.getParentFile() != null) {
+				fileAndFolderList.add(PARENT_DIR);
+			}
+			String[] tempFileAndFolderArray = new String[]{};
+			if (path.list() != null) {
+				tempFileAndFolderArray = path.list();
+				try {
+					for (String file : tempFileAndFolderArray) {
+						fileAndFolderList.add(file);
+					}
+				} catch (NullPointerException e1) {
+					e1.printStackTrace();
+				}
+				Collections.sort(fileAndFolderList);
+			}			
+		}
+		return fileAndFolderList;
+	}
+
+	/**
+	 * Returns the currently selected file also handles the parent directory selection.
+	 * @param fileChosen The selected file entry.
+	 * @return The selected File or null if no file could be found for the given selected file.
 	 */
 	public File getChosenFile(String fileChosen) {
-		//TODO init theChosenOne
-		File theChosenOne;
-		if (fileChosen.equals(PARENT_DIR)) {
-			theChosenOne = new File(currentPath).getParentFile();
-		}
-		else {
-			theChosenOne = new File(currentPath, fileChosen);
+		File theChosenOne = null;
+		try {
+			if (fileChosen.equals(PARENT_DIR)) {
+				theChosenOne = new File(currentPath).getParentFile();
+			} else {
+				theChosenOne = new File(currentPath, fileChosen);
+			}
+		} catch (NullPointerException exception) {
+			Log.e(LOGTAG, "Wasn't able to select the file/folder");
+			ToastNotification.makeToast("Wasn't able to select the file/folder", Toast.LENGTH_LONG, currentContext);
 		}
 		return theChosenOne;
 	}

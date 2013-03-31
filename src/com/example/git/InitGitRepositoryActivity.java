@@ -11,7 +11,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.File;
-import java.util.jar.Attributes.Name;
 
 /**
  * 
@@ -28,7 +27,7 @@ public class InitGitRepositoryActivity extends Activity {
 
 	@Override
 	/**
-	 * Called when the activity is starting.
+	 * Called when the activity is starting. Attach actions to the layout.
 	 * @param savedInstanceState 	If the activity is being re-initialized after previously being shut down then this Bundle contains the data it most recently supplied in onSaveInstanceState(Bundle). Note: Otherwise it is null.
 	 */
 	public void onCreate(Bundle savedInstanceState) {
@@ -40,16 +39,27 @@ public class InitGitRepositoryActivity extends Activity {
 
 		Button button_select_folder = (Button) findViewById(R.id.button_init_select_folder);
 		button_select_folder.setOnClickListener(new View.OnClickListener(){
-			public void onClick(View v) {     			
+			
+			/**
+			 * Called when a view has been clicked.
+			 * Starts the FileBrowserActivity.
+			 * @param view The view that was clicked.
+			 */
+			public void onClick(View view) {     			
 				Intent intent = new Intent(context, FileBrowserActivity.class);
-				intent.putExtra("selectionTyp", Integer.toString(FileBrowserActivity.SELECTIONTYP_FOLDER));
+				intent.putExtra(FileBrowserActivity.SELECTIONTYP, Integer.toString(FileBrowserActivity.SELECTIONTYP_FOLDER));
 				startActivityForResult(intent, 1);
 			}
 		});
 
 		Button button_submit_init_repository = (Button) findViewById(R.id.button_submit_init_repository);
 		button_submit_init_repository.setOnClickListener(new View.OnClickListener(){
-			public void onClick(View v) {
+			/**
+			 * Called when a view has been clicked.
+			 * 
+			 * @param view The view that was clicked.
+			 */
+			public void onClick(View view) {
 				ToastNotification.makeToast(context.getResources().getString(R.string.select_a_path), Toast.LENGTH_LONG, context);
 			}
 		});
@@ -61,7 +71,7 @@ public class InitGitRepositoryActivity extends Activity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == 1) {
 			if(resultCode == RESULT_OK){
-				final String selectedPath = data.getStringExtra("currentPath");
+				final String selectedPath = data.getStringExtra(FileBrowserActivity.SELECTION);
 				Log.d(TAG, selectedPath);
 
 				EditText pathEditText = (EditText) findViewById(R.id.path_to_init_repository);
@@ -72,7 +82,12 @@ public class InitGitRepositoryActivity extends Activity {
 				
 				Button button_submit_init_repository = (Button) findViewById(R.id.button_submit_init_repository);
 				button_submit_init_repository.setOnClickListener(new View.OnClickListener(){
-					public void onClick(View v) {
+					/**
+					 * Called when a view has been clicked.
+					 * Starts the GitRepositoryListActivity.
+					 * @param view The view that was clicked.
+					 */
+					public void onClick(View view) {
 						if (selectedPath != "") {
 							File path = new File(selectedPath);
 							if (path.isDirectory()) {

@@ -4,6 +4,7 @@ import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -11,6 +12,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * This class handles the storage of the different repositories links.
@@ -18,9 +20,14 @@ import android.util.Log;
 public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 
 	/**
+	 * The tag is used to identify the class while logging.
+	 */
+	private final String LOGTAG = getClass().getName();
+
+	/**
 	 * Date format used for dates that should be stored within this database.
 	 */
-	public final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
+	public final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US); 
 
 	/**
 	 * This is the single instance that is created of this class.
@@ -30,7 +37,7 @@ public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 	/** 
 	 * The Context to access Android related resources.
 	 */
-	private static Context context;
+	private static Context currentContext;
 
 	/**
 	 * The name of the database that will be created.
@@ -58,7 +65,7 @@ public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 	 */
 	private GitRepositoryDatabase(Context newContext) {
 		super(newContext, DATABASE_NAME, null, DATABASE_VERSION);
-		context = newContext;
+		currentContext = newContext;
 	}
 
 	/**
@@ -77,27 +84,28 @@ public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 	/**
 	 * 
 	 */
-	public void onCreate(SQLiteDatabase db) {
-		if(db.isOpen()){
-			Log.d("database", "on create");
+	public void onCreate(SQLiteDatabase database) {
+		if(database.isOpen()){
 			try {
-				db.execSQL(TABLE_CREATE);
+				database.execSQL(TABLE_CREATE);
 			} catch (SQLiteException exception) {
-				Log.e("database", "SQLITE table create");
+				Log.d(LOGTAG, currentContext.getResources().getString(R.string.table_create_failed));
 				exception.printStackTrace();
 			}
 		} else {
-			Log.d("database", "on create else");
+			Log.d(LOGTAG, currentContext.getResources().getString(R.string.database_not_open));
 		}
 	}
 
 	@Override
 	/**
-	 * 
+	 * Called when the database needs to be upgraded.
+	 * @param db 	The database.
+	 * @param oldVersion 	The old database version.
+	 * @param newVersion 	The new database version. 
 	 */
-	public void onUpgrade(SQLiteDatabase arg0, int arg1, int arg2) {
-		// TODO Auto-generated method stub
-
+	public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
+		// no update necessary so far
 	}
 
 	/**
@@ -119,18 +127,14 @@ public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 		try {
 			SQLiteDatabase database = getWritableDatabase();
 			if (database.isOpen()) {
-				Log.e("database", "INSERT INTO " + TABLE_NAME + " ('repoPath', 'name', 'date') VALUES ('" +  path + "', '" +  name + "', '" +  dateFormat.format(date) + "');");
 				database.execSQL("INSERT INTO " + TABLE_NAME + " ('repoPath', 'name', 'date') VALUES ('" +  path + "', '" +  name + "', '" +  dateFormat.format(date) + "');");
 				database.close();
 				added = true;
 			} else {
-				Log.e("database", "Can't open database!");
+				Log.e(LOGTAG, currentContext.getResources().getString(R.string.cant_open_database));
 			}
 		} catch (SQLiteException exception) {
-			Log.e("database", "SQLITE");
-			exception.printStackTrace();
-		}catch (NullPointerException exception) {
-			Log.e("database", "addrepo null");
+			Log.e(LOGTAG, currentContext.getResources().getString(R.string.sql_insert_git_repo_link_entry_invalid));
 			exception.printStackTrace();
 		}
 		return added;
@@ -149,14 +153,12 @@ public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 				database.close();
 				removed = true;
 			} else {
-				Log.e("database", "Can't open database!");
-			}		} catch (SQLiteException exception) {
-				Log.e("database", "SQLITE");
-				exception.printStackTrace();
-			}catch (NullPointerException exception) {
-				Log.e("database", "removerepo");
-				exception.printStackTrace();
+				Log.e(LOGTAG, currentContext.getResources().getString(R.string.cant_open_database));
 			}
+		} catch (SQLiteException exception) {
+			Log.e(LOGTAG, currentContext.getResources().getString(R.string.sql_remove_gitrepo_link_entryinvalid));
+			exception.printStackTrace();
+		}
 		return removed;
 	}
 
@@ -171,16 +173,13 @@ public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 			if (database.isOpen()) {
 				final String[] columns = new String[]{"repoPath", "name", "date"};
 				resultList = loadStringsFromDataBaseTable(database, TABLE_NAME, columns);
-				Log.e("database", "resultList size" + Integer.toString(resultList.size()));
 				database.close();
 			} else {
-				Log.d("database", "Can't open database!");
+				Log.d(LOGTAG, currentContext.getResources().getString(R.string.cant_open_database));
+				ToastNotification.makeToast(currentContext.getResources().getString(R.string.cant_open_database), Toast.LENGTH_LONG, currentContext);
 			}
 		} catch (SQLiteException exception) {
-			Log.e("database", "SQLITE");
-			exception.printStackTrace();
-		} catch (NullPointerException exception) {
-			Log.e("database", "loadrepo");
+			Log.e(LOGTAG, currentContext.getResources().getString(R.string.database_cannot_opened_for_writing));
 			exception.printStackTrace();
 		}
 		return resultList;
@@ -203,7 +202,6 @@ public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 				for (int i = 0; i < columns.length; i++) {
 					row.add(new String(cursor.getString(i)));
 				}
-				Log.d("database", "rowResult" + row.toString());
 				resultList.add(row);
 			}
 			cursor.close();

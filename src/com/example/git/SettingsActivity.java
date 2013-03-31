@@ -174,7 +174,7 @@ public class SettingsActivity extends Activity {
 			alert.setPositiveButton(SettingsActivity.this.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
 				/**
 				 * This method will be invoked when the PositiveButton button in the dialog is clicked.
-				 * It launchs the action to generate a new SSH key pair.
+				 * It launches the action to generate a new SSH key pair.
 				 * @param dialog 	The dialog that received the click.
 				 * @param which 	The button that was clicked. 
 				 */
