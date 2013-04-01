@@ -294,9 +294,9 @@ public class SingleGitRepositoryActivity extends Activity {
 		else {
 			if (remoteOriginProtocolUrlType == currentContext.getResources().getInteger(R.integer.GITPROTOCOL)) {
 				if(gitRepository.pull()) {
-					ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_succesful), Toast.LENGTH_LONG, currentContext);
+					ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_succesful), Toast.LENGTH_SHORT, currentContext);
 				} else{
-					ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_failed), Toast.LENGTH_LONG, currentContext);
+					ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_failed), Toast.LENGTH_SHORT, currentContext);
 				}
 			}
 			else if (remoteOriginProtocolUrlType == currentContext.getResources().getInteger(R.integer.SSHPROTOCOL)) {
@@ -316,9 +316,9 @@ public class SingleGitRepositoryActivity extends Activity {
 					 */
 					public void onClick(DialogInterface dialog, int whichButton) {
 						if(gitRepository.pull(inputPassword.getText().toString(), sshPrivateKeyPath, sshPublicKeyPath))  {
-							ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_succesful), Toast.LENGTH_LONG, currentContext);
+							ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_succesful), Toast.LENGTH_SHORT, currentContext);
 						} else{
-							ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_failed), Toast.LENGTH_LONG, currentContext);
+							ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_failed), Toast.LENGTH_SHORT, currentContext);
 						}
 					}
 				});
@@ -365,9 +365,9 @@ public class SingleGitRepositoryActivity extends Activity {
 					 */
 					public void onClick(DialogInterface dialog, int whichButton) {
 						if(gitRepository.pull(inputUsername.getText().toString(), inputPassword.getText().toString())) {
-							ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_succesful), Toast.LENGTH_LONG, currentContext);
+							ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_succesful), Toast.LENGTH_SHORT, currentContext);
 						} else{
-							ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_failed), Toast.LENGTH_LONG, currentContext);
+							ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_failed), Toast.LENGTH_SHORT, currentContext);
 						}
 					}
 				});

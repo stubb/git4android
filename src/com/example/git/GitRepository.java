@@ -2,6 +2,7 @@ package com.example.git;
 
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.jcraft.jsch.JSch;
 
@@ -48,6 +49,8 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.eclipse.jgit.transport.PushResult;
+import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.eclipse.jgit.transport.SshSessionFactory;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
@@ -104,8 +107,6 @@ public class GitRepository {
 		currentContext = newContext;
 	}
 
-	//TODO inited überall
-
 	/**
 	 * The current status of the Git repository, shows added and changed files.
 	 * @return The current status of this repository.
@@ -121,12 +122,12 @@ public class GitRepository {
 				statusBuffer.append("\n");
 				statusBuffer.append(currentContext.getResources().getString(R.string.changed_files) + ":\n");
 				statusBuffer.append(statusObject.getChanged());			
-			} catch (NoWorkTreeException e) {
+			} catch (NoWorkTreeException exception) {
 				Log.e(LOGTAG, currentContext.getResources().getString(R.string.status_git_repository_fail));
-				e.printStackTrace();
-			} catch (GitAPIException e) {
+				exception.printStackTrace();
+			} catch (GitAPIException exception) {
 				Log.e(LOGTAG, "Fetching status failed");
-				e.printStackTrace();
+				exception.printStackTrace();
 			}
 		} else {
 			Log.e(LOGTAG, currentContext.getResources().getString(R.string.git_repository_not_initialized));
@@ -150,12 +151,12 @@ public class GitRepository {
 					logBuffer.append(commit.getFullMessage());
 					logBuffer.append("=========================\n");
 				}
-			} catch (NoHeadException e) {
+			} catch (NoHeadException exception) {
 				Log.e(LOGTAG, "Log creation failed, no HEAD reference available.");
-				e.printStackTrace();
-			} catch (GitAPIException e) {
+				exception.printStackTrace();
+			} catch (GitAPIException exception) {
 				Log.e(LOGTAG, "Log creation failed, wasn't able to access the repository.");
-				e.printStackTrace();
+				exception.printStackTrace();
 			}
 		} else {
 			Log.e(LOGTAG, currentContext.getResources().getString(R.string.git_repository_not_initialized));
@@ -180,12 +181,12 @@ public class GitRepository {
 				setDefaultConfig();
 			}
 			buildRepoSuccessfully = true;
-		} catch (GitAPIException e) {
+		} catch (GitAPIException exception) {
 			Log.e(LOGTAG, "Wasn't able to initializes repository : /");
-			e.printStackTrace();
-		} catch (JGitInternalException e) {
+			exception.printStackTrace();
+		} catch (JGitInternalException exception) {
 			Log.e(LOGTAG, "Wasn't able to init Repo : /");
-			e.printStackTrace();
+			exception.printStackTrace();
 		}
 		if(buildRepoSuccessfully == false) {
 			resetRepository(directory);
@@ -208,9 +209,9 @@ public class GitRepository {
 					.build();
 			git = new Git(repository);
 			buildRepoSuccessfully = true;
-		} catch (IOException e1) {
+		} catch (IOException exception) {
 			Log.e(LOGTAG, currentContext.getResources().getString(R.string.open_git_repository_fail));
-			e1.printStackTrace();
+			exception.printStackTrace();
 		} 
 		return buildRepoSuccessfully;
 	}
@@ -235,14 +236,10 @@ public class GitRepository {
 				AddCommand add = git.add();
 				add.addFilepattern(file).call();
 				addedFileSuccesfully = true;
-			} catch (NoFilepatternException e) {
-				// TODO Auto-generated catch block
-				Log.e(LOGTAG, "Add failed");
-				e.printStackTrace();
-			} catch (GitAPIException e) {
-				// TODO Auto-generated catch block
-				Log.e(LOGTAG, "Adding file failed");
-				e.printStackTrace();
+			} catch (NoFilepatternException exception) {
+				exception.printStackTrace();
+			} catch (GitAPIException exception) {
+				exception.printStackTrace();
 			} 
 		} else {
 			Log.e(LOGTAG, currentContext.getResources().getString(R.string.git_repository_not_initialized));
@@ -264,9 +261,8 @@ public class GitRepository {
 			try {
 				config.save();
 				setSuccesfully = true;
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (IOException exception) {
+				exception.printStackTrace();
 			}
 		} else {
 			Log.e(LOGTAG, currentContext.getResources().getString(R.string.git_repository_not_initialized));
@@ -275,8 +271,8 @@ public class GitRepository {
 	}
 
 	/**
-	 * 
-	 * @return
+	 * Returns the URL of the remote origin setting.
+	 * @return The URL
 	 */
 	public String getRemoteOriginUrl() {
 		String remoteUrl = "";
@@ -286,15 +282,13 @@ public class GitRepository {
 			if (tempRemoteUrl != null) {
 				remoteUrl = tempRemoteUrl;
 			}
-			Log.d(LOGTAG, "remoteurl " + remoteUrl);
 		}
 		return remoteUrl;
 	}
 
-
 	/**
-	 * 
-	 * @param commitMessage
+	 * Performs a Git commit.
+	 * @param commitMessage A message that will be stored with the commit.
 	 * @return	True if the commit was created successfully, otherwise false.
 	 */
 	public boolean commit(String commitMessage) {
@@ -302,26 +296,20 @@ public class GitRepository {
 		if (initialized()) {
 			CommitCommand commit = git.commit();
 			try {
-				commit.setMessage(commitMessage).call();
+				commit.setMessage(commitMessage + "\n").call();
 				commitSuccesfully = true;
-			} catch (NoHeadException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoMessageException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (UnmergedPathsException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ConcurrentRefUpdateException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (WrongRepositoryStateException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (GitAPIException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (NoHeadException exception) {
+				exception.printStackTrace();
+			} catch (NoMessageException exception) {
+				exception.printStackTrace();
+			} catch (UnmergedPathsException exception) {
+				exception.printStackTrace();
+			} catch (ConcurrentRefUpdateException exception) {
+				exception.printStackTrace();
+			} catch (WrongRepositoryStateException exception) {
+				exception.printStackTrace();
+			} catch (GitAPIException exception) {
+				exception.printStackTrace();
 			}
 		} else {
 			Log.e(LOGTAG, currentContext.getResources().getString(R.string.git_repository_not_initialized));
@@ -330,143 +318,115 @@ public class GitRepository {
 	}
 
 	/**
-	 * HTTP
-	 * @param path
-	 * @param uri
-	 * @param username
-	 * @param password
+	 * Clones a Git repository via HTTP/HTTPS
+	 * @param path The path to store the clone.
+	 * @param uri	The of the remote repository.
+	 * @param username	The username for authentification.
+	 * @param password The password for authentification.
 	 * @return	True if the clone process went successfully, otherwise false.
 	 */
 	public boolean clone(String path, String uri, String username, String password) {
 		boolean cloneSuccesfull = false;
-		if (initialized()) {
-			File directory = new File (path + "/");
-			CloneCommand clone = Git.cloneRepository();
-			UsernamePasswordCredentialsProvider user = new UsernamePasswordCredentialsProvider(username, password);                
-			clone.setCredentialsProvider(user);
-			clone.setCloneAllBranches(true);
-			clone.setDirectory(directory);
-			clone.setURI(uri);
-			try {
-				clone.call();
-				cloneSuccesfull = true;
-			} catch (InvalidRemoteException e) {
-				Log.e(LOGTAG, "The remote repository doesn't exist!");
-				e.printStackTrace();
-			} catch (TransportException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (GitAPIException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}	catch (JGitInternalException e) {
-				Log.e(LOGTAG, "Wasn't able to store repository!");
-				e.printStackTrace();
-			} catch (OutOfMemoryError e) {
-				Log.e(LOGTAG, "Out of memory");
-				e.printStackTrace();
-			}
-			if(cloneSuccesfull == false) {
-				resetRepository(directory);
-			}
-		} else {
-			Log.e(LOGTAG, currentContext.getResources().getString(R.string.git_repository_not_initialized));
+		File directory = new File (path + "/");
+		CloneCommand clone = Git.cloneRepository();
+		UsernamePasswordCredentialsProvider user = new UsernamePasswordCredentialsProvider(username, password);                
+		clone.setCredentialsProvider(user);
+		clone.setCloneAllBranches(true);
+		clone.setDirectory(directory);
+		clone.setURI(uri);
+		try {
+			clone.call();
+			cloneSuccesfull = true;
+		} catch (InvalidRemoteException exception) {
+			exception.printStackTrace();
+		} catch (TransportException exception) {
+			exception.printStackTrace();
+		} catch (GitAPIException exception) {
+			exception.printStackTrace();
+		}	catch (JGitInternalException exception) {
+			exception.printStackTrace();
+		} catch (OutOfMemoryError exception) {
+			exception.printStackTrace();
 		}
-		return cloneSuccesfull;
-	}
-
-/**
- * 
- * @param path
- * @param uri
- * @param password
- * @param privateKeyPath
- * @param publicKeyPath
-	 * @return	True if the clone process went successfully, otherwise false.
- */
-	public boolean clone(String path, String uri, final String password, final String privateKeyPath, final String publicKeyPath) {
-		boolean cloneSuccesfull = false;
-		if (initialized()) {
-			File directory = new File (path + "/");
-			CloneCommand clone = Git.cloneRepository();
-			try {
-				final Properties config = new Properties();
-				config.put("StrictHostKeyChecking", "no");
-				JSch.setConfig(config);
-				JSch.setLogger(new JschAndroidLogger());
-				CustomJschConfigSessionFactory factory = new CustomJschConfigSessionFactory(currentContext, "git4android", password, privateKeyPath, publicKeyPath);
-				SshSessionFactory.setInstance(factory); 	    
-				clone.setCloneAllBranches(true);
-				clone.setDirectory(directory);
-				clone.setURI(uri);
-				clone.call();
-				cloneSuccesfull = true;
-			} catch (InvalidRemoteException e) {
-				Log.e(LOGTAG, "The remote repository doesn't exist!");
-				e.printStackTrace();
-			} catch (TransportException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (GitAPIException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (UnsupportedCredentialItem e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}	catch (JGitInternalException e) {
-				Log.e(LOGTAG, "Wasn't able to store repository!");
-				e.printStackTrace();
-			} catch (OutOfMemoryError e) {
-				Log.e(LOGTAG, "Out of memory");
-				e.printStackTrace();
-			}
-			if(cloneSuccesfull == false) {
-				resetRepository(directory);
-			}
-		} else {
-			Log.e(LOGTAG, currentContext.getResources().getString(R.string.git_repository_not_initialized));
+		if(cloneSuccesfull == false) {
+			resetRepository(directory);
 		}
 		return cloneSuccesfull;
 	}
 
 	/**
-	 * GIT
-	 * @param path
-	 * @param uri
+	 * Clones a Git repository via SSH
+	 * @param path The path to store the clone.
+	 * @param uri	The of the remote repository.
+	 * @param password The password for authentification.
+	 * @param privateKeyPath The path to the private key.
+	 * @param publicKeyPath The path to the public key.
+	 * @return	True if the clone process went successfully, otherwise false.
+	 */
+	public boolean clone(String path, String uri, final String password, final String privateKeyPath, final String publicKeyPath) {
+		boolean cloneSuccesfull = false;
+		File directory = new File (path + "/");
+		CloneCommand clone = Git.cloneRepository();
+		try {
+			final Properties config = new Properties();
+			config.put("StrictHostKeyChecking", "no");
+			JSch.setConfig(config);
+			JSch.setLogger(new JschAndroidLogger());
+			CustomJschConfigSessionFactory factory = new CustomJschConfigSessionFactory(currentContext, "git4android", password, privateKeyPath, publicKeyPath);
+			SshSessionFactory.setInstance(factory); 	    
+			clone.setCloneAllBranches(true);
+			clone.setDirectory(directory);
+			clone.setURI(uri);
+			clone.call();
+			cloneSuccesfull = true;
+		} catch (InvalidRemoteException exception) {
+			exception.printStackTrace();
+		} catch (TransportException exception) {
+			exception.printStackTrace();
+		} catch (GitAPIException exception) {
+			exception.printStackTrace();
+		} catch (UnsupportedCredentialItem exception) {
+			exception.printStackTrace();
+		}	catch (JGitInternalException exception) {
+			exception.printStackTrace();
+		} catch (OutOfMemoryError exception) {
+			exception.printStackTrace();
+		}
+		if(cloneSuccesfull == false) {
+			resetRepository(directory);
+		}
+		return cloneSuccesfull;
+	}
+
+	/**
+	 * Clones a Git repository via the Git protocol.
+	 * @param path The path to store the clone.
+	 * @param uri	The of the remote repository.
 	 * @return	True if the clone process went successfully, otherwise false.
 	 */
 	public boolean clone(String path, String uri) {
 		boolean cloneSuccesfull = false;
-		if (initialized()) {
-			File directory = new File (path + "/");
-			CloneCommand clone = Git.cloneRepository();
-			try {	
-				clone.setCloneAllBranches(true);
-				clone.setDirectory(directory);
-				clone.setURI(uri);
-				clone.call();
-				cloneSuccesfull = true;
-			} catch (InvalidRemoteException e) {
-				Log.e(LOGTAG, "The remote repository doesn't exist!");
-				e.printStackTrace();
-			} catch (GitAPIException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (UnsupportedCredentialItem e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (JGitInternalException e) {
-				Log.e(LOGTAG, "Wasn't able to store repository!");
-				e.printStackTrace();
-			} catch (OutOfMemoryError e) {
-				Log.e(LOGTAG, "Out of memory");
-				e.printStackTrace();
-			}
-			if(cloneSuccesfull == false) {
-				resetRepository(directory);
-			}
-		} else {
-			Log.e(LOGTAG, currentContext.getResources().getString(R.string.git_repository_not_initialized));
+		File directory = new File (path + "/");
+		CloneCommand clone = Git.cloneRepository();
+		try {	
+			clone.setCloneAllBranches(true);
+			clone.setDirectory(directory);
+			clone.setURI(uri);
+			clone.call();
+			cloneSuccesfull = true;
+		} catch (InvalidRemoteException exception) {
+			exception.printStackTrace();
+		} catch (GitAPIException exception) {
+			exception.printStackTrace();
+		} catch (UnsupportedCredentialItem exception) {
+			exception.printStackTrace();
+		} catch (JGitInternalException exception) {
+			exception.printStackTrace();
+		} catch (OutOfMemoryError exception) {
+			exception.printStackTrace();
+		}
+		if(cloneSuccesfull == false) {
+			resetRepository(directory);
 		}
 		return cloneSuccesfull;
 	}
@@ -482,18 +442,18 @@ public class GitRepository {
 			config.setString("branch", "master", "merge", "refs/heads/master");
 			try {
 				config.save();
-			} catch (IOException e) {
+			} catch (IOException exception) {
 				Log.e(LOGTAG, "Wasn't able to set default config");
-				e.printStackTrace();
+				exception.printStackTrace();
 			}
 		}
 	}
 
 	/**
-	 * 
-	 * @param password
-	 * @param privateKeyPath
-	 * @param publicKeyPath
+	 * Perfomes a Git pull to fetch recent changes from a remote repository via the SSH protocol.
+	 * @param password The password for authentification.
+	 * @param privateKeyPath The path to the private key.
+	 * @param publicKeyPath The path to the public key.
 	 * @return	True if the pull process went successfully, otherwise false.
 	 */
 	public boolean pull(final String password, final String privateKeyPath, final String publicKeyPath) {
@@ -511,41 +471,34 @@ public class GitRepository {
 				PullCommand pullCommand = git.pull();
 				PullResult res = pullCommand.call();
 				org.eclipse.jgit.api.MergeResult mergeResult = res.getMergeResult();
-				Log.d(LOGTAG, mergeResult.getMergeStatus().toString());
-				if (!res.getFetchResult().getTrackingRefUpdates().isEmpty() &&
-						!res.getMergeResult().getMergeStatus().equals(MergeStatus.ALREADY_UP_TO_DATE)) {
+				if(mergeResult.getMergeStatus().equals(MergeStatus.ALREADY_UP_TO_DATE)) {
+					ToastNotification.makeToast(mergeResult.getMergeStatus().toString(), Toast.LENGTH_LONG, currentContext);
 					successful = true;
 				}
-			} catch (WrongRepositoryStateException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvalidConfigurationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (DetachedHeadException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvalidRemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (CanceledException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (RefNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoHeadException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (TransportException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (GitAPIException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}   catch (OutOfMemoryError e) {
-				Log.e(LOGTAG, "Out of memory");
-				e.printStackTrace();
+				if (!res.getFetchResult().getTrackingRefUpdates().isEmpty() &&
+						!mergeResult.getMergeStatus().equals(MergeStatus.ALREADY_UP_TO_DATE)) {
+					successful = true;
+				}
+			} catch (WrongRepositoryStateException exception) {
+				exception.printStackTrace();
+			} catch (InvalidConfigurationException exception) {
+				exception.printStackTrace();
+			} catch (DetachedHeadException exception) {
+				exception.printStackTrace();
+			} catch (InvalidRemoteException exception) {
+				exception.printStackTrace();
+			} catch (CanceledException exception) {
+				exception.printStackTrace();
+			} catch (RefNotFoundException exception) {
+				exception.printStackTrace();
+			} catch (NoHeadException exception) {
+				exception.printStackTrace();
+			} catch (TransportException exception) {
+				exception.printStackTrace();
+			} catch (GitAPIException exception) {
+				exception.printStackTrace();
+			}	catch (OutOfMemoryError exception) {
+				exception.printStackTrace();
 			}
 		} else {
 			Log.e(LOGTAG, currentContext.getResources().getString(R.string.git_repository_not_initialized));
@@ -554,9 +507,9 @@ public class GitRepository {
 	}
 
 	/**
-	 * 
-	 * @param username
-	 * @param password
+	 * Perfomes a Git pull to fetch recent changes from a remote repository via the HTTP/HTTPS protocol.
+	 * @param username	The username for authentification.
+	 * @param password The password for authentification.
 	 * @return	True if the pull process went successfully, otherwise false.
 	 */
 	public boolean pull(String username, final String password) {
@@ -568,38 +521,34 @@ public class GitRepository {
 				pullCommand.setCredentialsProvider(user);
 				PullResult res = pullCommand.call();
 				org.eclipse.jgit.api.MergeResult mergeResult = res.getMergeResult();
-				Log.d(LOGTAG, mergeResult.getMergeStatus().toString());
-				if (!res.getFetchResult().getTrackingRefUpdates().isEmpty() &&
-						!res.getMergeResult().getMergeStatus().equals(MergeStatus.ALREADY_UP_TO_DATE)) {
+				if(mergeResult.getMergeStatus().equals(MergeStatus.ALREADY_UP_TO_DATE)) {
+					ToastNotification.makeToast(mergeResult.getMergeStatus().toString(), Toast.LENGTH_LONG, currentContext);
 					successful = true;
 				}
-			} catch (WrongRepositoryStateException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvalidConfigurationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (DetachedHeadException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvalidRemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (CanceledException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (RefNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoHeadException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (TransportException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (GitAPIException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				if (!res.getFetchResult().getTrackingRefUpdates().isEmpty() &&
+						!mergeResult.getMergeStatus().equals(MergeStatus.ALREADY_UP_TO_DATE)) {
+					successful = true;
+				}
+			} catch (WrongRepositoryStateException exception) {
+				exception.printStackTrace();
+			} catch (InvalidConfigurationException exception) {
+				exception.printStackTrace();
+			} catch (DetachedHeadException exception) {
+				exception.printStackTrace();
+			} catch (InvalidRemoteException exception) {
+				exception.printStackTrace();
+			} catch (CanceledException exception) {
+				exception.printStackTrace();
+			} catch (RefNotFoundException exception) {
+				exception.printStackTrace();
+			} catch (NoHeadException exception) {
+				exception.printStackTrace();
+			} catch (TransportException exception) {
+				exception.printStackTrace();
+			} catch (GitAPIException exception) {
+				exception.printStackTrace();
+			}	catch (OutOfMemoryError exception) {
+				exception.printStackTrace();
 			}
 		} else {
 			Log.e(LOGTAG, currentContext.getResources().getString(R.string.git_repository_not_initialized));
@@ -608,7 +557,7 @@ public class GitRepository {
 	}
 
 	/**
-	 * 
+	 *  Perfomes a Git pull to fetch recent changes from a remote repository via the Git protocol
 	 * @return	True if the clone process went successfully, otherwise false.
 	 */
 	public boolean pull() {
@@ -616,40 +565,36 @@ public class GitRepository {
 		if (initialized()) {
 			try {
 				PullCommand pullCommand = git.pull();
-				PullResult res = pullCommand.call();
-				org.eclipse.jgit.api.MergeResult mergeResult = res.getMergeResult();
-				Log.d(LOGTAG, mergeResult.getMergeStatus().toString());
-				if (!res.getFetchResult().getTrackingRefUpdates().isEmpty() &&
-						!res.getMergeResult().getMergeStatus().equals(MergeStatus.ALREADY_UP_TO_DATE)) {
+				PullResult result = pullCommand.call();
+				org.eclipse.jgit.api.MergeResult mergeResult = result.getMergeResult();
+				if(mergeResult.getMergeStatus().equals(MergeStatus.ALREADY_UP_TO_DATE)) {
+					ToastNotification.makeToast(mergeResult.getMergeStatus().toString(), Toast.LENGTH_LONG, currentContext);
 					successful = true;
 				}
-			} catch (WrongRepositoryStateException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvalidConfigurationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (DetachedHeadException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvalidRemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (CanceledException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (RefNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoHeadException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (TransportException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (GitAPIException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				if (!result.getFetchResult().getTrackingRefUpdates().isEmpty() &&
+						!mergeResult.getMergeStatus().equals(MergeStatus.ALREADY_UP_TO_DATE)) {
+					successful = true;
+				}
+			} catch (WrongRepositoryStateException exception) {
+				exception.printStackTrace();
+			} catch (InvalidConfigurationException exception) {
+				exception.printStackTrace();
+			} catch (DetachedHeadException exception) {
+				exception.printStackTrace();
+			} catch (InvalidRemoteException exception) {
+				exception.printStackTrace();
+			} catch (CanceledException exception) {
+				exception.printStackTrace();
+			} catch (RefNotFoundException exception) {
+				exception.printStackTrace();
+			} catch (NoHeadException exception) {
+				exception.printStackTrace();
+			} catch (TransportException exception) {
+				exception.printStackTrace();
+			} catch (GitAPIException exception) {
+				exception.printStackTrace();
+			}	catch (OutOfMemoryError exception) {
+				exception.printStackTrace();
 			}
 		} else {
 			Log.e(LOGTAG, currentContext.getResources().getString(R.string.git_repository_not_initialized));
@@ -658,10 +603,10 @@ public class GitRepository {
 	}
 
 	/**
-	 * 
-	 * @param password
-	 * @param privateKeyPath
-	 * @param publicKeyPath
+	 * Perfomes a Git push to send recent commits to a remote repository via the SSH protocol.
+	 * @param password The password for authentification.
+	 * @param privateKeyPath The path to the private key.
+	 * @param publicKeyPath The path to the public key.
 	 * @return	True if the push process went successfully, otherwise false.
 	 */
 	public boolean push(final String password, final String privateKeyPath, final String publicKeyPath) {
@@ -675,17 +620,24 @@ public class GitRepository {
 				CustomJschConfigSessionFactory factory = new CustomJschConfigSessionFactory(currentContext, "git4android", password, privateKeyPath, publicKeyPath);
 				SshSessionFactory.setInstance(factory); 	 
 				PushCommand pushCommand = git.push();
-				pushCommand.call();
-				successful = true;
-			} catch (InvalidRemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (TransportException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (GitAPIException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Iterable<PushResult> resultList = pushCommand.call();
+				for(PushResult singleResult : resultList) {
+					for(RemoteRefUpdate remoteRefUpdate : singleResult.getRemoteUpdates()) {
+						if(remoteRefUpdate.getStatus() == RemoteRefUpdate.Status.UP_TO_DATE) {
+							ToastNotification.makeToast(remoteRefUpdate.getStatus().toString(), Toast.LENGTH_LONG, currentContext);
+							successful = true;
+						}
+            if(remoteRefUpdate.getStatus() == RemoteRefUpdate.Status.OK) {
+      				successful = true;
+            }
+          }
+				}
+			} catch (InvalidRemoteException exception) {
+				exception.printStackTrace();
+			} catch (TransportException exception) {
+				exception.printStackTrace();
+			} catch (GitAPIException exception) {
+				exception.printStackTrace();
 			}
 		} else {
 			Log.e(LOGTAG, currentContext.getResources().getString(R.string.git_repository_not_initialized));
@@ -694,9 +646,9 @@ public class GitRepository {
 	}
 
 	/**
-	 * 
-	 * @param username
-	 * @param password
+	 * Perfomes a Git push to send recent commits to a remote repository via the HTTP/HTTPS protocol.
+	 * @param username	The username for authentification.
+	 * @param password The password for authentification.
 	 * @return	True if the push process went successfully, otherwise false.
 	 */
 	public boolean push(final String username, final String password) {
@@ -706,17 +658,24 @@ public class GitRepository {
 				PushCommand pushCommand = git.push();
 				UsernamePasswordCredentialsProvider user = new UsernamePasswordCredentialsProvider(username, password);                
 				pushCommand.setCredentialsProvider(user);
-				pushCommand.call();
-				successful = true;
-			} catch (InvalidRemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (TransportException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (GitAPIException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Iterable<PushResult> resultList = pushCommand.call();
+				for(PushResult singleResult : resultList) {
+					for(RemoteRefUpdate remoteRefUpdate : singleResult.getRemoteUpdates()) {
+						if(remoteRefUpdate.getStatus() == RemoteRefUpdate.Status.UP_TO_DATE) {
+							ToastNotification.makeToast(remoteRefUpdate.getStatus().toString(), Toast.LENGTH_LONG, currentContext);
+							successful = true;
+						}
+            if(remoteRefUpdate.getStatus() == RemoteRefUpdate.Status.OK) {
+      				successful = true;
+            }
+          }
+				}
+			} catch (InvalidRemoteException exception) {
+				exception.printStackTrace();
+			} catch (TransportException exception) {
+				exception.printStackTrace();
+			} catch (GitAPIException exception) {
+				exception.printStackTrace();
 			}
 		} else {
 			Log.e(LOGTAG, currentContext.getResources().getString(R.string.git_repository_not_initialized));
@@ -724,7 +683,6 @@ public class GitRepository {
 		return successful;
 	}
 
-	//TODO remvoe context
 	/**
 	 * Checks the given URL for a known protocol (ssh://, git://, http:// or https://)
 	 * @param url	The url that should be checked.
@@ -758,24 +716,26 @@ public class GitRepository {
 	 * @param path	The path of the repository on the storage.
 	 */
 	public void resetRepository(File path) {
-		File repositoryDirectory = new File(path.getAbsolutePath() + "/.git");
+		File repositoryDirectory = new File(path.getAbsolutePath() + GITFOLDER);
 		deleteFileOrDirectoryRecursive(repositoryDirectory);
 	}
 
 	/**
-	 * 
-	 * @param fileOrDirectory
+	 * Deletes the given file or folder recursive.
+	 * @param fileOrDirectory The file or folder that will be deleted.
 	 */
 	private void deleteFileOrDirectoryRecursive(File fileOrDirectory) {
-		if (fileOrDirectory.isDirectory())
+		if (fileOrDirectory.isDirectory()) {
 			for (File child : fileOrDirectory.listFiles())
 				deleteFileOrDirectoryRecursive(child);
+		}
 		fileOrDirectory.delete();
 	}
 
 	/**
-	 * Checks out a commit to a new branch
-	 * @param commit
+	 * Checks out a commit to a new branch.
+	 * @param commit The commit ID.
+	 * @param newBranchName	The name of the new branch.
 	 * @return	True if the check out went successfully, otherwise false.
 	 */
 	public boolean checkoutCommitToNewBranch(String commitID, String newBranchName){
@@ -783,37 +743,26 @@ public class GitRepository {
 		if (initialized()) {
 			RevCommit commit = getCommit(commitID);
 			if (commit != null) {
-				Log.e(LOGTAG, getAllBranchNames());
-
 				CheckoutCommand checkout = git.checkout();
 				try {
-					//			git.branchCreate().setName("test").call();
 					checkout.setCreateBranch(true);
 					checkout.setName(newBranchName);
 					checkout.setStartPoint(commit.getId().getName()); 
-					//			checkout.setCreateBranch(true).setName("stable").setStartPoint(getCurrentBranch()).call();
-
 					checkout.call();
 					checkedOut = true;
-					Log.e(LOGTAG, "checked out");
-				} catch (RefAlreadyExistsException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (RefNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InvalidRefNameException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (CheckoutConflictException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (GitAPIException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				} catch (RefAlreadyExistsException exception) {
+					exception.printStackTrace();
+				} catch (RefNotFoundException exception) {
+					exception.printStackTrace();
+				} catch (InvalidRefNameException exception) {
+					exception.printStackTrace();
+				} catch (CheckoutConflictException exception) {
+					exception.printStackTrace();
+				} catch (GitAPIException exception) {
+					exception.printStackTrace();
 				}
 			} else {
-				Log.e(LOGTAG, "Check out");
+				Log.e(LOGTAG, "No commit with the given ID found!");
 			}
 		} else {
 			Log.e(LOGTAG, currentContext.getResources().getString(R.string.git_repository_not_initialized));
@@ -831,19 +780,14 @@ public class GitRepository {
 		if (initialized()) {
 			try {
 				git.checkout().setName(name).call();
-				//git.branchCreate().setName(name).call();
 				checkedOut = true;
 			} catch (RefAlreadyExistsException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (RefNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (InvalidRefNameException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (GitAPIException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}	
 		} else {
@@ -869,41 +813,16 @@ public class GitRepository {
 						searchedCommit = commit;
 					}
 				}
-			} catch (NoHeadException e) {
-				Log.e(LOGTAG, "Log creation failed, no HEAD reference available.");
-				e.printStackTrace();
-			} catch (GitAPIException e) {
-				Log.e(LOGTAG, "Log creation failed, wasn't able to access the repository.");
-				e.printStackTrace();
+			} catch (NoHeadException exception) {
+				exception.printStackTrace();
+			} catch (GitAPIException exception) {
+				exception.printStackTrace();
 			}
 		} else {
 			Log.e(LOGTAG, currentContext.getResources().getString(R.string.git_repository_not_initialized));
 		}
 		return searchedCommit;
 	}
-
-	/*
-	  public ArrayList<List<String>> log() {
-		ArrayList<List<String>> resultList = new ArrayList<List<String>>();
-		Iterable<RevCommit> loggedCommits;
-		try {
-			loggedCommits = git.log().call();
-			for (RevCommit commit : loggedCommits) {
-				List<String> commitLog = new ArrayList<String>();
-				commitLog.add(commit.getName());
-				commitLog.add(commit.getFullMessage());
-				resultList.add(commitLog);
-			}
-		} catch (NoHeadException e) {
-			Log.e(TAG, "Log creation failed, no HEAD reference available.");
-			e.printStackTrace();
-		} catch (GitAPIException e) {
-			Log.e(TAG, "Log creation failed, wasn't able to access the repository.");
-			e.printStackTrace();
-		}
-		return resultList;
-	}
-	 */
 
 	/**
 	 * Returns the name of the branch thats currently used. 
@@ -914,9 +833,8 @@ public class GitRepository {
 		if (initialized()) {
 			try {
 				currentBranch = git.getRepository().getFullBranch();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();	    
+			} catch (IOException exception) {
+				exception.printStackTrace();	    
 			}
 		} else {
 			Log.e(LOGTAG, currentContext.getResources().getString(R.string.git_repository_not_initialized));
@@ -937,14 +855,34 @@ public class GitRepository {
 				for (Ref branch : branchList.call()) {
 					branchBuffer.append(branch.getName() + "\n");
 				}
-			} catch (GitAPIException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (GitAPIException exception) {
+				exception.printStackTrace();
 			}
 		} else {
 			Log.e(LOGTAG, currentContext.getResources().getString(R.string.git_repository_not_initialized));
 		}
 		return branchBuffer.toString();
 	}
+	/*
+  public ArrayList<List<String>> log() {
+	ArrayList<List<String>> resultList = new ArrayList<List<String>>();
+	Iterable<RevCommit> loggedCommits;
+	try {
+		loggedCommits = git.log().call();
+		for (RevCommit commit : loggedCommits) {
+			List<String> commitLog = new ArrayList<String>();
+			commitLog.add(commit.getName());
+			commitLog.add(commit.getFullMessage());
+			resultList.add(commitLog);
+		}
+	} catch (NoHeadException e) {
+		Log.e(TAG, "Log creation failed, no HEAD reference available.");
+		e.printStackTrace();
+	} catch (GitAPIException e) {
+		Log.e(TAG, "Log creation failed, wasn't able to access the repository.");
+		e.printStackTrace();
+	}
+	return resultList;
 }
-
+	 */
+}
