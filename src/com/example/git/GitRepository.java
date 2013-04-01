@@ -55,10 +55,10 @@ import org.eclipse.jgit.transport.SshSessionFactory;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 /**
- *  This class represents a Git repository with
+ *  This class represents a Git repository. There are several actions that can be performed on a repository.
+ *  E.g. created commits and push them to a remote repository.
  */  
 public class GitRepository {
-
 
 	/**
 	 * The tag is used to identify the class while logging

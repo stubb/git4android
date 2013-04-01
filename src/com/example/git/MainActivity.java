@@ -18,13 +18,15 @@ import java.security.Security;
  * Every created or cloned repository can be accessed from a list. For each of these repositories
  * different actions can be performed:
  * PULL - Fetch new data from a remote instance of a Git repository.
- * ADD - Adds a modified or new file to the Git repository.
+ * ADD - Adds a modified or new file to the staged area of a Git repository.
  * COMMIT - Make the changes done via ADD persistent.
  * PUSH - Sends the changes done via COMMIT to a remote Git repository via the SSH or HTTP/HTTPS protocol.
  * SET REMOTE - Overwrite the current used remote Git repository.
  * SHOW REMOTE - Show the current used remote Git repository.
- * LOG - Shows a log of all commits done on this repository
- * STATUS - 
+ * LOG - Shows a log of all commits done on this Git repository
+ * STATUS - Shows the current status of the Git repository.
+ * BRANCH - Show all branches of a Git repository.
+ * CHECKOUT - Checkout a commit to a new branch or checkout a branch.
  * 
  * This is the first activity that is started on the application start.
  * The activity provides a menu to create, clone or open a Git repository.
