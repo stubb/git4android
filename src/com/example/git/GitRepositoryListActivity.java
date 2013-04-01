@@ -87,10 +87,9 @@ public class GitRepositoryListActivity extends Activity {
 		if (gitRepositoryLinks.size() > 0) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(currentContext);                 
 			builder.setTitle(currentContext.getResources().getString(R.string.repository));
-			String itemName = "";
-			try {
-				itemName = gitRepositoryLinks.get(itemPosition).get(0);
-				builder.setMessage(itemName);               
+			final String itemPath = getPathOfGitRepositoryLink(itemPosition);
+			if (!"".equals(itemPath)) {
+				builder.setMessage(itemPath);               
 				builder.setPositiveButton(currentContext.getResources().getString(R.string.open), new DialogInterface.OnClickListener() {				
 					/**
 					 * This method will be invoked when the PositiveButton button in the dialog is clicked.
@@ -98,10 +97,10 @@ public class GitRepositoryListActivity extends Activity {
 					 * @param which 	The button that was clicked (e.g. BUTTON1) or the position of the item clicked. 
 					 */
 					public void onClick(DialogInterface dialog, int whichButton) {
-						File folder = new File(gitRepositoryLinks.get(itemPosition).get(0));
+						File folder = new File(itemPath);
 						if (folder.exists()) {
 							Intent intent = new Intent(currentContext, SingleGitRepositoryActivity.class);
-							intent.putExtra(SingleGitRepositoryActivity.GITREPOSITORYPATH, gitRepositoryLinks.get(itemPosition).get(0));
+							intent.putExtra(SingleGitRepositoryActivity.GITREPOSITORYPATH, itemPath);
 							startActivity(intent);
 						} else {
 							ToastNotification.makeToast(currentContext.getResources().getString(R.string.repository_doesnt_exist), Toast.LENGTH_LONG, currentContext);
@@ -115,25 +114,23 @@ public class GitRepositoryListActivity extends Activity {
 					 * @param which 	The button that was clicked (e.g. BUTTON1) or the position of the item clicked. 
 					 */
 					public void onClick(DialogInterface dialog, int which) {
-						Log.d(LOGTAG, gitRepositoryPathList.get(itemPosition).get(0));
-						database.removeGitRepositoryLink(gitRepositoryPathList.get(itemPosition).get(0));
+						database.removeGitRepositoryLink(itemPath);
 						loadGitRepositoryList(database, gitRepositoryPaths);
 					}
 				});
 				AlertDialog dialog = builder.create();
 				dialog.show();
-			} catch (IndexOutOfBoundsException exception) {
+			} else {
 				Log.e(LOGTAG, currentContext.getResources().getString(R.string.item_not_found));
-				exception.printStackTrace();
 				ToastNotification.makeToast(currentContext.getResources().getString(R.string.repository_can_not_be_opened), Toast.LENGTH_LONG, currentContext);
 			}
 		}
 	}
+
 	/**
 	 * Loads a list of Git repository links and their data from the given database and attach them to the given view via the adapter.
 	 * @param gitRepositoryDatabase	The database.
 	 * @param gitRepositoryPathsListView	The view.
-	 * @param tableRowAdapter The adapter.
 	 * @return True if the action went successfully, otherwise false. 
 	 */
 	private boolean loadGitRepositoryList(GitRepositoryDatabase gitRepositoryDatabase, ListView gitRepositoryPathsListView) {
@@ -149,5 +146,20 @@ public class GitRepositoryListActivity extends Activity {
 			exception.printStackTrace();
 		}
 		return loaded;
+	}
+
+	/**
+	 * Returns the path of a Git repository Link.
+	 * @param position The position of the Git repository in the list of repositories.
+	 * @return The path, can be empty if it was not possible to get the path.
+	 */
+	private String getPathOfGitRepositoryLink(Integer position) {
+		String path = "";
+		try {
+			path = gitRepositoryPathList.get(position).get(0);
+		} catch(IndexOutOfBoundsException exception) {
+			exception.printStackTrace();
+		}
+		return path;
 	}
 }
