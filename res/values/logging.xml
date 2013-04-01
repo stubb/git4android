@@ -5,16 +5,17 @@
     <string name="keys_not_found">Private/Public key not found!</string>
     <string name="keys_not_readable">Private/Public key not readable!</string>
     <string name="jgit_session_configuration_failed">Configuration of session failed!</string>
-	<string name="text_activity_got_texttodisplay_intent">Text provided succesfully!</string>
-	<string name="keypair_folder_creation_failed">Creation of folder for keypair failed!</string>
-	<string name="invalid_ssh_keytype">Invalid keytype!</string>
-	<string name="keypair_creation_failed">Keypair creation failed!</string>
-	<string name="sql_remove_gitrepo_link_entryinvalid">Can not remove Git repository link entry, statement invalid!</string>
-	<string name="table_create_failed">Creation of table failed!</string>
+    <string name="text_activity_got_texttodisplay_intent">Text provided successfully!</string>
+    <string name="keypair_folder_creation_failed">Creation of folder for keypair failed!</string>
+    <string name="invalid_ssh_keytype">Invalid keytype!</string>
+    <string name="keypair_creation_failed">Keypair creation failed!</string>
+    <string name="sql_remove_gitrepo_link_entryinvalid">Can not remove Git repository link entry, statement invalid!</string>
+    <string name="table_create_failed">Creation of table failed!</string>
     <string name="cant_open_database">Can not open database!</string>
     <string name="database_not_open">Database is not opened</string>
     <string name="database_cannot_opened_for_writing">The database cannot opened for writing!</string>
-	<string name="sql_insert_git_repo_link_entry_invalid">Cannot  add Git repository link entry, statement invalid</string>
+    <string name="sql_insert_git_repo_link_entry_invalid">Cannot  add Git repository link entry, statement invalid</string>
     <string name="open_database_failed">Can not open database!</string>
- <string name="file_browser_invalid_selection_type">Invalid selection type</string>
+    <string name="file_browser_invalid_selection_type">Invalid selection type</string>
+
 </resources>
