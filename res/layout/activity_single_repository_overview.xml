@@ -28,7 +28,7 @@
             android:id="@+id/button_commit"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/button_add_files"
+            android:layout_below="@+id/button_add_file"
             android:layout_gravity="bottom"
             android:text="@string/button_commit" />
 
