@@ -46,7 +46,7 @@ public class SettingsActivity extends Activity {
 	 * The path to the public key.
 	 */
 	private String sshPublicKeyPath = "";
-	
+
 	/**
 	 * The current context within the application.
 	 */
@@ -91,7 +91,7 @@ public class SettingsActivity extends Activity {
 		sshPrivateKeyPath = settings.getString(currentContext.getResources().getString(R.string.SSHPRIVATEKEYPATHSETTING), "");
 		sshPublicKeyPath = settings.getString(currentContext.getResources().getString(R.string.SSHPUBLICKEYPATHSETTING), "");
 
-		EditText sshPrivateKeyPathEditText = (EditText) findViewById(R.id.ssh_private_key_path);
+		final EditText sshPrivateKeyPathEditText = (EditText) findViewById(R.id.ssh_private_key_path);
 		if (!"".equals(sshPrivateKeyPath)) {
 			sshPrivateKeyPathEditText.setText(sshPrivateKeyPath);
 		}
@@ -111,7 +111,7 @@ public class SettingsActivity extends Activity {
 			}
 		});
 
-		EditText sshPublicKeyPathEditText = (EditText) findViewById(R.id.ssh_public_key_path);
+		final EditText sshPublicKeyPathEditText = (EditText) findViewById(R.id.ssh_public_key_path);
 		if (!"".equals(sshPublicKeyPath)) {
 			sshPublicKeyPathEditText.setText(sshPublicKeyPath);
 		}
@@ -139,7 +139,7 @@ public class SettingsActivity extends Activity {
 			 * @param view The view that was clicked.
 			 */
 			public void onClick(View view) {
-				buttonKeyPairGenerationAction();
+				buttonKeyPairGenerationAction(sshPrivateKeyPathEditText, sshPublicKeyPathEditText);
 			}
 		});
 
@@ -159,10 +159,25 @@ public class SettingsActivity extends Activity {
 	}
 
 	/**
-	 * Executes the actions to generate the SSH key pair and requests the required user input.
+	 * Checks if a private named id.rsa and public key named id_pub.rsa are already available at the default location .ssh in the external media.
 	 */
-	private void buttonKeyPairGenerationAction() {
-		if ("".equals(sshPrivateKeyPath) && "".equals(sshPrivateKeyPath)) {
+	private boolean defaultKeyPairAvailable() {
+		boolean keyPairAvailable = false;
+		if (defaultPrivateKeyName != null && defaultPublicKeyName != null) {
+			File privateKey = new File(defaultAbsoluteKeyPath, defaultPrivateKeyName);
+			File publicKey = new File(defaultAbsoluteKeyPath, defaultPublicKeyName);
+			keyPairAvailable = (privateKey.exists() && publicKey.exists());
+		}
+		return keyPairAvailable;
+	}
+
+	/**
+	 * Executes the actions to generate the SSH key pair and requests the required user input.
+	 * @param sshPrivateKeyPathEditText	The view that shows the path to the private key.
+	 * @param sshPublicKeyPathEditText The view that shows the path to the public key.
+	 */
+	private void buttonKeyPairGenerationAction(final EditText sshPrivateKeyPathEditText, final EditText sshPublicKeyPathEditText) {
+		if (!defaultKeyPairAvailable()) {
 			AlertDialog.Builder alert = new AlertDialog.Builder(currentContext);                 
 			alert.setTitle(currentContext.getResources().getString(R.string.enter_password) + currentContext.getResources().getString(R.string.optional));  
 			alert.setMessage(currentContext.getResources().getString(R.string.password));                
@@ -180,6 +195,10 @@ public class SettingsActivity extends Activity {
 				 */
 				public void onClick(DialogInterface dialog, int whichButton) {			
 					if (generateKeyPair(KeyPair.RSA, defaultAbsoluteKeyPath, defaultPrivateKeyName, defaultPublicKeyName, "", input.getText().toString())) {
+						sshPrivateKeyPathEditText.setText(defaultAbsoluteKeyPath + defaultPrivateKeyName);
+						sshPublicKeyPathEditText.setText(defaultAbsoluteKeyPath + defaultPublicKeyName);
+						sshPrivateKeyPath = defaultAbsoluteKeyPath + defaultPrivateKeyName;
+						sshPublicKeyPath = defaultAbsoluteKeyPath + defaultPublicKeyName;
 						ToastNotification.makeToast(currentContext.getResources().getString(R.string.keypair_location) + defaultAbsoluteKeyPath, Toast.LENGTH_LONG, currentContext);
 					} else {
 						ToastNotification.makeToast(currentContext.getResources().getString(R.string.keypair_generation_failed), Toast.LENGTH_LONG, currentContext);
@@ -260,12 +279,11 @@ public class SettingsActivity extends Activity {
 	 */
 	private boolean generateKeyPair(Integer keyType, String absoluteKeyPath, String privateKeyFilename, String publicKeyFilename, String comment, String password) {
 		boolean success = false;
-		boolean folderExists = false;
 		File folder = new File(absoluteKeyPath);
 		if (!folder.exists()) {
-			folderExists = folder.mkdir();
+			folder.mkdir();
 		}
-		if (folderExists) {
+		if (folder.exists()) {
 			if (keyType == KeyPair.DSA || keyType == KeyPair.RSA) {
 				JSch jsch = new JSch();
 				KeyPair kpair;
