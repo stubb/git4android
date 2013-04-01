@@ -64,6 +64,11 @@ public class SingleGitRepositoryActivity extends Activity {
 	 * Constant to identify the origin of the request.
 	 */
 	private static final int GITADDFILEREQUEST = 0;
+	
+	/**
+	 * The type of the remote origin URL.
+	 */
+	private int remoteOriginProtocolUrlType = 0;
 
 	@Override
 	/**
@@ -81,7 +86,7 @@ public class SingleGitRepositoryActivity extends Activity {
 		}
 
 		if (!"".equals(filesystemPathToGitRepository) && gitRepository.open(filesystemPathToGitRepository)) {
-			final int remoteOriginProtocolUrlType = gitRepository.checkUrlforProtokoll(gitRepository.getRemoteOriginUrl(), currentContext);
+			remoteOriginProtocolUrlType = gitRepository.checkUrlforProtokoll(gitRepository.getRemoteOriginUrl(), currentContext);
 
 			SharedPreferences settings = getSharedPreferences(currentContext.getResources().getString(R.string.APPSETTINGS), 0);
 			final String sshPrivateKeyPath = settings.getString(currentContext.getResources().getString(R.string.SSHPRIVATEKEYPATHSETTING), "");
@@ -91,7 +96,7 @@ public class SingleGitRepositoryActivity extends Activity {
 			gitPullButton.setOnClickListener(new View.OnClickListener() {
 				/**
 				 * Called when the gitPullButton button has been clicked.
-				 * It launches the action to make a git pull.
+				 * It launches the action to make a Git pull.
 				 * @param view The view that was clicked.
 				 */
 				public void onClick(View view) {
@@ -282,19 +287,19 @@ public class SingleGitRepositoryActivity extends Activity {
 	 * @param sshPrivateKeyPath	The path to the private SSH key.
 	 * @param sshPublicKeyPath The path to the public SSH key.
 	 */
-	protected void gitPullAction(final Integer remoteOriginProtocolUrl, final String sshPrivateKeyPath, final String sshPublicKeyPath) {
-		if(gitRepository.getRemoteOriginUrl().equals("")) {
+	protected void gitPullAction(final Integer remoteOriginProtocolUrlType, final String sshPrivateKeyPath, final String sshPublicKeyPath) {
+		if("".equals(gitRepository.getRemoteOriginUrl())) {
 			ToastNotification.makeToast(currentContext.getResources().getString(R.string.no_remote_origin_url_configured), Toast.LENGTH_LONG, currentContext);
 		}
 		else {
-			if (remoteOriginProtocolUrl == currentContext.getResources().getInteger(R.integer.GITPROTOCOL)) {
+			if (remoteOriginProtocolUrlType == currentContext.getResources().getInteger(R.integer.GITPROTOCOL)) {
 				if(gitRepository.pull()) {
 					ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_succesful), Toast.LENGTH_LONG, currentContext);
 				} else{
 					ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_failed), Toast.LENGTH_LONG, currentContext);
 				}
 			}
-			else if (remoteOriginProtocolUrl == currentContext.getResources().getInteger(R.integer.SSHPROTOCOL)) {
+			else if (remoteOriginProtocolUrlType == currentContext.getResources().getInteger(R.integer.SSHPROTOCOL)) {
 				AlertDialog.Builder alert = new AlertDialog.Builder(currentContext);                 
 				alert.setTitle(currentContext.getResources().getString(R.string.enter_password));           
 
@@ -331,8 +336,8 @@ public class SingleGitRepositoryActivity extends Activity {
 				});
 				alert.show();
 			}
-			else if (remoteOriginProtocolUrl == currentContext.getResources().getInteger(R.integer.HTTPPROTOCOL) || 
-					remoteOriginProtocolUrl == currentContext.getResources().getInteger(R.integer.HTTPSPROTOCOL)) {
+			else if (remoteOriginProtocolUrlType == currentContext.getResources().getInteger(R.integer.HTTPPROTOCOL) || 
+					remoteOriginProtocolUrlType == currentContext.getResources().getInteger(R.integer.HTTPSPROTOCOL)) {
 				AlertDialog.Builder alert = new AlertDialog.Builder(currentContext);
 				alert.setTitle(currentContext.getResources().getString(R.string.enter_credentials));
 
@@ -379,7 +384,9 @@ public class SingleGitRepositoryActivity extends Activity {
 					}
 				});
 				alert.show();
-			} 
+			} else {
+				ToastNotification.makeToast(currentContext.getResources().getString(R.string.git_pull_failed), Toast.LENGTH_LONG, currentContext);
+			}
 		}
 	}
 
@@ -634,10 +641,9 @@ public class SingleGitRepositoryActivity extends Activity {
 		AlertDialog.Builder alert = new AlertDialog.Builder(currentContext);                 
 		alert.setTitle(currentContext.getResources().getString(R.string.enter_url));                 
 
-		EditText input = new EditText(SingleGitRepositoryActivity.this); 
+		final EditText input = new EditText(SingleGitRepositoryActivity.this); 
 		input.setInputType(InputType.TYPE_TEXT_VARIATION_URI);
 		alert.setView(input);
-		final String url = input.getText().toString();
 
 		alert.setPositiveButton(currentContext.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
 			/**
@@ -647,7 +653,15 @@ public class SingleGitRepositoryActivity extends Activity {
 			 * @param which 	The button that was clicked. 
 			 */
 			public void onClick(DialogInterface dialog, int whichButton) {
-				gitRepository.setRemoteOriginUrl(url);
+				String url = "";
+				url = input.getText().toString();
+				if(gitRepository.setRemoteOriginUrl(url)) {
+					remoteOriginProtocolUrlType = gitRepository.checkUrlforProtokoll(gitRepository.getRemoteOriginUrl(), currentContext);
+					ToastNotification.makeToast("Add URL as remote origin successfully" + url, Toast.LENGTH_LONG, currentContext);
+				}
+				else {
+					ToastNotification.makeToast("Failed to add URL as remote origin", Toast.LENGTH_LONG, currentContext);
+				}
 			}
 		});
 

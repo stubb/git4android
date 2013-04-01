@@ -112,7 +112,7 @@ public class GitRepository {
 	 */
 	public String status(){
 		StringBuffer statusBuffer = new StringBuffer("");
-		if (inited()) {
+		if (initialized()) {
 			StatusCommand status = git.status();
 			try {
 				Status statusObject = status.call();
@@ -141,7 +141,7 @@ public class GitRepository {
 	 */
 	public String log(){
 		StringBuffer logBuffer = new StringBuffer("");
-		if (inited()) {
+		if (initialized()) {
 			Iterable<RevCommit> loggedCommits;
 			try {
 				loggedCommits = git.log().call();
@@ -219,7 +219,7 @@ public class GitRepository {
 	 * 
 	 * @return	True if the Git repository is initialized, otherwise false.
 	 */
-	public boolean inited(){
+	public boolean initialized(){
 		return git != null;
 	}
 
@@ -230,7 +230,7 @@ public class GitRepository {
 	 */
 	public boolean add(String file) {
 		boolean addedFileSuccesfully = false;
-		if (inited()) {
+		if (initialized()) {
 			try {
 				AddCommand add = git.add();
 				add.addFilepattern(file).call();
@@ -257,7 +257,7 @@ public class GitRepository {
 	 */
 	public boolean setRemoteOriginUrl(String url) {
 		boolean setSuccesfully = false;
-		if (inited()) {
+		if (initialized()) {
 			StoredConfig config = git.getRepository().getConfig();
 			config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
 			config.setString("remote", "origin", "url", url);
@@ -280,7 +280,7 @@ public class GitRepository {
 	 */
 	public String getRemoteOriginUrl() {
 		String remoteUrl = "";
-		if (inited()) {
+		if (initialized()) {
 			StoredConfig config = git.getRepository().getConfig();
 			String tempRemoteUrl = config.getString("remote", "origin", "url");
 			if (tempRemoteUrl != null) {
@@ -295,11 +295,11 @@ public class GitRepository {
 	/**
 	 * 
 	 * @param commitMessage
-	 * @return
+	 * @return	True if the commit was created successfully, otherwise false.
 	 */
 	public boolean commit(String commitMessage) {
 		boolean commitSuccesfully = false;
-		if (inited()) {
+		if (initialized()) {
 			CommitCommand commit = git.commit();
 			try {
 				commit.setMessage(commitMessage).call();
@@ -335,11 +335,11 @@ public class GitRepository {
 	 * @param uri
 	 * @param username
 	 * @param password
-	 * @return
+	 * @return	True if the clone process went successfully, otherwise false.
 	 */
 	public boolean clone(String path, String uri, String username, String password) {
 		boolean cloneSuccesfull = false;
-		if (inited()) {
+		if (initialized()) {
 			File directory = new File (path + "/");
 			CloneCommand clone = Git.cloneRepository();
 			UsernamePasswordCredentialsProvider user = new UsernamePasswordCredentialsProvider(username, password);                
@@ -375,15 +375,18 @@ public class GitRepository {
 		return cloneSuccesfull;
 	}
 
-	/**
-	 * SSH
-	 * @param uri
-	 * @param path
-	 * @return
-	 */
+/**
+ * 
+ * @param path
+ * @param uri
+ * @param password
+ * @param privateKeyPath
+ * @param publicKeyPath
+	 * @return	True if the clone process went successfully, otherwise false.
+ */
 	public boolean clone(String path, String uri, final String password, final String privateKeyPath, final String publicKeyPath) {
 		boolean cloneSuccesfull = false;
-		if (inited()) {
+		if (initialized()) {
 			File directory = new File (path + "/");
 			CloneCommand clone = Git.cloneRepository();
 			try {
@@ -430,11 +433,11 @@ public class GitRepository {
 	 * GIT
 	 * @param path
 	 * @param uri
-	 * @return
+	 * @return	True if the clone process went successfully, otherwise false.
 	 */
 	public boolean clone(String path, String uri) {
 		boolean cloneSuccesfull = false;
-		if (inited()) {
+		if (initialized()) {
 			File directory = new File (path + "/");
 			CloneCommand clone = Git.cloneRepository();
 			try {	
@@ -468,8 +471,11 @@ public class GitRepository {
 		return cloneSuccesfull;
 	}
 
+	/**
+	 * Sets the default configuration for the repository. 
+	 */
 	public void setDefaultConfig() {
-		if (inited()) {
+		if (initialized()) {
 			Log.d(LOGTAG, "Inited");
 			StoredConfig config = git.getRepository().getConfig();
 			config.setString("branch", "master", "remote", "origin");
@@ -483,9 +489,16 @@ public class GitRepository {
 		}
 	}
 
+	/**
+	 * 
+	 * @param password
+	 * @param privateKeyPath
+	 * @param publicKeyPath
+	 * @return	True if the pull process went successfully, otherwise false.
+	 */
 	public boolean pull(final String password, final String privateKeyPath, final String publicKeyPath) {
 		boolean successful = false;
-		if (inited()) {
+		if (initialized()) {
 			try {
 				final Properties config = new Properties();
 				config.put("StrictHostKeyChecking", "no");
@@ -540,9 +553,15 @@ public class GitRepository {
 		return successful;
 	}
 
+	/**
+	 * 
+	 * @param username
+	 * @param password
+	 * @return	True if the pull process went successfully, otherwise false.
+	 */
 	public boolean pull(String username, final String password) {
 		boolean successful = false;
-		if (inited()) {
+		if (initialized()) {
 			try {
 				PullCommand pullCommand = git.pull();
 				UsernamePasswordCredentialsProvider user = new UsernamePasswordCredentialsProvider(username, password);                
@@ -588,9 +607,13 @@ public class GitRepository {
 		return successful;
 	}
 
+	/**
+	 * 
+	 * @return	True if the clone process went successfully, otherwise false.
+	 */
 	public boolean pull() {
 		boolean successful = false;
-		if (inited()) {
+		if (initialized()) {
 			try {
 				PullCommand pullCommand = git.pull();
 				PullResult res = pullCommand.call();
@@ -634,9 +657,16 @@ public class GitRepository {
 		return successful;
 	}
 
+	/**
+	 * 
+	 * @param password
+	 * @param privateKeyPath
+	 * @param publicKeyPath
+	 * @return	True if the push process went successfully, otherwise false.
+	 */
 	public boolean push(final String password, final String privateKeyPath, final String publicKeyPath) {
 		boolean successful = false;
-		if (inited()) {
+		if (initialized()) {
 			try {
 				final Properties config = new Properties();
 				config.put("StrictHostKeyChecking", "no");
@@ -663,9 +693,15 @@ public class GitRepository {
 		return successful;
 	}
 
+	/**
+	 * 
+	 * @param username
+	 * @param password
+	 * @return	True if the push process went successfully, otherwise false.
+	 */
 	public boolean push(final String username, final String password) {
 		boolean successful = false;
-		if (inited()) {
+		if (initialized()) {
 			try {
 				PushCommand pushCommand = git.push();
 				UsernamePasswordCredentialsProvider user = new UsernamePasswordCredentialsProvider(username, password);                
@@ -740,11 +776,11 @@ public class GitRepository {
 	/**
 	 * Checks out a commit to a new branch
 	 * @param commit
-	 * @return
+	 * @return	True if the check out went successfully, otherwise false.
 	 */
 	public boolean checkoutCommitToNewBranch(String commitID, String newBranchName){
 		boolean checkedOut = false;
-		if (inited()) {
+		if (initialized()) {
 			RevCommit commit = getCommit(commitID);
 			if (commit != null) {
 				Log.e(LOGTAG, getAllBranchNames());
@@ -786,13 +822,13 @@ public class GitRepository {
 	}
 
 	/**
-	 * Checks out a branch
-	 * @param name Name of the branch e.g. master
-	 * @return
+	 * Checks out a branch.
+	 * @param name Name of the branch e.g. master.
+	 * @return	True if the check out went successfully, otherwise false.
 	 */
 	public boolean checkoutBranch(String name) {
 		boolean checkedOut = false;
-		if (inited()) {
+		if (initialized()) {
 			try {
 				git.checkout().setName(name).call();
 				//git.branchCreate().setName(name).call();
@@ -817,20 +853,19 @@ public class GitRepository {
 	}
 
 	/**
-	 * @return 
+	 * Searches and returns commit by a given commit ID.
+	 * @param commitID	The ID thats used to search for a commit.
+	 * @return The found commit or null if the commitID did not match any of the commits.
 	 */
 	private RevCommit getCommit(String commitID){
 		// has no public constructor
 		RevCommit searchedCommit = null;
-		if (inited()) {
+		if (initialized()) {
 			Iterable<RevCommit> loggedCommits;
 			try {
 				loggedCommits = git.log().call();
 				for (RevCommit commit : loggedCommits) {
-					Log.e(LOGTAG, "objectid" + commit.getName());
-					Log.e(LOGTAG, "commitid string" + commitID);
 					if(commit.getName().equalsIgnoreCase(commitID)) {
-						Log.e(LOGTAG, "equal");
 						searchedCommit = commit;
 					}
 				}
@@ -876,7 +911,7 @@ public class GitRepository {
 	 */
 	public String getCurrentBranch() {
 		String currentBranch = "";
-		if (inited()) {
+		if (initialized()) {
 			try {
 				currentBranch = git.getRepository().getFullBranch();
 			} catch (IOException e) {
@@ -895,13 +930,12 @@ public class GitRepository {
 	 */
 	public String getAllBranchNames() {
 		StringBuffer branchBuffer = new StringBuffer("");
-		if (inited()) {
+		if (initialized()) {
 			ListBranchCommand branchList = git.branchList();
 			branchList.setListMode(ListBranchCommand.ListMode.ALL);
 			try {
 				for (Ref branch : branchList.call()) {
 					branchBuffer.append(branch.getName() + "\n");
-					Log.e(LOGTAG,"branch "+ branch.getName() );
 				}
 			} catch (GitAPIException e) {
 				// TODO Auto-generated catch block
