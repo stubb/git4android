@@ -22,7 +22,7 @@ public class JschUserInfoProvider implements UserInfo {
 
 	/**
 	 * Creates a new JschUserInfoProvider object
-	 * @param password The password of the user
+	 * @param newPassword The password of the user
 	 */
 	JschUserInfoProvider(String newPassword) {
 		password = newPassword; 

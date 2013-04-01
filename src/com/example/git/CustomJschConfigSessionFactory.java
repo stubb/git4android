@@ -56,9 +56,11 @@ public class CustomJschConfigSessionFactory extends JschConfigSessionFactory {
 
 	/**
 	 * Create a new CustomJschConfigSessionFactory object.
+	 * @param newContext The context for this session factory.
+	 * @param newName The name for the session.
 	 * @param password The password for the private key.
-	 * @param privateKeyPath The path to the private key.
-	 * @param publicKeyPath The path to the public key.
+	 * @param newPrivateKeyPath The path to the private key.
+	 * @param newPublicKeyPath The path to the public key.
 	 */
 	CustomJschConfigSessionFactory(final Context newContext, final String newName, final String password, final String newPrivateKeyPath, final String newPublicKeyPath) {
 		currentContext = newContext;

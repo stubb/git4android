@@ -27,7 +27,7 @@ import android.widget.Toast;
 
 
 /**
- * This Activity provides file browser functionality. 
+ * This activity provides file browser functionality. 
  * Its possible to navigate through the folders of the filesystem, create new
  * folders or select a folder or file.
  */

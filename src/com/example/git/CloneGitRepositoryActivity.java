@@ -15,7 +15,7 @@ import android.widget.Toast;
 
 
 /**
- * This Activity is used to handle the cloning process of a Git repository.
+ * This activity is used to handle the cloning process of a Git repository.
  */
 public class CloneGitRepositoryActivity extends Activity {
 

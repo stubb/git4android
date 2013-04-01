@@ -61,7 +61,7 @@ public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 
 	/**
 	 * Creates a new GitRepositoryDatabase
-	 * @param context The android context that should be used within this class.
+	 * @param newContext The android context that should be used within this class.
 	 */
 	private GitRepositoryDatabase(Context newContext) {
 		super(newContext, DATABASE_NAME, null, DATABASE_VERSION);
@@ -196,7 +196,6 @@ public final class GitRepositoryDatabase extends SQLiteOpenHelper {
 	 * writes them as string in the resultList.
 	 * @param database The database where the data be queried
 	 * @param table The table where the data will be queried
-	 * @param resultList The List where the queried data will be applied
 	 * @param columns The columns of the table where the data will be queried
 	 */
 	private ArrayList<List<String>> loadStringsFromDataBaseTable(SQLiteDatabase database, String table, String[] columns) {

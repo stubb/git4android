@@ -167,7 +167,7 @@ public class GitRepository {
 	/**
 	 * Initializes a new GIT repository within a given folder and set a default config.
 	 * A .git folder for the Git repository is created the given folder. 
-	 * @param	String targetDirectory
+	 * @param	targetDirectory The directory where the Git repository will be created.
 	 * @return	True if the Git repository is initialized successfully, otherwise false.
 	 */
 	public boolean init(String targetDirectory){
@@ -734,7 +734,7 @@ public class GitRepository {
 
 	/**
 	 * Checks out a commit to a new branch.
-	 * @param commit The commit ID.
+	 * @param commitID The commit ID.
 	 * @param newBranchName	The name of the new branch.
 	 * @return	True if the check out went successfully, otherwise false.
 	 */
